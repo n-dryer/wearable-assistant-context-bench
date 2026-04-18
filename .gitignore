@@ -15,3 +15,4 @@ dist/
 experiments/*/results.json
 experiments/*/transcripts/
 experiments/*/run_log.txt
+EXECUTION_PLAN.md
