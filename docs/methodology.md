@@ -15,9 +15,10 @@ see which, if any, actually move the pass rate.
 The novelty in this project is the scenario set and the intervention
 comparison, not the underlying measurement technique. The scoring stack
 combines standard code-based pattern matching with a standard
-LLM-as-judge step. Both are well-trodden ideas. The framework's job is
+LLM-as-judge step. Both are standard techniques. The framework's job is
 to apply them to a specific, pilot-derived failure mode and to report
-effect sizes honestly, including the classes where no intervention helps.
+pass-rate deltas honestly, including the failure modes where no
+intervention helps.
 
 ## Scenario design
 
@@ -30,13 +31,13 @@ only turn that is scored. Turn 1 exists to create the grounding-failure
 opportunity: without a prior state to bleed through, there is nothing
 for the model to get wrong.
 
-Eight scenarios are drawn from pilot incident classes. The exact
+Eight scenarios are drawn from pilot failure modes. The exact
 distribution across tiers lives in `.agent-prompts/SCENARIO_SEEDS.md`.
 Tier 1 scenarios present clean single transitions; Tier 2 adds partial
 state overlap or implied rather than explicit transitions; Tier 3 adds
-ambiguity about which state is authoritative. The incident classes
-themselves are documented separately in `docs/incident_classes.md` so
-the scenarios can be traced back to real user complaints.
+ambiguity about which state is authoritative. The failure modes
+themselves are documented separately in `.agent-prompts/FAILURE_MODES.md`
+so the scenarios can be traced back to real user complaints.
 
 ## Intervention conditions
 
@@ -68,6 +69,20 @@ is_refusal=False) and the judge's passed=true verdict must both hold.
 Disagreement between the two signals is itself a finding, reported
 separately.
 
+### Known scorer limitation
+
+The code-based rule is substring-matching, not semantic, so a
+contrastive Turn 2 response (for example, *"Earlier there were 12
+photos; now there are 13"*) can match both answer lists and false-fail.
+`core/scoring.py` applies a contrastive-pattern suppressor: when a
+response matches a regex keyed on an *earlier/was/previously* clause
+followed by a *now/currently/is* clause, `has_stale` is suppressed.
+This catches common contrastive constructions but is not exhaustive.
+Responses that restate the stale value without a trigger verb can still
+false-fail. Readers should treat the judge verdict as the primary
+signal and the code-based rule as an audit cross-check. See
+`docs/limitations.md §Scorer limitations` for the full disclosure.
+
 The judge is in the same model family as the model under test. That
 introduces a known self-preference risk: agreement between them may be
 inflated by shared training priors. Cross-family judge validation is
@@ -77,6 +92,9 @@ deferred to a future experiment (`exp_009`, see
 judge verdicts as a ceiling rather than a ground truth.
 
 ## Trial design
+
+A "trial" is one independent rerun of a single (scenario, condition)
+cell at temperature zero.
 
 Each scenario is run twice per condition at temperature zero, giving two
 trials per (scenario, condition) cell and 48 scored Turn 2 responses
@@ -89,14 +107,14 @@ condition's effect is stable across reruns.
 
 ## Interpretation
 
-Findings are reported as a condition-by-incident-class matrix of pass
-rates, plus per-condition aggregate pass rates and per-condition effect
-sizes relative to baseline. Read the matrix row by row to see how a
-condition performs across classes, and column by column to see which
-classes respond to any intervention at all. Effect sizes are raw
-arithmetic differences (condition pass rate minus baseline pass rate);
-no confidence intervals are reported because the sample size is too
-small to support them honestly. A class where no condition improves on
-baseline is a signal that the failure mode needs a different kind of
-fix, possibly structural rather than prompt-level, and that finding is
-worth more than a table full of small positive deltas.
+Findings are reported as a condition-by-failure-mode matrix of pass
+rates, plus per-condition aggregate pass rates and per-condition
+pass-rate deltas relative to baseline. Rows show how one condition
+performs across failure modes. Columns show which failure modes respond
+to any intervention. Pass-rate deltas are raw arithmetic differences
+(condition pass rate minus baseline pass rate); no confidence intervals
+are reported because the sample size is too small to support them
+honestly. A failure mode where no condition improves on baseline is a
+signal that the failure mode needs a different kind of fix, possibly
+structural rather than prompt-level, and that finding matters more than
+small positive deltas across the rest of the matrix.
