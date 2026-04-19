@@ -8,6 +8,11 @@ The pass rule is documented in docs/METHODOLOGY.md and is applied by the
 experiment runner, not encoded here:
 
     pass = has_current=True AND has_stale=False AND is_refusal=False
+
+A contrastive-pattern suppressor (see _CONTRASTIVE_RE) demotes has_stale
+to False when the response explicitly contrasts an earlier state with
+the current one. The pre-suppression value is preserved as
+has_stale_raw in the returned dict for audit purposes.
 """
 
 from __future__ import annotations
@@ -26,6 +31,12 @@ _SPACY_MODEL = "en_core_web_sm"
 def _nlp() -> spacy.language.Language:
     """Load and cache the spaCy English pipeline."""
     return spacy.load(_SPACY_MODEL)
+
+
+_CONTRASTIVE_RE = re.compile(
+    r"\b(earlier|was|used to be|previously)\b.*?\b(now|currently|is)\b",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 _REFUSAL_PATTERNS: tuple[re.Pattern[str], ...] = (
@@ -151,12 +162,20 @@ def score_response(
     Returns:
         Dict with keys:
             has_current (bool): Fuzzy match against any current answer.
-            has_stale (bool): Fuzzy match against any stale answer.
+            has_stale (bool): Fuzzy match against any stale answer, after
+                the contrastive-pattern suppressor demotes it to False
+                when the response explicitly contrasts earlier with
+                current state.
+            has_stale_raw (bool): Pre-suppression fuzzy-match value,
+                preserved for audit trails.
             is_refusal (bool): Whether the response refuses or hedges.
             response_length_tokens (int): Approximate token count, rounded.
     """
     has_current = fuzzy_match(response, current_answers)
-    has_stale = fuzzy_match(response, stale_answers)
+    has_stale_raw = fuzzy_match(response, stale_answers)
+    has_stale = has_stale_raw
+    if has_stale and _CONTRASTIVE_RE.search(response or ""):
+        has_stale = False
     is_refusal = detect_refusal(response)
 
     word_count = len(response.split()) if response else 0
@@ -165,6 +184,7 @@ def score_response(
     return {
         "has_current": has_current,
         "has_stale": has_stale,
+        "has_stale_raw": has_stale_raw,
         "is_refusal": is_refusal,
         "response_length_tokens": response_length_tokens,
     }
