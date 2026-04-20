@@ -73,7 +73,7 @@ the benchmark definition even though none is implemented yet:
   sets** or explicit version extensions, not by silently changing the
   meaning of v1 after results have already been compared.
 
-The v1 runnable set lands at 3 `current` / 1 `prior` scenarios. See
+The v1.1 runnable set lands at 8 `current` / 3 `prior` scenarios. See
 `docs/concept_v0_2.md` for the full set inventory and the rationale
 for the balanced-accuracy primary score below.
 
@@ -89,7 +89,7 @@ primary_score = (prior_class_accuracy + current_class_accuracy) / 2
 
 Within a class, accuracy is the mean across all Turn 2 trial outcomes
 under the ranking condition. Balanced accuracy prevents a trivial
-"always current" policy from scoring 75% on the 3/1 skew.
+"always current" policy from scoring roughly 73% on the 8/3 skew.
 
 **Default ranking condition** is `baseline`. Until another production
 wrapper is explicitly designated, ship decisions are made from
