@@ -3,8 +3,8 @@
 `Deixis-Bench` is an internal benchmark for **situated reference
 resolution** in a wearable live-assistant camera product. It
 measures whether a candidate model uses common-sense inference over
-situational cues — the user's words, the object they just picked
-up, the room they just walked into, what they said a minute ago —
+situational cues (the user's words, the object they just picked
+up, the room they just walked into, what they said a minute ago)
 to pick the right visual context when answering an
 ambiguously-referenced question.
 
@@ -124,15 +124,15 @@ python experiments/exp_001/run.py \
 
 Flags:
 
-- `--model` — candidate model string. Required when comparing a new
+- `--model`: candidate model string. Required when comparing a new
   release.
-- `--judge-model` — judge model string.
-- `--judge-family` — `auto`, `claude`, or `openai`. Default `auto`
+- `--judge-model`: judge model string.
+- `--judge-family`: `auto`, `claude`, or `openai`. Default `auto`
   picks a family different from the candidate's, inferred from the
   candidate string. Errors out if the candidate family cannot be
   inferred.
-- `--trials` — trials per `(scenario, condition)` cell.
-- `--output-dir` — output path for transcripts and the generated
+- `--trials`: trials per `(scenario, condition)` cell.
+- `--output-dir`: output path for transcripts and the generated
   findings file for this run.
 
 The runner writes a findings report with:
@@ -194,27 +194,27 @@ anchors for interpreting a number:
 
 ## Glossary
 
-- **surface** — the product context a scenario is authored against
+- **surface**: the product context a scenario is authored against
   (e.g., `wearable_live_frame`, `mobile_app_chat`, `synthetic`). In
   v1 the surface is a label; image inputs are not plumbed.
-- **trial** — one full Turn 1 → Turn 2 run-through (plus Turn 3 on
+- **trial**: one full Turn 1 → Turn 2 run-through (plus Turn 3 on
   Turn 2 failure) for a single `(scenario, condition)` at a single
   repeat index. Only the Turn 2 response is scored.
-- **cell** — a `(scenario, condition)` pair. Each cell is run
+- **cell**: a `(scenario, condition)` pair. Each cell is run
   `trials_per_cell` times (default 2).
-- **condition** — one intervention prompt: `baseline`, `condition_a`,
+- **condition**: one intervention prompt: `baseline`, `condition_a`,
   or `condition_b`. The candidate sees a condition as its system
   prompt.
-- **ranking condition** — the condition used for the primary score.
+- **ranking condition**: the condition used for the primary score.
   Default `baseline`; overridable but not silently.
-- **target\_context** — the authored correct visual-context anchor
+- **target\_context**: the authored correct visual-context anchor
   for Turn 2: `prior` or `current` in v1. `clarify` / `abstain`
   remain emittable judge tags but never appear as authored targets
   in v1. (Formerly `target_policy`; renamed at v1 for clarity.)
-- **with-prior-Q / without-prior-Q** — the two official benchmark
+- **with-prior-Q / without-prior-Q**: the two official benchmark
   variants. Only with-prior-Q is implemented in v1.
-- **candidate** — the model under test; selected via `--model`.
-- **judge** — the LLM-as-judge that labels the Turn 2 response with
+- **candidate**: the model under test; selected via `--model`.
+- **judge**: the LLM-as-judge that labels the Turn 2 response with
   one of the four policy tags. Cross-family by default via
   `--judge-family auto`.
 
