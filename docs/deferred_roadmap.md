@@ -172,8 +172,8 @@ resolution, situated dialogue) score different things on
 different inputs, and a side-by-side leaderboard across them
 would be more misleading than informative at v1.
 
-A future version may register a small comparison slice — running
-the v1 candidates on a named external benchmark and reporting
+A future version may register a small comparison slice that runs
+the v1 candidates on a named external benchmark and reports
 both numbers with the construct difference called out in plain
 language. That work belongs outside v1 because:
 
