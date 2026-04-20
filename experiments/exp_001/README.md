@@ -61,6 +61,30 @@ All flags are optional; missing flags fall back to configured
 defaults. `--output-dir` governs both transcript artifacts and the
 generated findings file for the run.
 
+## Per-scenario cue types
+
+Each v1 scenario exercises a dominant cue family. The cue axis is
+descriptive — it does not enter scoring — but is documented so
+readers can see the construct coverage of the set at a glance.
+
+| Scenario | target\_policy | Dominant cue family           | One-line framing                                |
+|----------|----------------|-------------------------------|-------------------------------------------------|
+| sc-01    | current        | Object-reference shift        | Put down screwdriver, picked up wrench          |
+| sc-02    | current        | Spatial / scene shift         | Walked from bedroom to kitchen                  |
+| sc-03    | prior          | Verbal / deictic (reach-back) | Back at front desk, asking about library book   |
+| sc-04    | current        | Spatial / scene shift         | Walked from desk to kitchen                     |
+| sc-05    | current        | Object-reference shift        | Held up second poster after first                |
+| sc-06    | current        | Spatial / scene shift         | Walked from garden to garage                    |
+| sc-07    | current        | Temporal / same-scene state   | Same office 15 minutes later                    |
+| sc-08    | current        | Object-reference shift (UI)   | Switched windows on the monitor                 |
+| sc-09    | prior          | Object departure (reach-back) | Buck bolted; asking direction                   |
+| sc-10    | current        | Spatial / scene shift         | Walked from holiday stock to chardonnay pallet  |
+| sc-11    | prior          | Object return (reach-back)    | Put item back on shelf; asking about it         |
+
+Rows labeled "reach-back" are the items that defend against the
+latest-mention heuristic. See
+[docs/limitations.md](../../docs/limitations.md#latest-mention-heuristic-caveat).
+
 ## Contribution to the frozen v1 set
 
 `exp_001`'s scenarios and answer sets, together with
