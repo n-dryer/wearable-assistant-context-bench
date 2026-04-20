@@ -23,6 +23,33 @@ be authored (for example, from a later pilot cohort), a closer-
 balanced set becomes possible in a future version, and the primary
 score may revert to raw mean Turn 2 accuracy at that point.
 
+### ext_v2_scenarios: candidate v2 scenario shapes
+
+A non-exhaustive list of scenario shapes that belong in a future
+versioned set, not in v1. Each is authored from pilot-corpus
+evidence or from a named cue family, never invented to pad a
+score.
+
+- **Multi-hop context shift.** Three or more frames before Turn 2,
+  where the correct anchor is two frames back rather than the
+  immediately-prior frame. Tests whether candidates default to
+  recency.
+- **Partial-occlusion return.** An object leaves frame and returns
+  partially occluded; the follow-up refers to it. Tests
+  departure/return cues with a visual-recognition confound that
+  the candidate should resist leaning on.
+- **Speaker-shift deixis.** A second speaker enters and uses
+  "this" or "here" with a different referent than the primary
+  user. Tests whether context-selection tracks the speaker, not
+  the latest utterance.
+- **Time-of-day temporal shift.** Same room, hours later, lighting
+  and contents changed. Tests the temporal cue family without a
+  spatial move.
+- **Nested prior reference.** Turn 2 refers to "the other one"
+  from a prior frame that itself contained two candidates. Tests
+  whether the model picks the referent the user actually anchored
+  on in Turn 1, not the more salient distractor.
+
 ### ext_image_inputs: image-enabled slice
 
 v1 is a text-proxy slice. The `Scenario` dataclass has
