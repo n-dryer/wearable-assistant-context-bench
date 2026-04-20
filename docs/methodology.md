@@ -132,6 +132,35 @@ Flags:
 All flags are optional; missing flags fall back to configured
 defaults.
 
+## Runtime behaviors
+
+A few runtime behaviors are worth naming because they affect how
+results are interpreted:
+
+- **Response caching.** Candidate and judge adapters both cache
+  responses on disk under `.cache/models/` (Claude) and
+  `.cache/openai_models/` (OpenAI). The cache key is a SHA-256 hash
+  of `(messages, system, model_config)`. Repeat runs against
+  identical inputs are deterministic and free. To force a fresh
+  run, delete the relevant cache directory.
+- **Temperature 0.0.** The runner pins sampling temperature to
+  `0.0`. Even so, provider-side determinism is not guaranteed;
+  two trials per cell are a stability cross-check, not a
+  statistical-power claim.
+- **Cross-family judge default.** `--judge-family auto` picks a
+  judge family different from the candidate's, to reduce same-
+  family preference bias. The runner errors out rather than
+  silently falling back if it cannot infer the candidate's family
+  from `--model`.
+- **Turn 3 repair trigger.** Turn 3 fires only on a failed Turn 2
+  trial; on pass, the repair anchor is not issued. Repair rate
+  therefore has a denominator of Turn-2-failure trials, not total
+  trials.
+- **Transcript side-channel.** The runner writes per-trial
+  transcripts to `transcripts.jsonl` under `--output-dir` in
+  addition to the rendered findings. Transcripts are the raw
+  audit surface; `findings.md` is the aggregated artifact.
+
 ## Trial design
 
 - trials per `(scenario, condition)` cell: 2 by default
