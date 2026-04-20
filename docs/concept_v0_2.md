@@ -7,13 +7,13 @@ Status: rewritten 2026-04-19 for the v1 benchmark-reset pass.
 `Deixis-Bench` measures **situated reference resolution** in a
 wearable live-assistant camera product. Given a two-turn
 conversation in which visual context shifts between turns, does the
-candidate model correctly infer — from the user's words, objects,
-location, and recent conversational history — which visual context
+candidate model correctly infer, from the user's words, objects,
+location, and recent conversational history, which visual context
 the Turn 2 question refers to? The inferred anchor is labeled as
 `prior` or `current` for scoring purposes.
 
-This is the same phenomenon — **reference resolution under context
-shift** — that linguists call deixis. Object recognition is assumed
+This is the same phenomenon, **reference resolution under context
+shift**, that linguists call deixis. Object recognition is assumed
 and out of scope.
 
 The benchmark is used internally to compare candidate model releases
@@ -25,18 +25,18 @@ The scoring axis is binary (`prior` vs. `current`), but the cues a
 candidate must use to land on the right answer are plural. The v1
 set exercises five cue families:
 
-- **Spatial / scene shift** — the user has walked from one room,
+- **Spatial / scene shift**: the user has walked from one room,
   camera angle, or physical location to another between Turn 1 and
   Turn 2.
-- **Object-reference shift** — the user has put down object A and
+- **Object-reference shift**: the user has put down object A and
   picked up object B, or object A has left frame and object B has
   entered.
-- **Temporal / same-scene state change** — the camera is on the
+- **Temporal / same-scene state change**: the camera is on the
   same scene as Turn 1 but meaningful state has changed (an item
   moved, a reading changed, an animation progressed).
-- **Object departure or return** — an object present in Turn 1 has
+- **Object departure or return**: an object present in Turn 1 has
   left frame by Turn 2, or re-entered after being gone.
-- **Verbal / deictic cue** — the user's Turn 2 phrasing itself
+- **Verbal / deictic cue**: the user's Turn 2 phrasing itself
   disambiguates ("this one", "the new one", "here", "still").
 
 A correct response infers the anchor from whichever cue family the
@@ -95,7 +95,7 @@ official benchmark definition and is tracked in
   silently changing the meaning of v1 after results have been
   compared.
 
-### Scope relative to the broader pilot failure landscape
+### Scope relative to the broader pilot failure surface
 
 The pilot corpus (see `.agent-prompts/PILOT_CORPUS_INVENTORY.md`)
 identifies several adjacent failure classes that are **valid corpus
@@ -108,8 +108,8 @@ findings** but are not part of the runnable v1 benchmark:
 - speaker identity / diarization (ex-07)
 
 The v1 benchmark is deliberately narrow: it measures prior-versus-
-current visual-context selection, not the full pilot failure
-landscape. Adjacent classes are tracked in
+current visual-context selection, not every failure class the
+pilot corpus surfaced. Adjacent classes are tracked in
 `docs/deferred_roadmap.md` and `docs/limitations.md`.
 
 ## Shipping-use purpose
