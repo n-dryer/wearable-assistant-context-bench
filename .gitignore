@@ -16,3 +16,15 @@ experiments/*/results.json
 experiments/*/transcripts/
 experiments/*/run_log.txt
 EXECUTION_PLAN.md
+AGENTS.md
+
+# Workshop material — local-only, not part of the public repo
+audit/
+.agent-prompts/_phase_0a_audit_3_prompt.md
+.agent-prompts/_phase_0a_decisions.md
+.agent-prompts/_phase_0a_whatsapp_verification.md
+# Keep .agent-prompts/_phase_0a_sources.md — it is the provenance trail
+# FAILURE_MODES.md points to.
+
+# Empty nested dir, scheduled for rmdir in the next commit
+grounding-evals/

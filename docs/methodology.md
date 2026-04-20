@@ -1,120 +1,143 @@
 # Methodology
 
-## Overview
+## Scope
 
-This framework measures whether specific prompt and scaffolding changes
-fix a specific failure: a live-assistant model answering from earlier
-conversation state after the user has described a state change. The
-target product is a wearable camera whose assistant sees a stream of
-scene descriptions; pilot feedback showed the assistant sometimes
-replies using an earlier scene even when the user's most recent message
-describes something new. The framework reproduces that failure mode in a
-controlled way, then compares three prompt conditions side by side to
-see which, if any, actually move the pass rate.
+This document describes the **v1 runnable slice** of the benchmark,
+implemented in `core/` and `experiments/exp_001/`. The benchmark
+definition (including the without-prior-Q variant, governance, and
+primary score) lives in [docs/concept_v0_2.md](concept_v0_2.md). The
+current runnable slice covers only the **with-prior-Q** variant.
 
-The novelty in this project is the scenario set and the intervention
-comparison, not the underlying measurement technique. The scoring stack
-combines standard code-based pattern matching with a standard
-LLM-as-judge step. Both are standard techniques. The framework's job is
-to apply them to a specific, pilot-derived failure mode and to report
-pass-rate deltas honestly, including the failure modes where no
-intervention helps.
+The scored task is **prior-versus-current visual-context selection**:
+does the model anchor its Turn 2 answer to the prior frame or the
+current frame? Object recognition is assumed and out of scope.
 
-## Scenario design
+## v1 is a text-proxy slice
 
-Each scenario is a two-turn conversation. Turn 1 establishes an initial
-state and asks a question grounded in that state; the model answers.
-Turn 2 describes a state change, either a new scene or a new fact that
-supersedes something from Turn 1, and then asks a follow-up question
-that is only correctly answered from the updated state. Turn 2 is the
-only turn that is scored. Turn 1 exists to create the grounding-failure
-opportunity: without a prior state to bleed through, there is nothing
-for the model to get wrong.
+v1 scenarios are text conversations. The `Scenario` dataclass exposes
+optional `turn_1_image` and `turn_2_image` fields so future image
+inputs can be plumbed into the message payload, but no scenario uses
+them in v1. Treat v1 results as a text-proxy for a camera-grounded
+task; image-enabled variants are deferred.
 
-Eight scenarios are drawn from pilot failure modes. The exact
-distribution across tiers lives in `.agent-prompts/SCENARIO_SEEDS.md`.
-Tier 1 scenarios present clean single transitions; Tier 2 adds partial
-state overlap or implied rather than explicit transitions; Tier 3 adds
-ambiguity about which state is authoritative. The failure modes
-themselves are documented separately in `.agent-prompts/FAILURE_MODES.md`
-so the scenarios can be traced back to real user complaints.
+## Scenario shape
+
+Each scenario is a two-turn conversation, optionally extended for
+simulated repair.
+
+- **Turn 1** establishes a visual-context reference state (prior
+  frame) and an anchored question.
+- **Turn 2** shifts visual context (current frame) and asks an
+  ambiguously-referenced follow-up. Only Turn 2 is scored.
+- **Turn 3** fires on Turn 2 failure. It is a templated "I mean,
+  [explicit anchor]" prompt used for the simulated repair rate.
 
 ## Intervention conditions
 
-Three prompt conditions are compared. The baseline condition uses a
-minimal system prompt and measures raw model behavior on these
-scenarios. Condition A adds a direct instruction that names the failure
-mode and asks the model to ground answers in the most recent context.
-Condition B replaces the direct instruction with a structured output
-scaffold that forces the model to restate its understanding of the
-current state before it answers. The three conditions are intentionally
-distinct strategies rather than parameter sweeps of one strategy, so
-that the comparison tells us which *kind* of fix helps rather than which
-wording variant is best. Full prompts live in `docs/interventions.md`.
+`exp_001` runs three prompt conditions:
+
+- **Baseline**: minimal system prompt. Default ranking condition.
+- **Condition A**: direct instruction to answer from the correct
+  visual context based on the most relevant state (not hard-coded
+  to the most recent state).
+- **Condition B**: pre-answer scaffold that requires a short
+  summary identifying the relevant visual context before the
+  answer.
+
+See [docs/interventions.md](interventions.md) for framing and
+`.agent-prompts/INTERVENTIONS.md` for the source-of-truth prompt
+wording.
+
+## Judge
+
+The judge reads the Turn 2 response, the scenario description, both
+answer lists (current / prior), and the clarify/abstain indicators,
+and labels the response with one of four policy tags.
+
+Judge family defaults to `auto`: the runner infers the candidate
+family from `--model` and assigns the judge to a different family to
+reduce same-family bias. If the candidate family cannot be inferred,
+the runner errors out and requires explicit `--judge-family`. A
+same-family Claude-judge comparison stays available via
+`--judge-family claude`.
 
 ## Scoring
 
-Scoring is hybrid. The code-based scorer reports three signals per
-response: whether any current-state answer fuzzy-matches the response,
-whether any stale-state answer fuzzy-matches it, and whether the
-response reads as a refusal or "I don't know" hedge. These are
-deterministic and fast but brittle on paraphrase. The LLM judge, also
-Claude Sonnet 4.6 at temperature zero, receives the response alongside
-the current and stale answer lists and a brief scenario description,
-reasons step by step about grounding, and returns a structured verdict.
-Both scores are reported in the findings. A trial passes only when both
-signals agree that the response reflects current state and not stale
-state. That is, the code-based rule (has_current=True, has_stale=False,
-is_refusal=False) and the judge's passed=true verdict must both hold.
-Disagreement between the two signals is itself a finding, reported
-separately.
+Scoring is hybrid.
+
+The code-based scorer (`core/scoring.py`) reports:
+
+- `has_current`: response fuzzy-matches any current answer.
+- `has_prior`: response fuzzy-matches any prior answer after the
+  contrastive-pattern suppressor runs.
+- `has_prior_raw`: pre-suppression match value.
+- `has_clarify`: substring match against clarify indicators.
+- `has_abstain`: substring match against abstain indicators.
+- `is_refusal`: response reads as a refusal or uncertainty hedge.
+- `response_length_tokens_est`: rough length estimate.
+
+The code scorer also exposes deprecated `has_stale` / `has_stale_raw`
+aliases of `has_prior` / `has_prior_raw` for backward-compatible
+callers.
+
+The judge verdict is the primary signal. The code signals are an
+audit cross-check; disagreements are surfaced in the report, not
+auto-resolved.
+
+## Benchmark evaluation protocol
+
+1. Candidate models are run on the **same frozen v1 set**.
+2. `baseline` is the default ranking condition.
+3. The primary score is **balanced Turn 2 accuracy** under the
+   ranking condition, aggregated as defined in
+   [docs/concept_v0_2.md](concept_v0_2.md).
+4. `clarify` and `abstain` tags count as wrong for the primary
+   score; they are rendered as diagnostic rows in the report.
+5. Condition sensitivity (baseline vs. condition_a vs. condition_b)
+   is reported secondarily.
+6. Every report emits a **reproducibility manifest** with scenario,
+   intervention, and judge-prompt SHAs, candidate and judge model
+   strings, trials, temperature, and the resolved ranking
+   condition.
 
 ### Known scorer limitation
 
-The code-based rule is substring-matching, not semantic, so a
-contrastive Turn 2 response (for example, *"Earlier there were 12
-photos; now there are 13"*) can match both answer lists and false-fail.
-`core/scoring.py` applies a contrastive-pattern suppressor: when a
-response matches a regex keyed on an *earlier/was/previously* clause
-followed by a *now/currently/is* clause, `has_stale` is suppressed.
-This catches common contrastive constructions but is not exhaustive.
-Responses that restate the stale value without a trigger verb can still
-false-fail. Readers should treat the judge verdict as the primary
-signal and the code-based rule as an audit cross-check. See
-`docs/limitations.md §Scorer limitations` for the full disclosure.
+The code scorer is substring-driven and can false-fail contrastive
+responses that mention both the old and new state. The contrastive-
+pattern suppressor in [core/scoring.py](../core/scoring.py) handles
+common cases. Residual false failures should be read against the
+judge verdict.
 
-The judge is in the same model family as the model under test. That
-introduces a known self-preference risk: agreement between them may be
-inflated by shared training priors. Cross-family judge validation is
-deferred to a future experiment (`exp_009`, see
-`docs/deferred_roadmap.md`); for now the limitation is documented in
-`docs/limitations.md` and callers are expected to treat single-family
-judge verdicts as a ceiling rather than a ground truth.
+## CLI invocation
+
+```bash
+python experiments/exp_001/run.py \
+    --model <candidate_model_id> \
+    --judge-model <judge_model_id>
+```
+
+Flags:
+
+- `--model` — candidate model string under test.
+- `--judge-model` — judge model string.
+- `--judge-family` — `auto` | `claude` | `openai`. Default `auto`.
+- `--trials` — trials per `(scenario, condition)` cell.
+- `--output-dir` — path for transcripts **and** the generated
+  findings file for this run.
+
+All flags are optional; missing flags fall back to configured
+defaults.
 
 ## Trial design
 
-A "trial" is one independent rerun of a single (scenario, condition)
-cell at temperature zero.
-
-Each scenario is run twice per condition at temperature zero, giving two
-trials per (scenario, condition) cell and 48 scored Turn 2 responses
-overall. Temperature zero does not guarantee bit-identical outputs
-because of nondeterminism on the API side, but it keeps per-cell
-variance low enough that two trials catch most of the realistic output
-variation without the cost of five or ten. The two trials per cell are
-not for statistical power; they are a cheap sanity check that a
-condition's effect is stable across reruns.
+- trials per `(scenario, condition)` cell: 2 by default
+- temperature: `0.0`
+- two trials are a stability check, not a statistical-power claim
 
 ## Interpretation
 
-Findings are reported as a condition-by-failure-mode matrix of pass
-rates, plus per-condition aggregate pass rates and per-condition
-pass-rate deltas relative to baseline. Rows show how one condition
-performs across failure modes. Columns show which failure modes respond
-to any intervention. Pass-rate deltas are raw arithmetic differences
-(condition pass rate minus baseline pass rate); no confidence intervals
-are reported because the sample size is too small to support them
-honestly. A failure mode where no condition improves on baseline is a
-signal that the failure mode needs a different kind of fix, possibly
-structural rather than prompt-level, and that finding matters more than
-small positive deltas across the rest of the matrix.
+`exp_001` is the **v1 runnable slice** of the benchmark. It can
+differentiate candidate models on the v1 scenario set and under the
+ranking condition. Without-prior-Q coverage, larger trial counts,
+image-input variants, and judge-calibration against human raters
+are tracked in [docs/deferred_roadmap.md](deferred_roadmap.md).
