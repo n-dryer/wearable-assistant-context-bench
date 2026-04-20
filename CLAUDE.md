@@ -15,8 +15,8 @@ leaderboard.
 
 ## Core Methodology
 
-- 4 corpus-backed scenarios in the frozen v1 set (3 `current`, 1
-  `prior`), each a 2-turn conversation. Turn 1 establishes the
+- 11 scenarios in the frozen v1 set (8 `current`, 3 `prior`),
+  each a 2-turn conversation. Turn 1 establishes the
   visual-context reference state. Turn 2 shifts visual context
   and asks an ambiguously-referenced follow-up. Turn 3 fires only
   on Turn 2 failure as a templated "I mean, ..." repair anchor.

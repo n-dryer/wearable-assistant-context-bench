@@ -8,9 +8,13 @@ definition (including the without-prior-Q variant, governance, and
 primary score) lives in [docs/concept_v0_2.md](concept_v0_2.md). The
 current runnable slice covers only the **with-prior-Q** variant.
 
-The scored task is **prior-versus-current visual-context selection**:
-does the model anchor its Turn 2 answer to the prior frame or the
-current frame? Object recognition is assumed and out of scope.
+The scored task is **situated reference resolution under visual
+context shift**: given a Turn 2 question whose referent is ambiguous
+without situational reasoning, the model must infer the intended
+visual context from cues (spatial, object, temporal, verbal or
+deictic). The inference is labeled `prior` or `current` for
+balanced-accuracy scoring. Object recognition is assumed and out of
+scope.
 
 ## v1 is a text-proxy slice
 

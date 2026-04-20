@@ -45,7 +45,7 @@ DIAGNOSTIC_POLICY_NOTE: str = (
     "diagnostic-only in v1; trials in this row count as wrong for the primary score"
 )
 
-BENCHMARK_VERSION: str = "v1.1"
+BENCHMARK_VERSION: str = "v1"
 BENCHMARK_SLICE: str = "v1 with-prior-Q slice"
 DEFAULT_RANKING_CONDITION: str = "baseline"
 

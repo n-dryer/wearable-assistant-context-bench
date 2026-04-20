@@ -14,14 +14,14 @@ question, pure no-Turn-1) as a new runnable slice. The
 without-prior-Q variant is part of the official benchmark
 definition but is not yet implemented.
 
-### ext_rebalance_v1_1: rebalance the scenario set at v1.1
+### ext_rebalance_future: rebalance the scenario set in a future version
 
-The v1 runnable set is 3 `current` / 1 `prior`. The primary score
+The v1 runnable set is 8 `current` / 3 `prior`. The primary score
 is balanced Turn 2 accuracy specifically because of this skew. If
-a natural pilot-grounded `prior`-visual-context scenario can be
-authored (for example, from a later pilot cohort), a v1.1 set at
-3/2 or 2/2 becomes possible, and the primary score may revert to
-raw mean Turn 2 accuracy at that point.
+additional naturally-grounded `prior`-visual-context scenarios can
+be authored (for example, from a later pilot cohort), a closer-
+balanced set becomes possible in a future version, and the primary
+score may revert to raw mean Turn 2 accuracy at that point.
 
 ### ext_image_inputs: image-enabled slice
 

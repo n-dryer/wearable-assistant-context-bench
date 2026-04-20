@@ -1,17 +1,20 @@
-# grounding-evals
+# Deixis-Bench
 
-`grounding-evals` is an **internal visual-context selection benchmark**
-for a wearable live-assistant camera product. It measures whether a
-candidate model picks the right visual context when answering a
-question. Object recognition is assumed; what is being scored is the
-context-selection decision: does the model anchor its answer to the
-**prior visual context** (object or place from a prior frame) or the
-**current visual context** (object or place from the current frame)?
+`Deixis-Bench` is an internal benchmark for **situated reference
+resolution** in a wearable live-assistant camera product. It
+measures whether a candidate model uses common-sense inference over
+situational cues — the user's words, the object they just picked
+up, the room they just walked into, what they said a minute ago —
+to pick the right visual context when answering an
+ambiguously-referenced question.
 
-The benchmark is used internally to compare candidate model releases
-and choose which one ships in the wearable live-assistant camera
-product. The repo is public so readers can inspect the benchmark
-design. The benchmark itself is internal-use.
+Object recognition is assumed. What is scored is the
+reference-resolution decision, operationalized as a binary label:
+does the Turn 2 answer anchor to the **prior** visual context (a
+prior frame) or the **current** visual context (the right-now
+frame)? "Prior vs. current" is the scoring axis; the underlying
+task is **reference resolution under context shift**, the same
+phenomenon linguists call deixis.
 
 ## What it is / what it is not
 
@@ -28,10 +31,17 @@ design. The benchmark itself is internal-use.
 - a paper
 - a public leaderboard service
 
-The v1.1 set is small; the benchmark is real. Size is a maturity
+The v1 set is small; the benchmark is real. Size is a maturity
 constraint, not a category downgrade.
 
-## The two contexts
+## Scoring axis: prior vs. current
+
+The scoring axis is binary, but the cues that determine the right
+answer are plural: spatial shifts (walking from one room to
+another), object-reference shifts (putting down A and picking up
+B), temporal state changes (same scene after time passes), object
+departure or return, and verbal or deictic cues ("this", "here",
+"the new one").
 
 - **prior visual context**: an object or place from a prior frame
 - **current visual context**: an object or place from the current,
@@ -67,19 +77,19 @@ the benchmark definition even though none is implemented yet:
 - Pilot feedback from one model is the **authoring source** for the
   initial scenario seeds.
 - That source does not define the benchmark boundary.
-- The v1.1 scenario set is **frozen** after this pass. Future candidate
-  models are evaluated on the same frozen v1.1 set.
+- The v1 scenario set is **frozen** after this pass. Future candidate
+  models are evaluated on the same frozen v1 set.
 - Benchmark growth happens by creating **new versioned benchmark
   sets** or explicit version extensions, not by silently changing the
   meaning of v1 after results have already been compared.
 
-The v1.1 runnable set lands at 8 `current` / 3 `prior` scenarios. See
+The v1 runnable set lands at 8 `current` / 3 `prior` scenarios. See
 `docs/concept_v0_2.md` for the full set inventory and the rationale
 for the balanced-accuracy primary score below.
 
 ## Primary score
 
-The v1.1 primary score is **balanced Turn 2 accuracy under the
+The v1 primary score is **balanced Turn 2 accuracy under the
 ranking condition**. Balanced means the mean of per-class accuracy
 over the two scored policy classes (`prior` and `current`):
 
@@ -164,6 +174,63 @@ See `.env.example`.
 The suite runs without real API keys; the adapter and judge are
 stubbed in tests.
 
+## How to read a score
+
+Balanced Turn 2 accuracy is a **ranking signal** for model selection,
+not an absolute quality claim about an assistant product. A few
+anchors for interpreting a number:
+
+- **~0.50 is the no-information floor** on a two-class problem. A
+  coin flip between `prior` and `current`, or an "always current"
+  policy on the v1 class skew, should both land here under balanced
+  accuracy.
+- **A score of 1.0 on v1 is not a solved benchmark.** v1 is 11
+  scenarios; a single unlucky trial flip is worth ~4.5 balanced-
+  accuracy points. Read score deltas between candidates alongside
+  the per-scenario grid, not as a single number.
+- **Condition sensitivity matters.** A candidate that only clears
+  the bar under `condition_b` (pre-answer scaffold) is not the same
+  ship-readiness story as one that clears it under `baseline`.
+
+## Glossary
+
+- **surface** — the product context a scenario is authored against
+  (e.g., `wearable_live_frame`, `mobile_app_chat`, `synthetic`). In
+  v1 the surface is a label; image inputs are not plumbed.
+- **trial** — one full Turn 1 → Turn 2 run-through (plus Turn 3 on
+  Turn 2 failure) for a single `(scenario, condition)` at a single
+  repeat index. Only the Turn 2 response is scored.
+- **cell** — a `(scenario, condition)` pair. Each cell is run
+  `trials_per_cell` times (default 2).
+- **condition** — one intervention prompt: `baseline`, `condition_a`,
+  or `condition_b`. The candidate sees a condition as its system
+  prompt.
+- **ranking condition** — the condition used for the primary score.
+  Default `baseline`; overridable but not silently.
+- **target\_policy** — the authored correct policy tag for Turn 2:
+  `prior` or `current` in v1. `clarify` / `abstain` remain emittable
+  judge tags but never appear as authored targets in v1.
+- **with-prior-Q / without-prior-Q** — the two official benchmark
+  variants. Only with-prior-Q is implemented in v1.
+- **candidate** — the model under test; selected via `--model`.
+- **judge** — the LLM-as-judge that labels the Turn 2 response with
+  one of the four policy tags. Cross-family by default via
+  `--judge-family auto`.
+
+## How to cite
+
+Internal-use benchmark, no DOI. Cite by repo URL and the release
+tag when comparing results:
+
+```
+Deixis-Bench v1 (2026). Internal benchmark for situated reference
+resolution under visual context shift. https://github.com/n-dryer/deixis-bench
+```
+
+When reporting a score, include the **exact tag** (e.g., `v1`), the
+candidate `model_id`, the judge `model_id`, the `ranking_condition`,
+and the `trials_per_cell` value from the reproducibility manifest.
+
 ## Key docs
 
 - [docs/methodology.md](docs/methodology.md): benchmark v1 runnable
@@ -173,7 +240,7 @@ stubbed in tests.
 - [docs/interventions.md](docs/interventions.md): intervention axis
   framing
 - [docs/limitations.md](docs/limitations.md): honest limitations of
-  the v1.1 set
+  the v1 set
 - [docs/related_work.md](docs/related_work.md): literature neighbors
 - [docs/deferred_roadmap.md](docs/deferred_roadmap.md): planned
   benchmark extensions

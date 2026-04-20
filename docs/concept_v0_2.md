@@ -4,15 +4,44 @@ Status: rewritten 2026-04-19 for the v1 benchmark-reset pass.
 
 ## Benchmark definition
 
-`grounding-evals` is an **internal benchmark** that measures whether
-a candidate model picks the right visual context when answering a
-question on a wearable live-assistant camera product. Object
-recognition is assumed and out of scope. What is scored is the
-**context-selection decision**: does the model anchor its answer to
-the prior frame or the current frame?
+`Deixis-Bench` measures **situated reference resolution** in a
+wearable live-assistant camera product. Given a two-turn
+conversation in which visual context shifts between turns, does the
+candidate model correctly infer — from the user's words, objects,
+location, and recent conversational history — which visual context
+the Turn 2 question refers to? The inferred anchor is labeled as
+`prior` or `current` for scoring purposes.
+
+This is the same phenomenon — **reference resolution under context
+shift** — that linguists call deixis. Object recognition is assumed
+and out of scope.
 
 The benchmark is used internally to compare candidate model releases
 and choose which one ships.
+
+## Cue taxonomy
+
+The scoring axis is binary (`prior` vs. `current`), but the cues a
+candidate must use to land on the right answer are plural. The v1
+set exercises five cue families:
+
+- **Spatial / scene shift** — the user has walked from one room,
+  camera angle, or physical location to another between Turn 1 and
+  Turn 2.
+- **Object-reference shift** — the user has put down object A and
+  picked up object B, or object A has left frame and object B has
+  entered.
+- **Temporal / same-scene state change** — the camera is on the
+  same scene as Turn 1 but meaningful state has changed (an item
+  moved, a reading changed, an animation progressed).
+- **Object departure or return** — an object present in Turn 1 has
+  left frame by Turn 2, or re-entered after being gone.
+- **Verbal / deictic cue** — the user's Turn 2 phrasing itself
+  disambiguates ("this one", "the new one", "here", "still").
+
+A correct response infers the anchor from whichever cue family the
+Turn 2 question actually invokes. Per-scenario cue labels live in
+`experiments/exp_001/README.md`.
 
 ## Prior and current visual contexts
 
@@ -62,7 +91,7 @@ official benchmark definition and is tracked in
   pass. Future candidate models are evaluated on the same frozen
   set.
 - Benchmark growth happens by creating **new versioned benchmark
-  sets** (v1.1, v2, etc.) or explicit version extensions, not by
+  sets** (v2, etc.) or explicit version extensions, not by
   silently changing the meaning of v1 after results have been
   compared.
 
@@ -116,7 +145,7 @@ taken.
 
 ### Why balanced accuracy
 
-The v1.1 runnable set is 8 scenarios with `target_policy: current`
+The v1 runnable set is 8 scenarios with `target_policy: current`
 and 3 scenarios with `target_policy: prior`. Raw accuracy on that
 skew still rewards a trivial "always current" policy at roughly
 73%. Balanced accuracy closes that loophole without reshaping

@@ -2,9 +2,8 @@
 
 ## Status
 
-**Stable but not yet frozen.** 11 scenarios (sc-01 through sc-11).
-The set freezes on first published benchmark run; until then,
-scenarios may still be added or revised. 8 `current`, 3 `prior`.
+**Frozen as of v1.** 11 scenarios (sc-01 through sc-11).
+8 `current`, 3 `prior`.
 
 sc-01 through sc-04 are the pilot-grounded core of the set. sc-05
 through sc-11 extend that core with additional failure shapes
@@ -501,7 +500,7 @@ chose to drop them before shipping v1, for three reasons:
    examples stay empty under that discipline.
 
 If future pilot cohorts surface `clarify` or `abstain` quotes, the
-cells open and a later benchmark version (v1.1, v2) can grow.
+cells open and a later benchmark version (v2) can grow.
 Until then, the thin cells are called out in
 `docs/concept_v0_2.md §Scope` and `docs/limitations.md §Corpus
 asymmetry` as explicit gaps.
