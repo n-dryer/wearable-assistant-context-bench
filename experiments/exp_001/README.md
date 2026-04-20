@@ -39,7 +39,7 @@ for the primary score.
 
 ## Files
 
-- `scenarios.json`: 11 scenario definitions with `target_policy`
+- `scenarios.json`: 11 scenario definitions with `target_context`
   and `authoring_basis`.
 - `expected_answers.json`: per-scenario `current_answers`,
   `prior_answers`, and clarify/abstain indicators.

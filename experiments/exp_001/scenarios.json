@@ -1,7 +1,7 @@
 [
   {
     "scenario_id": "sc-01",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -12,7 +12,7 @@
   },
   {
     "scenario_id": "sc-02",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -23,7 +23,7 @@
   },
   {
     "scenario_id": "sc-03",
-    "target_policy": "prior",
+    "target_context": "prior",
     "authoring_basis": "pilot",
     "source_example_id": "ex-08",
     "surface": "wearable_live_frame",
@@ -34,7 +34,7 @@
   },
   {
     "scenario_id": "sc-04",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -45,7 +45,7 @@
   },
   {
     "scenario_id": "sc-05",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -57,7 +57,7 @@
   },
   {
     "scenario_id": "sc-06",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "theoretical",
     "source_example_id": null,
     "surface": "wearable_live_frame",
@@ -70,7 +70,7 @@
   },
   {
     "scenario_id": "sc-07",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -82,7 +82,7 @@
   },
   {
     "scenario_id": "sc-08",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -94,7 +94,7 @@
   },
   {
     "scenario_id": "sc-09",
-    "target_policy": "prior",
+    "target_context": "prior",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-08",
     "surface": "wearable_live_frame",
@@ -106,7 +106,7 @@
   },
   {
     "scenario_id": "sc-10",
-    "target_policy": "current",
+    "target_context": "current",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
@@ -118,7 +118,7 @@
   },
   {
     "scenario_id": "sc-11",
-    "target_policy": "prior",
+    "target_context": "prior",
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-08",
     "surface": "wearable_live_frame",

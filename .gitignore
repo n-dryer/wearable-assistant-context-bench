@@ -29,3 +29,6 @@ audit/
 
 # Empty nested dir, scheduled for rmdir in the next commit
 grounding-evals/
+
+# Claude Code / sibling worktrees (local-only)
+.claude/

@@ -207,9 +207,10 @@ anchors for interpreting a number:
   prompt.
 - **ranking condition** — the condition used for the primary score.
   Default `baseline`; overridable but not silently.
-- **target\_policy** — the authored correct policy tag for Turn 2:
-  `prior` or `current` in v1. `clarify` / `abstain` remain emittable
-  judge tags but never appear as authored targets in v1.
+- **target\_context** — the authored correct visual-context anchor
+  for Turn 2: `prior` or `current` in v1. `clarify` / `abstain`
+  remain emittable judge tags but never appear as authored targets
+  in v1. (Formerly `target_policy`; renamed at v1 for clarity.)
 - **with-prior-Q / without-prior-Q** — the two official benchmark
   variants. Only with-prior-Q is implemented in v1.
 - **candidate** — the model under test; selected via `--model`.
