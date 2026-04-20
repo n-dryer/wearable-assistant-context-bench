@@ -35,7 +35,7 @@ it would reasonably be the other direction.
 The rationale is product-shaped. The surface Deixis-Bench scores
 against is a wearable live-assistant answering a spoken question
 in-scene. A user who says "what is that?" while looking at an
-object is not looking for a clarifying question back — they
+object is not looking for a clarifying question back. They
 already told the assistant where to look. A `clarify` response
 ("do you mean the old one or the new one?") is better than a
 wrong anchor, but it is still a failure of the context-selection
@@ -46,7 +46,7 @@ supposed to handle.
 Treating the two tags as wrong means the primary score is an
 answer-quality signal, not a risk-aversion signal. The tags are
 preserved as separate diagnostic rows in the report so a
-candidate's clarify/abstain rate is still legible — it is just
+candidate's clarify/abstain rate is still legible; it is just
 not rewarded in the ranking number.
 
 A future version may re-weight these tags if product guidance
@@ -79,7 +79,7 @@ candidate that blindly applies "always pick the most-recently-
 mentioned entity" will score higher than a `0.50` coin flip on
 this set without actually reasoning about the context shift.
 
-The `prior` scenarios in v1 (sc-03, sc-09, sc-10 — the reach-back
+The `prior` scenarios in v1 (sc-03, sc-09, sc-10, the reach-back
 items) are the specific defense against that heuristic: they need
 the model to override recency in favor of the cue that the Turn 2
 question refers back to an earlier frame. Per-class accuracy
