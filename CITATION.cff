@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you reference Deixis-Bench in an internal report, cite this file with the exact release tag."
+title: "Deixis-Bench: Situated Reference Resolution Under Visual Context Shift"
+abstract: "Internal benchmark for the visual-context selection decision in a wearable live-assistant camera product. Scores the prior-vs-current visual-context anchor on a frozen scenario set under three intervention conditions; primary score is balanced Turn 2 accuracy under the baseline ranking condition."
+authors:
+  - family-names: "Dryer"
+    given-names: "Nate"
+repository-code: "https://github.com/n-dryer/deixis-bench"
+url: "https://github.com/n-dryer/deixis-bench"
+keywords:
+  - reference resolution
+  - context shift
+  - deixis
+  - multimodal benchmark
+  - wearable live assistant
+  - LLM-as-judge
+license: "Proprietary"
+version: "v1"
+date-released: "2026-04-20"
