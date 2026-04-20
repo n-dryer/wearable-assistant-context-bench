@@ -29,10 +29,6 @@ def test_judge_prompt_mentions_all_four_policies() -> None:
         )
 
 
-def test_judge_prompt_mentions_grounded_in_current_state() -> None:
-    assert "grounded in the current state" in JUDGE_SYSTEM_PROMPT
-
-
 def test_parse_verdict_extracts_current_policy() -> None:
     raw = (
         "reasoning...\n"

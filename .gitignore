@@ -15,6 +15,7 @@ dist/
 experiments/*/results.json
 experiments/*/transcripts/
 experiments/*/run_log.txt
+experiments/*/findings.md
 EXECUTION_PLAN.md
 AGENTS.md
 
