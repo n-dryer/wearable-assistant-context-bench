@@ -10,7 +10,7 @@ definition but is not yet implemented.
 
 ## Setup
 
-- **Scenarios**: four two-turn conversations. Turn 1 establishes a
+- **Scenarios**: 11 two-turn conversations. Turn 1 establishes a
   visual-context reference state. Turn 2 shifts visual context and
   asks an ambiguously-referenced follow-up. Only Turn 2 is scored.
 - **Conditions**: three prompt conditions. `baseline` (default
@@ -39,7 +39,7 @@ for the primary score.
 
 ## Files
 
-- `scenarios.json`: four scenario definitions with `target_policy`
+- `scenarios.json`: 11 scenario definitions with `target_policy`
   and `authoring_basis`.
 - `expected_answers.json`: per-scenario `current_answers`,
   `prior_answers`, and clarify/abstain indicators.
@@ -61,11 +61,11 @@ All flags are optional; missing flags fall back to configured
 defaults. `--output-dir` governs both transcript artifacts and the
 generated findings file for the run.
 
-## Contribution to the frozen v1.1 set
+## Contribution to the frozen v1 set
 
 `exp_001`'s scenarios and answer sets, together with
-`.agent-prompts/SCENARIO_SEEDS.md`, form the **frozen v1.1 with-prior-Q
+`.agent-prompts/SCENARIO_SEEDS.md`, form the **frozen v1 with-prior-Q
 scenario set** (11 scenarios: 8 `current`, 3 `prior`). Future
 candidate models are evaluated on the same 11 scenarios. Extensions
-happen by creating a new version (v1.2, v2, etc.) under the
+happen by creating a new version (v2, etc.) under the
 governance rule.

@@ -3,20 +3,20 @@
 These limitations apply to the **v1 runnable slice** of the
 benchmark.
 
-## Small v1.1 seed set
+## Small v1 seed set
 
-The v1.1 set has 11 scenarios. That is a maturity constraint, not a
+The v1 set has 11 scenarios. That is a maturity constraint, not a
 category downgrade: the benchmark is real, but small. Results on 11
 scenarios are directional and still sensitive to which scenarios
 are included.
 
 The set will continue to grow through explicit version extensions
-(v1.2, v2, etc.) under the governance rule in
-[docs/concept_v0_2.md](concept_v0_2.md). v1.1 itself is frozen.
+(v2, etc.) under the governance rule in
+[docs/concept_v0_2.md](concept_v0_2.md). v1 itself is frozen.
 
 ## Scenario-balance caveat
 
-v1.1's runnable composition is **8 `current` / 3 `prior`**. On that
+v1's runnable composition is **8 `current` / 3 `prior`**. On that
 skew, a trivial "always current" policy would score about 73% raw
 accuracy. The primary score is therefore **balanced Turn 2 accuracy**
 (mean of per-class accuracy), not raw accuracy. See

@@ -1,6 +1,6 @@
 """v1 benchmark runner for visual-context selection.
 
-The runner walks the four frozen v1 scenarios through three
+The runner walks the 11 frozen v1 scenarios through three
 intervention conditions, with a configurable trial count per cell,
 as a 2-turn conversation. On Turn 2 failure it fires a templated
 Turn 3 "I mean, ..." repair anchor and labels the Turn 3 response.
