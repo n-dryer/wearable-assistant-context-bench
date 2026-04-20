@@ -161,6 +161,35 @@ Hold out pilot feedback during taxonomy construction, then test
 whether the same prior/current visual-context categories still
 fit the held-out material.
 
+## Cross-benchmark comparison
+
+### ext_cross_benchmark: comparison against adjacent benchmarks
+
+Deixis-Bench does not ship with a cross-benchmark comparison
+table. Public benchmarks in the neighborhood (visual question
+answering, multimodal coreference, referring-expression
+resolution, situated dialogue) score different things on
+different inputs, and a side-by-side leaderboard across them
+would be more misleading than informative at v1.
+
+A future version may register a small comparison slice — running
+the v1 candidates on a named external benchmark and reporting
+both numbers with the construct difference called out in plain
+language. That work belongs outside v1 because:
+
+- v1 is a text-proxy slice; most adjacent benchmarks are
+  image-native. A comparison inherits the text-proxy caveat and
+  should be labeled accordingly.
+- The scoring axis (prior-vs-current visual-context selection) is
+  narrower than the axes the adjacent benchmarks score on, so a
+  single-number comparison hides the construct gap.
+- The v1 set is small (11 scenarios). Any cross-benchmark
+  number reported now would be absorbed by the size caveat before
+  it could be useful.
+
+See [docs/related_work.md](related_work.md) for the literature
+neighbors and where the construct boundary sits.
+
 ## Not on the roadmap
 
 - public leaderboard hosting
