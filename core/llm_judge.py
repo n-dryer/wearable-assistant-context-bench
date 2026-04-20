@@ -67,11 +67,7 @@ Then emit a single JSON object on the final line with this exact shape:
 "rationale": "<one-sentence justification>"}
 
 Output no text after the JSON object. `selected_policy` MUST be exactly \
-one of the four policy names.
-
-You are grounded in the current state definition; grounded in the current \
-state means the response reflects the newest state rather than earlier \
-state."""
+one of the four policy names."""
 
 
 @dataclass
