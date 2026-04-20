@@ -116,12 +116,12 @@ taken.
 
 ### Why balanced accuracy
 
-The v1 runnable set is 3 scenarios with `target_policy: current` and
-1 scenario with `target_policy: prior`. Raw accuracy on that skew
-rewards a trivial "always current" policy at 75%. Balanced accuracy
-closes that loophole without reshaping scenario content. If a fifth
-naturally-grounded `prior` scenario is authored later, the v1.1 set
-may revert to raw mean Turn 2 accuracy at a 3/2 balance.
+The v1.1 runnable set is 8 scenarios with `target_policy: current`
+and 3 scenarios with `target_policy: prior`. Raw accuracy on that
+skew still rewards a trivial "always current" policy at roughly
+73%. Balanced accuracy closes that loophole without reshaping
+scenario content. Future versions with closer class balance may
+revert to raw mean Turn 2 accuracy.
 
 ### Ranking condition
 
