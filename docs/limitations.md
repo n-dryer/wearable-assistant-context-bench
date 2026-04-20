@@ -25,6 +25,35 @@ accuracy. The primary score is therefore **balanced Turn 2 accuracy**
 A future version with closer class balance may revert to raw mean
 Turn 2 accuracy.
 
+## Clarify/abstain as wrong for the primary score
+
+`clarify` and `abstain` are emittable judge tags but are counted
+as **wrong** in the primary balanced-accuracy score. That choice
+is deliberate and worth naming, because in a different benchmark
+it would reasonably be the other direction.
+
+The rationale is product-shaped. The surface Deixis-Bench scores
+against is a wearable live-assistant answering a spoken question
+in-scene. A user who says "what is that?" while looking at an
+object is not looking for a clarifying question back — they
+already told the assistant where to look. A `clarify` response
+("do you mean the old one or the new one?") is better than a
+wrong anchor, but it is still a failure of the context-selection
+behavior the benchmark is measuring. An `abstain` response is
+likewise a user-visible dead-end on a task the product is
+supposed to handle.
+
+Treating the two tags as wrong means the primary score is an
+answer-quality signal, not a risk-aversion signal. The tags are
+preserved as separate diagnostic rows in the report so a
+candidate's clarify/abstain rate is still legible — it is just
+not rewarded in the ranking number.
+
+A future version may re-weight these tags if product guidance
+changes (for example, if the wearable surface starts surfacing
+clarify prompts as a first-class interaction). That would be a
+versioned change to the scoring rule, not a silent rebalancing.
+
 ## Scenarios derived from feedback on one model
 
 The initial scenario seeds come from pilot feedback on a single
