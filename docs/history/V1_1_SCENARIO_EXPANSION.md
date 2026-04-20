@@ -1,7 +1,16 @@
-# v1.1 Scenario Expansion (7 scenarios, landed)
+# v1.1 Scenario Expansion (7 scenarios, landed) — historical
 
-> Status: landed on branch `v1.1-extension` at commit `0315687`.
-> Scenarios sc-05 through sc-11 are frozen members of the v1.1 set.
+> **Historical authoring note.** This document captures the planning
+> prompt used to extend the pre-freeze seed set from 4 scenarios to
+> 11. The "v1.1" label in the body is the pre-release working name
+> for what was subsequently released as **Deixis-Bench v1**; the
+> initial public release collapses v1.0 + v1.1 into a single v1 tag.
+> sc-01 through sc-11 are the frozen members of **v1**.
+>
+> This file is retained under `docs/history/` for authorship
+> transparency. Current governance and scenario-set inventory live
+> in `docs/concept_v0_2.md` and `experiments/exp_001/README.md`. Do
+> not treat "v1.1" inside this file as a live project label.
 
 Ready-to-drop-in expansion for `experiments/exp_001/scenarios.json` and
 `experiments/exp_001/expected_answers.json`. Integrates after the
