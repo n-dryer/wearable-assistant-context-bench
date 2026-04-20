@@ -315,6 +315,7 @@ def test_render_findings_markdown_emits_complete_manifest() -> None:
         "ranking_condition": DEFAULT_RANKING_CONDITION,
         "timestamp_utc": "2026-04-19T12:00:00+00:00",
         "runner_git_commit": None,
+        "random_seed": None,
         "manifest_warnings": [],
     }
     output = render_findings_markdown(

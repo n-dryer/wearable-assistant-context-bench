@@ -246,6 +246,7 @@ REQUIRED_MANIFEST_KEYS: tuple[str, ...] = (
     "ranking_condition",
     "timestamp_utc",
     "runner_git_commit",
+    "random_seed",
 )
 
 

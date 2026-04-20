@@ -249,6 +249,7 @@ def _build_manifest(
             timespec="seconds"
         ),
         "runner_git_commit": _current_git_commit(),
+        "random_seed": None,
     }
     manifest["manifest_warnings"] = warnings
     return manifest
