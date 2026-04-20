@@ -258,7 +258,7 @@ Metadata:
   the visual differentiation has no textual proxy in T2.
   **Authoring note for the image-enabled slice:** the second poster
   should be selected so its palette could plausibly echo Lake
-  Como's — otherwise the "trap" evaporates into a pure
+  Como's, otherwise the "trap" evaporates into a pure
   unknown-content case.
 
 Turn 1 (user):
@@ -393,7 +393,7 @@ Metadata:
 - notes: Absence detection with directional recall. The visual
   context shifts because the object left, not because the user
   moved. T2 asks for a specific spatial fact (which direction)
-  that only the prior frame can supply — world knowledge about
+  that only the prior frame can supply; world knowledge about
   deer behavior is not sufficient. Failure pattern: model
   speculates about cover-seeking without using the prior layout,
   or pivots to the empty current frame. Extends ex-08's

@@ -16,6 +16,34 @@ frame)? "Prior vs. current" is the scoring axis; the underlying
 task is **reference resolution under context shift**, the same
 phenomenon linguists call deixis.
 
+## Background
+
+The product context is a wearable camera worn throughout the day. The user speaks
+to it in natural language while moving through spaces, handling objects, and
+switching tasks. Because the camera is always-on, the model has access to a prior
+frame (what was in front of the user a moment ago) and a current frame (what is in
+front of them right now). Many everyday questions are ambiguously anchored: "Is
+this the right size?" could mean the object just put down or the one just picked
+up. Picking the wrong frame silently produces a wrong answer.
+
+Three scenario shapes from the v1 set illustrate the range:
+
+**Object swap.** Turn 1: user is at a workbench describing a screwdriver and asks
+for grip advice. Turn 2: "I've set it down and picked up a hammer. Am I holding
+this correctly?" The correct frame is the current one (hammer). Failure mode: the
+model answers about screwdriver technique.
+
+**Room shift.** Turn 1: user is in a bedroom asking for art recommendations for the
+empty wall. Turn 2: "Alright, I've walked into the kitchen. What should we hang in
+here?" The correct frame is the current one (kitchen). Failure mode: the model
+recommends art suited to the bedroom.
+
+**Reach-back.** Turn 1: user is at the library shelving books on the back wall.
+Turn 2: "I've walked to the front desk. How did I arrange the young-adult wall a
+few minutes ago?" The correct frame is the prior one (the shelving activity). This
+is the complementary class: the model must resist anchoring to the current frame
+and instead retrieve the prior one.
+
 ## What it is / what it is not
 
 **It is:**
@@ -111,6 +139,28 @@ The judge may emit `clarify` or `abstain` tags for diagnostic
 visibility. On v1, any trial labeled `clarify` or `abstain` is
 **counted as wrong for the primary score**, and those tags are
 rendered as separate diagnostic rows in the report grid.
+
+## Run flow
+
+```mermaid
+flowchart TD
+    S[("11 frozen scenarios\n(v1 set)")] --> C
+    I[("3 conditions\nbaseline / A / B")] --> C
+    C["33 cells\n(scenario × condition)"]
+    C -->|"2 trials each"| T
+
+    subgraph T ["Per-trial loop"]
+        direction TB
+        T1["Turn 1\n(candidate)"] --> T2["Turn 2\n(candidate)"]
+        T2 -->|pass| DONE["scored"]
+        T2 -->|fail| T3["Turn 3 repair\n(candidate)"] --> DONE
+    end
+
+    DONE --> J["Judge\n(cross-family LLM)"]
+    J -->|"prior / current\nclarify / abstain"| SC["Scoring"]
+    SC --> BA["Balanced Turn 2 accuracy\nunder ranking condition"]
+    BA --> R[("Findings report\n+ reproducibility manifest")]
+```
 
 ## How to use for model selection
 

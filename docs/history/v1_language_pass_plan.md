@@ -1,5 +1,9 @@
 # v1 language-pass plan
 
+> **Historical.** This document was the authoring plan for the v1 plain-language
+> pass executed in April 2026. All edits described here have been applied. It is
+> retained for provenance only.
+
 This file enumerates the plain-language edits for the v1 release.
 Each entry lists the file, the tell (em dash, LLM cliche, stiff
 passive, sentence length), and the target replacement. Literal

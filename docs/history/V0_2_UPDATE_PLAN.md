@@ -1,6 +1,9 @@
 # v0.2 Update Plan
 
-> Historical. Terminology has since flipped from grounding-state selection to reference-state selection (see CLAUDE_CODE_BUILD_PROMPT.md).
+> **Historical.** This document captures the forward-looking repo update plan drafted
+> during the v0.2 framing pass. Terminology has since moved from grounding-state
+> selection to reference-state selection (see `CLAUDE_CODE_BUILD_PROMPT.md`) and
+> then to visual-context selection at v1. It is retained for provenance only.
 
 This file tracks the forward-looking repo update around the newer
 concept language.
