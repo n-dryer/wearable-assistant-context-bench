@@ -122,11 +122,11 @@ python experiments/exp_001/run.py \
 
 Flags:
 
-- `--model` — candidate model string under test.
-- `--judge-model` — judge model string.
-- `--judge-family` — `auto` | `claude` | `openai`. Default `auto`.
-- `--trials` — trials per `(scenario, condition)` cell.
-- `--output-dir` — path for transcripts **and** the generated
+- `--model`: candidate model string under test.
+- `--judge-model`: judge model string.
+- `--judge-family`: `auto` | `claude` | `openai`. Default `auto`.
+- `--trials`: trials per `(scenario, condition)` cell.
+- `--output-dir`: path for transcripts **and** the generated
   findings file for this run.
 
 All flags are optional; missing flags fall back to configured
