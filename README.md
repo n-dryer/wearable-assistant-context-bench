@@ -192,6 +192,31 @@ anchors for interpreting a number:
   the bar under `condition_b` (pre-answer scaffold) is not the same
   ship-readiness story as one that clears it under `baseline`.
 
+## Glossary
+
+- **surface** — the product context a scenario is authored against
+  (e.g., `wearable_live_frame`, `mobile_app_chat`, `synthetic`). In
+  v1 the surface is a label; image inputs are not plumbed.
+- **trial** — one full Turn 1 → Turn 2 run-through (plus Turn 3 on
+  Turn 2 failure) for a single `(scenario, condition)` at a single
+  repeat index. Only the Turn 2 response is scored.
+- **cell** — a `(scenario, condition)` pair. Each cell is run
+  `trials_per_cell` times (default 2).
+- **condition** — one intervention prompt: `baseline`, `condition_a`,
+  or `condition_b`. The candidate sees a condition as its system
+  prompt.
+- **ranking condition** — the condition used for the primary score.
+  Default `baseline`; overridable but not silently.
+- **target\_policy** — the authored correct policy tag for Turn 2:
+  `prior` or `current` in v1. `clarify` / `abstain` remain emittable
+  judge tags but never appear as authored targets in v1.
+- **with-prior-Q / without-prior-Q** — the two official benchmark
+  variants. Only with-prior-Q is implemented in v1.
+- **candidate** — the model under test; selected via `--model`.
+- **judge** — the LLM-as-judge that labels the Turn 2 response with
+  one of the four policy tags. Cross-family by default via
+  `--judge-family auto`.
+
 ## How to cite
 
 Internal-use benchmark, no DOI. Cite by repo URL and the release
