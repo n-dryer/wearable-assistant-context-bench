@@ -61,10 +61,11 @@ All flags are optional; missing flags fall back to configured
 defaults. `--output-dir` governs both transcript artifacts and the
 generated findings file for the run.
 
-## Contribution to the frozen v1 set
+## Contribution to the frozen v1.1 set
 
 `exp_001`'s scenarios and answer sets, together with
-`.agent-prompts/SCENARIO_SEEDS.md`, form the **frozen v1 with-prior-Q
-scenario set**. Future candidate models are evaluated on the same
-four scenarios. Extensions happen by creating a new version (v1.1,
-v2, etc.) under the governance rule.
+`.agent-prompts/SCENARIO_SEEDS.md`, form the **frozen v1.1 with-prior-Q
+scenario set** (11 scenarios: 8 `current`, 3 `prior`). Future
+candidate models are evaluated on the same 11 scenarios. Extensions
+happen by creating a new version (v1.2, v2, etc.) under the
+governance rule.
