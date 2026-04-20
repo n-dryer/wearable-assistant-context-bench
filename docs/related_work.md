@@ -74,9 +74,3 @@ not direct precedents.
   implementation
 - an intervention axis that is kept policy-neutral rather than
   hard-coding current-state behavior
-
-## Reference handling
-
-Detailed citations and benchmark-specific notes live in
-`audit/research/`. The public docs keep discussion at the family
-level; the goal is honest positioning, not an exhaustive survey.

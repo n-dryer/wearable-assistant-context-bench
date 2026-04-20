@@ -105,5 +105,205 @@
       "can't see",
       "no information"
     ]
+  },
+  "sc-05": {
+    "current_answers": [
+      "the second poster",
+      "second one",
+      "this poster",
+      "the new poster",
+      "the other poster",
+      "holding up"
+    ],
+    "prior_answers": [
+      "Lake Como",
+      "blue water",
+      "cream sky",
+      "vintage travel",
+      "saturated blue",
+      "24x36"
+    ],
+    "clarify_indicators": [
+      "describe the second",
+      "what's on the second",
+      "tell me about the other",
+      "what does the second poster show"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-06": {
+    "current_answers": [
+      "the gap",
+      "the outline",
+      "empty hook",
+      "empty outline",
+      "I can see the",
+      "looking at the board",
+      "looking at the pegboard",
+      "the shadow board shows",
+      "outlined spot"
+    ],
+    "prior_answers": [
+      "hydrangea",
+      "fence",
+      "fading blue",
+      "garden"
+    ],
+    "clarify_indicators": [
+      "describe the pegboard",
+      "what's on the pegboard"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-07": {
+    "current_answers": [
+      "golden brown",
+      "look at",
+      "let me see",
+      "puffed",
+      "color",
+      "tops",
+      "what do they look like",
+      "describe"
+    ],
+    "prior_answers": [
+      "pillowy",
+      "rising",
+      "350",
+      "top shelf",
+      "overnight",
+      "8am"
+    ],
+    "clarify_indicators": [
+      "what color are they",
+      "how do they look now",
+      "describe their appearance"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-08": {
+    "current_answers": [
+      "depends what's on",
+      "depends on the new window",
+      "the new window",
+      "this window shows",
+      "I can see this",
+      "the window you switched to",
+      "this is a"
+    ],
+    "prior_answers": [
+      "Jira",
+      "ticket",
+      "redis",
+      "SRE",
+      "P1",
+      "checkout API",
+      "cart-update",
+      "500",
+      "page the SRE",
+      "page on-call"
+    ],
+    "clarify_indicators": [
+      "what's on the new window",
+      "what application did you switch",
+      "describe what you switched to"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-09": {
+    "current_answers": [
+      "the empty corner",
+      "I don't see him",
+      "nothing there now"
+    ],
+    "prior_answers": [
+      "toward the maple",
+      "toward the fence",
+      "past the maple",
+      "behind the maple",
+      "into the tree line",
+      "into the trees",
+      "through the gap",
+      "away from",
+      "opposite",
+      "toward the fence line",
+      "north",
+      "south",
+      "east",
+      "west"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I didn't see him bolt",
+      "I can't tell",
+      "no information"
+    ]
+  },
+  "sc-10": {
+    "current_answers": [
+      "chardonnay",
+      "how many cases",
+      "depends on how many",
+      "the chardonnay pallet",
+      "count the chardonnay",
+      "let me know how many"
+    ],
+    "prior_answers": [
+      "12 cases",
+      "cabernet",
+      "8 per week",
+      "8 cases",
+      "holiday ramp"
+    ],
+    "clarify_indicators": [
+      "how many chardonnay cases",
+      "what's the chardonnay count",
+      "how many cases of chardonnay are on the pallet"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-11": {
+    "current_answers": [
+      "the shelf",
+      "back on the shelf",
+      "I can't read it from here",
+      "you put it back"
+    ],
+    "prior_answers": [
+      "20 calories",
+      "20 cal",
+      "per fluid ounce",
+      "stage 2",
+      "6 to 12 months",
+      "organic cow's milk",
+      "no corn syrup",
+      "organic"
+    ],
+    "clarify_indicators": [
+      "show me the label again",
+      "can I see the label"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "I didn't catch",
+      "I can't recall",
+      "no information"
+    ]
   }
 }
