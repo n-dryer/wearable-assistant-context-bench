@@ -65,13 +65,13 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(
         config={"output_dir": str(output_dir)},
     )
 
-    # 4 scenarios x 3 conditions x 2 trials = 24 cells
-    assert len(results) == 24
+    # 11 scenarios x 3 conditions x 2 trials = 66 cells
+    assert len(results) == 66
 
     transcript_path = output_dir / "transcripts.jsonl"
     assert transcript_path.exists()
     lines = transcript_path.read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 24
+    assert len(lines) == 66
 
     for line in lines:
         payload = json.loads(line)
@@ -96,7 +96,7 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(
 
     pass_count = sum(1 for r in results if r["turn_2_passed"])
     repair_attempts = sum(1 for r in results if r["turn_3_repair_attempted"])
-    assert pass_count + repair_attempts == 24
+    assert pass_count + repair_attempts == 66
 
 
 def test_run_output_dir_governs_findings_location(tmp_path: Path) -> None:

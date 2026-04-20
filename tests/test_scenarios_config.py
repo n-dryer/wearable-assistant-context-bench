@@ -53,7 +53,7 @@ def seeds_text() -> str:
 
 def test_scenarios_json_is_non_empty_list(scenarios: list[dict]) -> None:
     assert isinstance(scenarios, list)
-    assert len(scenarios) == 4
+    assert len(scenarios) == 11
 
 
 def test_every_scenario_has_required_fields(scenarios: list[dict]) -> None:
@@ -73,10 +73,18 @@ def test_target_policies_in_allowed_set(scenarios: list[dict]) -> None:
 
 
 def test_source_example_ids_non_null(scenarios: list[dict]) -> None:
+    """Non-theoretical scenarios must anchor to a pilot example ID.
+
+    `theoretical` scenarios (e.g. the without-prior-Q soft case
+    defined in `docs/concept_v0_2.md`) may have a null
+    `source_example_id` because no pilot quote anchors them.
+    """
     for entry in scenarios:
+        if entry["authoring_basis"] == "theoretical":
+            continue
         assert entry["source_example_id"], (
             f"{entry['scenario_id']}: source_example_id must be non-null "
-            "(v0.2 corpus-driven rule)"
+            "for non-theoretical scenarios (corpus-driven rule)"
         )
 
 
@@ -146,13 +154,13 @@ def test_image_seam_fields_allowed_but_optional(scenarios: list[dict]) -> None:
                 )
 
 
-def test_v1_composition_is_three_current_one_prior(scenarios: list[dict]) -> None:
-    """The frozen v1 runnable set is 3 `current` / 1 `prior`."""
+def test_v1_composition_is_eight_current_three_prior(scenarios: list[dict]) -> None:
+    """The v1 runnable set is 8 `current` / 3 `prior`."""
     counts: dict[str, int] = {}
     for entry in scenarios:
         counts[entry["target_policy"]] = counts.get(entry["target_policy"], 0) + 1
-    assert counts.get("current") == 3, f"expected 3 current, got {counts}"
-    assert counts.get("prior") == 1, f"expected 1 prior, got {counts}"
+    assert counts.get("current") == 8, f"expected 8 current, got {counts}"
+    assert counts.get("prior") == 3, f"expected 3 prior, got {counts}"
     assert counts.get("clarify", 0) == 0
     assert counts.get("abstain", 0) == 0
 
