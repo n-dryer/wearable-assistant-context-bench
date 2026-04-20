@@ -383,11 +383,11 @@ remediation is green):
 
 1. Append sc-05 through sc-11 to
    `experiments/exp_001/scenarios.json` in the given order.
-2. Append the six corresponding entries to
+2. Append the seven corresponding entries to
    `experiments/exp_001/expected_answers.json`.
 3. Update `experiments/exp_001/README.md` to note the v1.1
-   expansion: scenario count is now 10 (was 4), breakdown by
-   target_policy is 9 `current` / 1 `prior`.
+   expansion: scenario count is now 11 (was 4), breakdown by
+   target_policy is 8 `current` / 3 `prior`.
 4. Update `docs/methodology.md` scenario-count references.
 5. Add a short subsection to `docs/concept_v0_2.md` naming the four
    authoring rules from this file as the admission criteria for any
@@ -410,6 +410,7 @@ remediation is green):
 | Screen-domain swap | — | sc-08 |
 | Absence / negative | — | sc-09 |
 | Numeric referent | — | sc-10 |
+| Object-label prior recall | — | sc-11 |
 
 ## Deferred to v1.2 or beyond
 

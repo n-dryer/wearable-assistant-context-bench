@@ -28,7 +28,7 @@ design. The benchmark itself is internal-use.
 - a paper
 - a public leaderboard service
 
-The v1 set is small; the benchmark is real. Size is a maturity
+The v1.1 set is small; the benchmark is real. Size is a maturity
 constraint, not a category downgrade.
 
 ## The two contexts
@@ -67,8 +67,8 @@ the benchmark definition even though none is implemented yet:
 - Pilot feedback from one model is the **authoring source** for the
   initial scenario seeds.
 - That source does not define the benchmark boundary.
-- The v1 scenario set is **frozen** after this pass. Future candidate
-  models are evaluated on the same frozen v1 set.
+- The v1.1 scenario set is **frozen** after this pass. Future candidate
+  models are evaluated on the same frozen v1.1 set.
 - Benchmark growth happens by creating **new versioned benchmark
   sets** or explicit version extensions, not by silently changing the
   meaning of v1 after results have already been compared.
@@ -79,7 +79,7 @@ for the balanced-accuracy primary score below.
 
 ## Primary score
 
-The v1 primary score is **balanced Turn 2 accuracy under the
+The v1.1 primary score is **balanced Turn 2 accuracy under the
 ranking condition**. Balanced means the mean of per-class accuracy
 over the two scored policy classes (`prior` and `current`):
 
@@ -173,7 +173,7 @@ stubbed in tests.
 - [docs/interventions.md](docs/interventions.md): intervention axis
   framing
 - [docs/limitations.md](docs/limitations.md): honest limitations of
-  the v1 set
+  the v1.1 set
 - [docs/related_work.md](docs/related_work.md): literature neighbors
 - [docs/deferred_roadmap.md](docs/deferred_roadmap.md): planned
   benchmark extensions
