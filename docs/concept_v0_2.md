@@ -19,6 +19,30 @@ and out of scope.
 The benchmark is used internally to compare candidate model releases
 and choose which one ships.
 
+## Cue taxonomy
+
+The scoring axis is binary (`prior` vs. `current`), but the cues a
+candidate must use to land on the right answer are plural. The v1
+set exercises five cue families:
+
+- **Spatial / scene shift** — the user has walked from one room,
+  camera angle, or physical location to another between Turn 1 and
+  Turn 2.
+- **Object-reference shift** — the user has put down object A and
+  picked up object B, or object A has left frame and object B has
+  entered.
+- **Temporal / same-scene state change** — the camera is on the
+  same scene as Turn 1 but meaningful state has changed (an item
+  moved, a reading changed, an animation progressed).
+- **Object departure or return** — an object present in Turn 1 has
+  left frame by Turn 2, or re-entered after being gone.
+- **Verbal / deictic cue** — the user's Turn 2 phrasing itself
+  disambiguates ("this one", "the new one", "here", "still").
+
+A correct response infers the anchor from whichever cue family the
+Turn 2 question actually invokes. Per-scenario cue labels live in
+`experiments/exp_001/README.md`.
+
 ## Prior and current visual contexts
 
 - **prior visual context**: an object or place from a prior frame.
