@@ -1,17 +1,20 @@
-# grounding-evals
+# Deixis-Bench
 
-`grounding-evals` is an **internal visual-context selection benchmark**
-for a wearable live-assistant camera product. It measures whether a
-candidate model picks the right visual context when answering a
-question. Object recognition is assumed; what is being scored is the
-context-selection decision: does the model anchor its answer to the
-**prior visual context** (object or place from a prior frame) or the
-**current visual context** (object or place from the current frame)?
+`Deixis-Bench` is an internal benchmark for **situated reference
+resolution** in a wearable live-assistant camera product. It
+measures whether a candidate model uses common-sense inference over
+situational cues — the user's words, the object they just picked
+up, the room they just walked into, what they said a minute ago —
+to pick the right visual context when answering an
+ambiguously-referenced question.
 
-The benchmark is used internally to compare candidate model releases
-and choose which one ships in the wearable live-assistant camera
-product. The repo is public so readers can inspect the benchmark
-design. The benchmark itself is internal-use.
+Object recognition is assumed. What is scored is the
+reference-resolution decision, operationalized as a binary label:
+does the Turn 2 answer anchor to the **prior** visual context (a
+prior frame) or the **current** visual context (the right-now
+frame)? "Prior vs. current" is the scoring axis; the underlying
+task is **reference resolution under context shift**, the same
+phenomenon linguists call deixis.
 
 ## What it is / what it is not
 
@@ -31,7 +34,14 @@ design. The benchmark itself is internal-use.
 The v1 set is small; the benchmark is real. Size is a maturity
 constraint, not a category downgrade.
 
-## The two contexts
+## Scoring axis: prior vs. current
+
+The scoring axis is binary, but the cues that determine the right
+answer are plural: spatial shifts (walking from one room to
+another), object-reference shifts (putting down A and picking up
+B), temporal state changes (same scene after time passes), object
+departure or return, and verbal or deictic cues ("this", "here",
+"the new one").
 
 - **prior visual context**: an object or place from a prior frame
 - **current visual context**: an object or place from the current,
