@@ -64,10 +64,10 @@ generated findings file for the run.
 ## Per-scenario cue types
 
 Each v1 scenario exercises a dominant cue family. The cue axis is
-descriptive — it does not enter scoring — but is documented so
+descriptive (it does not enter scoring) but is documented so
 readers can see the construct coverage of the set at a glance.
 
-| Scenario | target\_policy | Dominant cue family           | One-line framing                                |
+| Scenario | target\_context | Dominant cue family          | One-line framing                                |
 |----------|----------------|-------------------------------|-------------------------------------------------|
 | sc-01    | current        | Object-reference shift        | Put down screwdriver, picked up wrench          |
 | sc-02    | current        | Spatial / scene shift         | Walked from bedroom to kitchen                  |
