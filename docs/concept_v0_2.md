@@ -62,7 +62,7 @@ official benchmark definition and is tracked in
   pass. Future candidate models are evaluated on the same frozen
   set.
 - Benchmark growth happens by creating **new versioned benchmark
-  sets** (v1.1, v2, etc.) or explicit version extensions, not by
+  sets** (v2, etc.) or explicit version extensions, not by
   silently changing the meaning of v1 after results have been
   compared.
 
@@ -116,7 +116,7 @@ taken.
 
 ### Why balanced accuracy
 
-The v1.1 runnable set is 8 scenarios with `target_policy: current`
+The v1 runnable set is 8 scenarios with `target_policy: current`
 and 3 scenarios with `target_policy: prior`. Raw accuracy on that
 skew still rewards a trivial "always current" policy at roughly
 73%. Balanced accuracy closes that loophole without reshaping
