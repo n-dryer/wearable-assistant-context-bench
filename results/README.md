@@ -2,8 +2,8 @@
 
 This directory contains **committed sample output** from running the
 v1 benchmark against specific candidate models. It exists so readers
-can inspect the report shape — aggregated scoring, per-condition
-sensitivity, the reproducibility manifest — without running the
+can inspect the report shape (aggregated scoring, per-condition
+sensitivity, the reproducibility manifest) without running the
 benchmark themselves.
 
 ## Directory convention
