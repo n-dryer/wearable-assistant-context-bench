@@ -4,12 +4,17 @@ Status: rewritten 2026-04-19 for the v1 benchmark-reset pass.
 
 ## Benchmark definition
 
-`grounding-evals` is an **internal benchmark** that measures whether
-a candidate model picks the right visual context when answering a
-question on a wearable live-assistant camera product. Object
-recognition is assumed and out of scope. What is scored is the
-**context-selection decision**: does the model anchor its answer to
-the prior frame or the current frame?
+`Deixis-Bench` measures **situated reference resolution** in a
+wearable live-assistant camera product. Given a two-turn
+conversation in which visual context shifts between turns, does the
+candidate model correctly infer — from the user's words, objects,
+location, and recent conversational history — which visual context
+the Turn 2 question refers to? The inferred anchor is labeled as
+`prior` or `current` for scoring purposes.
+
+This is the same phenomenon — **reference resolution under context
+shift** — that linguists call deixis. Object recognition is assumed
+and out of scope.
 
 The benchmark is used internally to compare candidate model releases
 and choose which one ships.
