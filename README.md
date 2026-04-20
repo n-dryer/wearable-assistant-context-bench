@@ -174,6 +174,38 @@ See `.env.example`.
 The suite runs without real API keys; the adapter and judge are
 stubbed in tests.
 
+## How to read a score
+
+Balanced Turn 2 accuracy is a **ranking signal** for model selection,
+not an absolute quality claim about an assistant product. A few
+anchors for interpreting a number:
+
+- **~0.50 is the no-information floor** on a two-class problem. A
+  coin flip between `prior` and `current`, or an "always current"
+  policy on the v1 class skew, should both land here under balanced
+  accuracy.
+- **A score of 1.0 on v1 is not a solved benchmark.** v1 is 11
+  scenarios; a single unlucky trial flip is worth ~4.5 balanced-
+  accuracy points. Read score deltas between candidates alongside
+  the per-scenario grid, not as a single number.
+- **Condition sensitivity matters.** A candidate that only clears
+  the bar under `condition_b` (pre-answer scaffold) is not the same
+  ship-readiness story as one that clears it under `baseline`.
+
+## How to cite
+
+Internal-use benchmark, no DOI. Cite by repo URL and the release
+tag when comparing results:
+
+```
+Deixis-Bench v1 (2026). Internal benchmark for situated reference
+resolution under visual context shift. https://github.com/n-dryer/deixis-bench
+```
+
+When reporting a score, include the **exact tag** (e.g., `v1`), the
+candidate `model_id`, the judge `model_id`, the `ranking_condition`,
+and the `trials_per_cell` value from the reproducibility manifest.
+
 ## Key docs
 
 - [docs/methodology.md](docs/methodology.md): benchmark v1 runnable
