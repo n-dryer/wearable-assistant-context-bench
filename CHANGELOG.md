@@ -6,7 +6,7 @@ All notable changes to Deixis-Bench. This project loosely follows
 to the benchmark set as a whole (scenarios + scoring + reporting),
 not to the codebase.
 
-## [v1] — 2026-04-20
+## [v1] (2026-04-20)
 
 **Initial public release.** Deixis-Bench is renamed and reframed
 as a benchmark for **situated reference resolution under visual
@@ -51,20 +51,20 @@ These snapshots predate the v1 public release. They are documented
 for provenance; the tags were working labels, not canonical
 releases.
 
-### v1.1-extension (pre-release working label) — 2026-04-20
+### v1.1-extension (pre-release working label) (2026-04-20)
 
 Expanded the scenario set from 4 to 11, adding sc-05 through
 sc-11 to cover construct dimensions not represented in the
 original seed set. Bumped internal `BENCHMARK_VERSION` string.
 Aligned per-class composition (8 `current` / 3 `prior`).
 
-### v0.3.0 (benchmark-reset pass) — 2026-04-19
+### v0.3.0 (benchmark-reset pass) (2026-04-19)
 
 Froze the with-prior-Q variant as the scored v1 surface. Adopted
 balanced Turn 2 accuracy as the primary score and `auto` as the
 default judge family. Added the reproducibility manifest.
 
-### v0.1 / Phase 0-4 scaffold — 2026-04-18
+### v0.1 / Phase 0-4 scaffold (2026-04-18)
 
 Pre-flight setup, templates, and core infrastructure with
 multi-turn support, disk-caching Claude adapter, and the initial
