@@ -146,7 +146,7 @@ PE = provenance_eligible for v0.2 scenario construction. ex-04 is retired per `_
 - **evidence_strength**: `weak`
 - **clarification_required**: null
 - **provenance_eligible**: no
-- **notes**: Pattern observation, not a turn-level example. Concerns intent routing / retrieval-path invocation, not grounding-state selection between live states.
+- **notes**: Pattern observation, not a turn-level example. Concerns intent routing / retrieval-path invocation, not visual-context selection between prior and current frames.
 
 ### ex-05 `background-audio-as-user-tasks`
 
@@ -218,9 +218,9 @@ WhatsApp keyword passes (`remind`, `context`, `scene`, `earlier`, `looking`, `re
 
 - **Use Cases 🎯.** No new provenance-eligible quotes beyond ex-09. The 2026-02-01 "Pretty simple use case…accomplished my goal but there were a few minor issues with [the product's] chat" message from reviewing PM is too thin to carry a specific policy signal.
 - **Bug Reports 🐞.** Two candidates, both rejected on provenance grounds.
-    - 2026-02-19 "there is a recap dated Feb 18 but is from video a few weeks ago" (pilot user): data-freshness / display-labeling bug. Not a grounding-state selection failure at model inference; `out-of-scope:other` if recorded.
+    - 2026-02-19 "there is a recap dated Feb 18 but is from video a few weeks ago" (pilot user): data-freshness / display-labeling bug. Not a visual-context selection failure at model inference; `out-of-scope:other` if recorded.
     - 2026-01-30 "There were no errands yesterday" (pilot user, with attached image): ambiguous between fabrication and wrong-day state-selection. Image not retrievable as text quote; insufficient surrounding turns. Tagged `review-needed` informally, not entered as an example.
-- **Feature Requests 💡.** No new grounding-state quotes. Messages are feature requests (voice assistant availability, privacy opt-outs, upload controls), not turn-level failure observations.
+- **Feature Requests 💡.** No new visual-context selection quotes. Messages are feature requests (voice assistant availability, privacy opt-outs, upload controls), not turn-level failure observations.
 - **General 👋.** No new quotes beyond the 2026-01-21 ex-08 message.
 
 Pilot eval PDFs `01-best-pilot-family-cleanest-final-pdf.pdf`, `02-best-app-feedback-most-complete-v6-4-repro-steps.pdf`, `03-best-app-feedback-best-design-v6.pdf` (authoring path: redacted; pilot feedback report 02 is the primary source). PDF 02 scanned section-by-section (v6.4 has 19 anonymized `FB-NN` items). Findings:

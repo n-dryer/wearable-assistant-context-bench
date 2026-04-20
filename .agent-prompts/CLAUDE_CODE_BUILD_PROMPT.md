@@ -1,5 +1,13 @@
 # Claude Code Build Prompt — v0.2 Reference-State Selection Probe
 
+> **Superseded 2026-04-19** by the v0.3.0 benchmark-reset pass.
+> Terminology has since moved from `reference-state selection` to
+> **visual-context selection**, and the v1 scenario set is frozen
+> under the new primary score (balanced Turn 2 accuracy). See
+> `docs/concept_v0_2.md` for the current benchmark definition.
+> Retained here for build-history reference only; do not follow
+> instructions in this file as current guidance.
+
 Paste the block below into Claude Code from the repo root. This prompt
 directs two lanes of work in a single session:
 
