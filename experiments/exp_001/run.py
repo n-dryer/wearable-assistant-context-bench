@@ -1,6 +1,6 @@
 """v1 benchmark runner for visual-context selection.
 
-The runner walks the four frozen v1 scenarios through three
+The runner walks the 11 frozen v1 scenarios through three
 intervention conditions, with a configurable trial count per cell,
 as a 2-turn conversation. On Turn 2 failure it fires a templated
 Turn 3 "I mean, ..." repair anchor and labels the Turn 3 response.
@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,9 +35,11 @@ from core.llm_judge import (
     JudgeVerdict,
     LLMJudge,
     build_judge,
+    infer_candidate_family,
     resolve_judge_family,
 )
 from core.models import ClaudeAdapter, ModelConfig
+from core.openai_adapter import OpenAIAdapter
 from core.report import (
     DEFAULT_RANKING_CONDITION,
     BENCHMARK_VERSION,
@@ -166,6 +169,45 @@ def _sha256_of_file(path: Path) -> str | None:
     return hashlib.sha256(data).hexdigest()
 
 
+def _current_git_commit() -> str:
+    """Return the current git HEAD SHA, or "unknown" if unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=EXP_DIR,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (FileNotFoundError, subprocess.SubprocessError, OSError):
+        return "unknown"
+    if result.returncode != 0:
+        return "unknown"
+    sha = result.stdout.strip()
+    return sha or "unknown"
+
+
+def _build_adapter(model_id: str) -> Any:
+    """Pick a candidate adapter based on the model family.
+
+    Routes `claude|sonnet|opus|haiku` prefixes to `ClaudeAdapter` and
+    `gpt|o1|o3|o4|chatgpt` prefixes to `OpenAIAdapter`. Unknown families
+    raise `ValueError` so the runner fails loudly instead of silently
+    defaulting.
+    """
+    family = infer_candidate_family(model_id)
+    if family == "claude":
+        return ClaudeAdapter()
+    if family == "openai":
+        return OpenAIAdapter()
+    raise ValueError(
+        f"Unsupported candidate model family for model_id={model_id!r}. "
+        "Supported families: claude (claude/sonnet/opus/haiku), "
+        "openai (gpt/o1/o3/o4/chatgpt)."
+    )
+
+
 def _build_manifest(
     *,
     effective_config: dict[str, Any],
@@ -206,7 +248,7 @@ def _build_manifest(
         "timestamp_utc": datetime.now(timezone.utc).isoformat(
             timespec="seconds"
         ),
-        "runner_git_commit": None,
+        "runner_git_commit": _current_git_commit(),
     }
     manifest["manifest_warnings"] = warnings
     return manifest
@@ -242,7 +284,9 @@ def run(
         model_id=effective_config["model_id"],
         temperature=effective_config["temperature"],
     )
-    adapter_ = adapter if adapter is not None else ClaudeAdapter()
+    adapter_ = adapter if adapter is not None else _build_adapter(
+        effective_config["model_id"]
+    )
 
     if judge is None:
         family, resolution_mode = resolve_judge_family(

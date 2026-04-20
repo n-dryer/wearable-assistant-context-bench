@@ -3,20 +3,20 @@
 These limitations apply to the **v1 runnable slice** of the
 benchmark.
 
-## Small v1.1 seed set
+## Small v1 seed set
 
-The v1.1 set has 11 scenarios. That is a maturity constraint, not a
+The v1 set has 11 scenarios. That is a maturity constraint, not a
 category downgrade: the benchmark is real, but small. Results on 11
 scenarios are directional and still sensitive to which scenarios
 are included.
 
 The set will continue to grow through explicit version extensions
-(v1.2, v2, etc.) under the governance rule in
-[docs/concept_v0_2.md](concept_v0_2.md). v1.1 itself is frozen.
+(v2, etc.) under the governance rule in
+[docs/concept_v0_2.md](concept_v0_2.md). v1 itself is frozen.
 
 ## Scenario-balance caveat
 
-v1.1's runnable composition is **8 `current` / 3 `prior`**. On that
+v1's runnable composition is **8 `current` / 3 `prior`**. On that
 skew, a trivial "always current" policy would score about 73% raw
 accuracy. The primary score is therefore **balanced Turn 2 accuracy**
 (mean of per-class accuracy), not raw accuracy. See
@@ -40,6 +40,27 @@ camera frames. The `Scenario` dataclass has `turn_1_image` and
 `turn_2_image` slots for future image inputs, but no v1 scenario
 uses them. Treat v1 results as a text-proxy for a camera-grounded
 task; image-enabled results may differ.
+
+## Latest-mention heuristic caveat
+
+In the with-prior-Q variant, Turn 1 names the prior object, Turn 2
+shifts to a new visual context, and the correct anchor is usually
+(though not always) the newly-established current frame. A
+candidate that blindly applies "always pick the most-recently-
+mentioned entity" will score higher than a `0.50` coin flip on
+this set without actually reasoning about the context shift.
+
+The `prior` scenarios in v1 (sc-03, sc-09, sc-10 — the reach-back
+items) are the specific defense against that heuristic: they need
+the model to override recency in favor of the cue that the Turn 2
+question refers back to an earlier frame. Per-class accuracy
+(`prior` vs. `current` shown separately in the report) is the
+diagnostic that exposes a candidate that is passing on recency
+alone.
+
+Future benchmark versions should actively grow the `prior` class
+to tighten this defense. See
+[docs/deferred_roadmap.md](deferred_roadmap.md).
 
 ## Partial variant coverage
 
