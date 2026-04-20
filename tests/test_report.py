@@ -267,7 +267,7 @@ def test_render_findings_markdown_shape() -> None:
             "sc-04": "current",
         },
         manifest={
-            "benchmark_version": "v1",
+            "benchmark_version": "v1.1",
             "scenarios_sha256": "abc",
             "expected_answers_sha256": "def",
             "interventions_sha256": "ghi",
@@ -301,7 +301,7 @@ def test_render_findings_markdown_shape() -> None:
 
 def test_render_findings_markdown_emits_complete_manifest() -> None:
     manifest = {
-        "benchmark_version": "v1",
+        "benchmark_version": "v1.1",
         "scenarios_sha256": "sha-scenarios",
         "expected_answers_sha256": "sha-answers",
         "interventions_sha256": "sha-interventions",
