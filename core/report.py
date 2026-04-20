@@ -20,12 +20,12 @@ up into:
 
 Expected per-trial result dict keys:
     scenario_id (str)
-    target_policy (str): one of "current", "prior", "clarify", "abstain"
+    target_context (str): one of "current", "prior", "clarify", "abstain"
     condition (str)
     trial (int)
     turn_2_code_signals (dict)
     turn_2_judge_policy (str)
-    turn_2_passed (bool): judge_policy == target_policy
+    turn_2_passed (bool): judge_policy == target_context
     turn_3_repair_attempted (bool)
     turn_3_repair_passed (bool | None)
 """
@@ -91,7 +91,7 @@ class RepairRateCell:
 
 
 def _policies_with_scenarios(results: list[dict]) -> set[str]:
-    return {r["target_policy"] for r in results}
+    return {r["target_context"] for r in results}
 
 
 def per_policy_pass_rate_by_condition(
@@ -112,7 +112,7 @@ def per_policy_pass_rate_by_condition(
             passed = 0
             total = 0
             for trial in results:
-                if trial["target_policy"] != policy:
+                if trial["target_context"] != policy:
                     continue
                 if trial["condition"] != condition:
                     continue
@@ -142,7 +142,7 @@ def class_accuracy_under_condition(
         for trial in results:
             if trial["condition"] != condition:
                 continue
-            if trial["target_policy"] != policy:
+            if trial["target_context"] != policy:
                 continue
             total += 1
             if bool(trial["turn_2_passed"]):
@@ -259,7 +259,7 @@ def render_findings_markdown(
 
     Args:
         results: Per-trial result dicts.
-        scenario_policies: Optional scenario_id -> target_policy
+        scenario_policies: Optional scenario_id -> target_context
             mapping. When provided, scenarios are ordered by this
             map's iteration order.
         manifest: Reproducibility manifest dict. Every required key in
@@ -425,10 +425,10 @@ def _render_scenario_matrix(
     for scenario_id in scenario_order:
         if scenario_id not in matrix:
             continue
-        target_policy = (
+        target_context = (
             scenario_policies[scenario_id] if scenario_policies else "?"
         )
-        cells = [scenario_id, f"`{target_policy}`"]
+        cells = [scenario_id, f"`{target_context}`"]
         for condition in conditions:
             trials = matrix[scenario_id].get(condition, [])
             cells.append(_format_trial_outcomes(trials))

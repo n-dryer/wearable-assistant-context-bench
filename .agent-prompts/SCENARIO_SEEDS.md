@@ -64,7 +64,7 @@ Every scenario has the following structure:
 
 The judge labels the Turn 2 response with exactly one policy from
 `{current, prior, clarify, abstain}`. A pass is a match against the
-seed's `target_policy`. v1 target policies are always `prior` or
+seed's `target_context`. v1 target policies are always `prior` or
 `current`; `clarify` / `abstain` verdicts count as wrong for the
 primary score.
 
@@ -100,10 +100,10 @@ accuracy specifically because of this skew. See
 ## Seed Template
 
 ```
-### sc-NN (target_policy: <current|prior|clarify|abstain>)
+### sc-NN (target_context: <current|prior|clarify|abstain>)
 
 Metadata:
-- target_policy: <current|prior|clarify|abstain>
+- target_context: <current|prior|clarify|abstain>
 - authoring_basis: <pilot|extended_from_pilot|theoretical>
 - source_example_id: <ex-NN from PILOT_CORPUS_INVENTORY.md, or null>
 - surface: <wearable_live_frame|mobile_app_chat|synthetic>
@@ -124,11 +124,11 @@ Turn 3 simulated-repair anchor:
 
 ## Seeds
 
-### sc-01 (target_policy: `current`, source: ex-09 extended)
+### sc-01 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -154,11 +154,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean, the hammer I'm holding now, not the screwdriver."
 
-### sc-02 (target_policy: `current`, source: ex-09 extended)
+### sc-02 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -184,11 +184,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean, the kitchen walls I'm looking at now, not the bedroom."
 
-### sc-03 (target_policy: `prior`, source: ex-08 part 2)
+### sc-03 (target_context: `prior`, source: ex-08 part 2)
 
 Metadata:
 
-- target_policy: `prior`
+- target_context: `prior`
 - authoring_basis: `pilot`
 - source_example_id: `ex-08`
 - surface: `wearable_live_frame`
@@ -213,11 +213,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean, look at the footage from a few minutes ago when I was at the back wall."
 
-### sc-04 (target_policy: `current`, source: ex-09)
+### sc-04 (target_context: `current`, source: ex-09)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -242,11 +242,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean, look at the kitchen counter I'm showing you now, not my desk."
 
-### sc-05 (target_policy: `current`, source: ex-09 extended)
+### sc-05 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -277,11 +277,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean the second poster I'm holding up now, not the Lake Como one."
 
-### sc-06 (target_policy: `current`, source: without-prior-Q soft case, doc-grounded)
+### sc-06 (target_context: `current`, source: without-prior-Q soft case, doc-grounded)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `theoretical`
 - source_example_id: null
 - surface: `wearable_live_frame`
@@ -313,11 +313,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean, actually look at the pegboard I'm standing in front of — which tool outlines have no tool hanging on them?"
 
-### sc-07 (target_policy: `current`, source: ex-09 extended)
+### sc-07 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -347,11 +347,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean describe the rolls as they are in the oven right now, not how they looked before baking."
 
-### sc-08 (target_policy: `current`, source: ex-09 extended)
+### sc-08 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -381,11 +381,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean the window I just switched to, not the Jira ticket."
 
-### sc-09 (target_policy: `prior`, source: ex-08 extended)
+### sc-09 (target_context: `prior`, source: ex-08 extended)
 
 Metadata:
 
-- target_policy: `prior`
+- target_context: `prior`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-08`
 - surface: `wearable_live_frame`
@@ -417,11 +417,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "Based on what you saw before he ran."
 
-### sc-10 (target_policy: `current`, source: ex-09 extended)
+### sc-10 (target_context: `current`, source: ex-09 extended)
 
 Metadata:
 
-- target_policy: `current`
+- target_context: `current`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-09`
 - surface: `wearable_live_frame`
@@ -448,11 +448,11 @@ Turn 2 answer sets:
 Turn 3 simulated-repair anchor:
 > "I mean the chardonnay pallet I'm standing at now, not the cabernet."
 
-### sc-11 (target_policy: `prior`, source: ex-08 extended)
+### sc-11 (target_context: `prior`, source: ex-08 extended)
 
 Metadata:
 
-- target_policy: `prior`
+- target_context: `prior`
 - authoring_basis: `extended_from_pilot`
 - source_example_id: `ex-08`
 - surface: `wearable_live_frame`

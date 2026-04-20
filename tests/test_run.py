@@ -79,7 +79,7 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(
             "scenario_id",
             "condition",
             "trial",
-            "target_policy",
+            "target_context",
             "turn_1_user",
             "turn_1_image",
             "turn_1_response",

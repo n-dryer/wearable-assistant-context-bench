@@ -72,7 +72,7 @@ class Scenario:
 
     JSON schema (scenarios.json is a list of these):
         scenario_id: str
-        target_policy: str   # one of current, prior (v1), or clarify/abstain (reserved)
+        target_context: str   # one of current, prior (v1), or clarify/abstain (reserved)
         authoring_basis: str # pilot | extended_from_pilot | theoretical
         source_example_id: str | None
         surface: str         # wearable_live_frame | mobile_app_chat | synthetic
@@ -85,7 +85,7 @@ class Scenario:
     """
 
     scenario_id: str
-    target_policy: str
+    target_context: str
     authoring_basis: str
     source_example_id: str | None
     surface: str
@@ -127,7 +127,7 @@ def load_scenarios(path: Path) -> list[Scenario]:
         scenarios.append(
             Scenario(
                 scenario_id=entry["scenario_id"],
-                target_policy=entry["target_policy"],
+                target_context=entry["target_context"],
                 authoring_basis=entry["authoring_basis"],
                 source_example_id=entry.get("source_example_id"),
                 surface=entry["surface"],
@@ -333,7 +333,7 @@ def run(
 
     findings = render_findings_markdown(
         results,
-        scenario_policies={s.scenario_id: s.target_policy for s in scenarios},
+        scenario_policies={s.scenario_id: s.target_context for s in scenarios},
         manifest=manifest,
         ranking_condition=effective_config["ranking_condition"],
     )
@@ -394,7 +394,7 @@ def _run_one_trial(
     scenario_description = (
         f"Turn 1 context:\n{scenario.turn_1_user}\n\n"
         f"Between Turn 1 and Turn 2 the user's visual context shifts; "
-        f"the target policy for Turn 2 is `{scenario.target_policy}`."
+        f"the target policy for Turn 2 is `{scenario.target_context}`."
     )
 
     judge_verdict = judge.label(
@@ -407,7 +407,7 @@ def _run_one_trial(
         abstain_indicators=answers.abstain_indicators,
     )
 
-    turn_2_passed = judge_verdict.selected_policy == scenario.target_policy
+    turn_2_passed = judge_verdict.selected_policy == scenario.target_context
 
     turn_3_response: str | None = None
     turn_3_verdict: JudgeVerdict | None = None
@@ -432,13 +432,13 @@ def _run_one_trial(
             clarify_indicators=answers.clarify_indicators,
             abstain_indicators=answers.abstain_indicators,
         )
-        turn_3_passed = turn_3_verdict.selected_policy == scenario.target_policy
+        turn_3_passed = turn_3_verdict.selected_policy == scenario.target_context
 
     return {
         "scenario_id": scenario.scenario_id,
         "condition": condition.name,
         "trial": trial,
-        "target_policy": scenario.target_policy,
+        "target_context": scenario.target_context,
         "surface": scenario.surface,
         "turn_1_user": scenario.turn_1_user,
         "turn_1_image": scenario.turn_1_image,

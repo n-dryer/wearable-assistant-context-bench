@@ -145,8 +145,8 @@ taken.
 
 ### Why balanced accuracy
 
-The v1 runnable set is 8 scenarios with `target_policy: current`
-and 3 scenarios with `target_policy: prior`. Raw accuracy on that
+The v1 runnable set is 8 scenarios with `target_context: current`
+and 3 scenarios with `target_context: prior`. Raw accuracy on that
 skew still rewards a trivial "always current" policy at roughly
 73%. Balanced accuracy closes that loophole without reshaping
 scenario content. Future versions with closer class balance may
@@ -161,7 +161,7 @@ per-condition sensitivity.
 
 ### Clarify / abstain scoring
 
-For v1, `target_policy` is always `prior` or `current`. If the judge
+For v1, `target_context` is always `prior` or `current`. If the judge
 emits `clarify` or `abstain` on a v1 item, the trial is **counted as
 wrong for the primary score** (equivalent to any other non-target
 policy selection). The report still renders `clarify` and `abstain`

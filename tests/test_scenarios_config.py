@@ -23,7 +23,7 @@ SEEDS_PATH = REPO_ROOT / ".agent-prompts" / "SCENARIO_SEEDS.md"
 
 REQUIRED_FIELDS = {
     "scenario_id",
-    "target_policy",
+    "target_context",
     "authoring_basis",
     "source_example_id",
     "surface",
@@ -66,9 +66,9 @@ def test_every_scenario_has_required_fields(scenarios: list[dict]) -> None:
 
 def test_target_policies_in_allowed_set(scenarios: list[dict]) -> None:
     for entry in scenarios:
-        assert entry["target_policy"] in ALLOWED_POLICIES, (
-            f"{entry['scenario_id']}: unexpected target_policy "
-            f"{entry['target_policy']!r}"
+        assert entry["target_context"] in ALLOWED_POLICIES, (
+            f"{entry['scenario_id']}: unexpected target_context "
+            f"{entry['target_context']!r}"
         )
 
 
@@ -158,7 +158,7 @@ def test_v1_composition_is_eight_current_three_prior(scenarios: list[dict]) -> N
     """The v1 runnable set is 8 `current` / 3 `prior`."""
     counts: dict[str, int] = {}
     for entry in scenarios:
-        counts[entry["target_policy"]] = counts.get(entry["target_policy"], 0) + 1
+        counts[entry["target_context"]] = counts.get(entry["target_context"], 0) + 1
     assert counts.get("current") == 8, f"expected 8 current, got {counts}"
     assert counts.get("prior") == 3, f"expected 3 prior, got {counts}"
     assert counts.get("clarify", 0) == 0
