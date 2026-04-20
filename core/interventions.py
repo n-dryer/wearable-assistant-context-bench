@@ -33,7 +33,7 @@ class InterventionCondition:
         description: One-line human-readable summary of the strategy.
         system_prompt: The full system prompt sent to the model under test.
         token_count: Approximate token count of the system prompt; used for
-            reporting prompt overhead alongside pass-rate effects.
+            reporting prompt overhead alongside pass-rate deltas.
     """
 
     name: str

@@ -1,0 +1,46 @@
+[
+  {
+    "scenario_id": "sc-01",
+    "target_policy": "current",
+    "authoring_basis": "extended_from_pilot",
+    "source_example_id": "ex-09",
+    "surface": "wearable_live_frame",
+    "turn_1_user": "I'm at my workbench. I just picked up a Phillips-head screwdriver with a black rubber grip and a magnetic tip. The handle has ridges so I can get more torque. What's the best way to hold a screwdriver like this when I'm driving a long screw into hardwood?",
+    "turn_2_user": "Okay, I've set the screwdriver down and picked up a hammer instead. Am I holding this correctly?",
+    "turn_3_repair_anchor": "I mean, the hammer I'm holding now, not the screwdriver.",
+    "notes": "Holding-an-object context shift. Turn 1 anchors the prior referent (screwdriver). Turn 2 switches to a new object (hammer) and asks a pronoun-referenced follow-up that must resolve to the current frame. Extends ex-09's `current`-policy failure shape into an object-swap scenario."
+  },
+  {
+    "scenario_id": "sc-02",
+    "target_policy": "current",
+    "authoring_basis": "extended_from_pilot",
+    "source_example_id": "ex-09",
+    "surface": "wearable_live_frame",
+    "turn_1_user": "I'm standing in our bedroom. The walls are painted a soft sage green, the headboard is natural oak, and there's a framed black-and-white landscape above the bed. We're trying to pick one more small piece for the empty wall next to the closet. Any suggestions for something that would fit this bedroom?",
+    "turn_2_user": "Alright, I've walked into the kitchen. What art should we hang in here?",
+    "turn_3_repair_anchor": "I mean, the kitchen walls I'm looking at now, not the bedroom.",
+    "notes": "Room-shift context-selection. Turn 1 anchors the prior referent (bedroom). Turn 2 shifts to the current frame (kitchen) and asks a `here`-referenced follow-up that must resolve to the current frame. Extends ex-09's `current`-policy failure shape into a room-swap scenario."
+  },
+  {
+    "scenario_id": "sc-03",
+    "target_policy": "prior",
+    "authoring_basis": "pilot",
+    "source_example_id": "ex-08",
+    "surface": "wearable_live_frame",
+    "turn_1_user": "I'm in the library now. I'm shelving the new young-adult arrivals on the back wall, in order by author last name. There are twenty or so books on the cart.",
+    "turn_2_user": "Okay, I've walked back to the front desk. How did I arrange the young-adult wall a few minutes ago?",
+    "turn_3_repair_anchor": "I mean, look at the footage from a few minutes ago when I was at the back wall.",
+    "notes": "Part 2 of the mixed-content quote (\"it should know to look at the relevant video\"). Part 1 (hardware capabilities) is out-of-scope. Scenario uses an earlier recorded activity the wearable should reach back to."
+  },
+  {
+    "scenario_id": "sc-04",
+    "target_policy": "current",
+    "authoring_basis": "pilot",
+    "source_example_id": "ex-09",
+    "surface": "wearable_live_frame",
+    "turn_1_user": "I just turned on the recorder. I'm at my desk in the home office. On the desk I can see my laptop, a coffee mug, and a yellow legal pad with tomorrow's meeting notes. Anything I'm missing that I should remember?",
+    "turn_2_user": "Alright, I've walked over to the kitchen. On the counter in front of me there's a cutting board with an onion, a chef's knife, and a glass of water. What should I prep first for dinner?",
+    "turn_3_repair_anchor": "I mean, look at the kitchen counter I'm showing you now, not my desk.",
+    "notes": "Corpus failure mode was clinging to Turn 1 scene (\"what it looked at when I first turned it on\") when Turn 2 describes a new scene (\"what I'm showing it now\"). Scenario makes the state change explicit so the code scorer has tokens on both sides."
+  }
+]

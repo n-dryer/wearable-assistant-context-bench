@@ -41,7 +41,7 @@ class ModelConfig:
             The judge uses the same family; see core.llm_judge.
         temperature: Sampling temperature. Experiments use 0.0 for
             reproducibility.
-        max_tokens: Upper bound on response length.
+        max_tokens: Upper bound on response length in tokens.
     """
 
     model_id: str = DEFAULT_MODEL_ID

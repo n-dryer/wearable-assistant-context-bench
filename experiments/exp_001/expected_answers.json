@@ -1,0 +1,109 @@
+{
+  "sc-01": {
+    "current_answers": [
+      "hammer",
+      "handle",
+      "head",
+      "claw",
+      "grip the handle",
+      "choke up",
+      "swing",
+      "wrist",
+      "nail"
+    ],
+    "prior_answers": [
+      "screwdriver",
+      "phillips",
+      "rubber grip",
+      "magnetic tip",
+      "ridges",
+      "torque",
+      "screw"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I don't know which",
+      "not sure what you're holding"
+    ]
+  },
+  "sc-02": {
+    "current_answers": [
+      "kitchen",
+      "cabinet",
+      "counter",
+      "backsplash",
+      "open shelving",
+      "fridge",
+      "stove",
+      "culinary",
+      "food",
+      "herb"
+    ],
+    "prior_answers": [
+      "bedroom",
+      "sage green",
+      "oak",
+      "headboard",
+      "landscape",
+      "closet"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I don't know which room",
+      "not sure which walls"
+    ]
+  },
+  "sc-03": {
+    "current_answers": [
+      "front desk",
+      "reception"
+    ],
+    "prior_answers": [
+      "young-adult",
+      "young adult",
+      "author",
+      "last name",
+      "alphabetical",
+      "back wall",
+      "library",
+      "shelved",
+      "twenty"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I don't have that information",
+      "I can't see",
+      "no video",
+      "I don't recall"
+    ]
+  },
+  "sc-04": {
+    "current_answers": [
+      "onion",
+      "knife",
+      "cutting board",
+      "counter",
+      "kitchen",
+      "chop",
+      "dice",
+      "prep",
+      "dinner"
+    ],
+    "prior_answers": [
+      "desk",
+      "laptop",
+      "coffee mug",
+      "legal pad",
+      "home office",
+      "meeting notes"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I don't know",
+      "can't see",
+      "no information"
+    ]
+  }
+}

@@ -4,20 +4,30 @@ These functions implement the deterministic half of the hybrid scoring
 scheme. Callers combine the returned signals with an LLM judge verdict
 (see core.llm_judge) to reach a final pass/fail decision.
 
-The pass rule is documented in docs/METHODOLOGY.md and is applied by the
-experiment runner, not encoded here:
+v0.2 upgrade note: the code signal formerly called `has_stale` is now
+called `has_prior` (it corresponds to the `prior` policy in the
+four-policy reference-state selection taxonomy). `has_clarify` and
+`has_abstain` are new audit-only signals derived from per-seed
+indicator lists. Code signals are no longer pass authority in v0.2;
+the judge verdict is primary. See docs/concept_v0_2.md.
 
-    pass = has_current=True AND has_stale=False AND is_refusal=False
+Backwards-compat: the `has_stale` function is kept as a deprecated
+thin alias that delegates to `has_prior`. The return dict of
+`score_response` also exposes `has_stale` / `has_stale_raw` keys as
+aliases of `has_prior` / `has_prior_raw` so that the v0.1-curated
+docs/methodology.md description stays accurate until the doc-alignment
+pass lands.
 
-A contrastive-pattern suppressor (see _CONTRASTIVE_RE) demotes has_stale
-to False when the response explicitly contrasts an earlier state with
-the current one. The pre-suppression value is preserved as
-has_stale_raw in the returned dict for audit purposes.
+The contrastive-pattern suppressor (see `_CONTRASTIVE_RE`) demotes
+`has_prior` to False when the response explicitly contrasts an earlier
+state with the current one. The pre-suppression value is preserved as
+`has_prior_raw` in the returned dict for audit trails.
 """
 
 from __future__ import annotations
 
 import re
+import warnings
 from functools import lru_cache
 
 import spacy
@@ -123,6 +133,30 @@ def fuzzy_match(response: str, targets: list[str], threshold: int = 85) -> bool:
     return False
 
 
+def substring_match(response: str, indicators: list[str]) -> bool:
+    """Return True if any indicator appears as a case-insensitive substring.
+
+    Used for clarify/abstain indicators, which are phrase-level rather
+    than entity-level and benefit from a looser check than fuzzy_match.
+
+    Args:
+        response: The model response being scored.
+        indicators: Candidate phrase strings to look for.
+
+    Returns:
+        True if at least one indicator is a substring of the response.
+    """
+    if not response or not indicators:
+        return False
+    haystack = response.lower()
+    for indicator in indicators:
+        if not indicator:
+            continue
+        if indicator.lower() in haystack:
+            return True
+    return False
+
+
 def detect_refusal(response: str) -> bool:
     """Return True if the response reads as a refusal or uncertainty hedge.
 
@@ -141,50 +175,102 @@ def detect_refusal(response: str) -> bool:
     return any(pattern.search(response) for pattern in _REFUSAL_PATTERNS)
 
 
+def has_prior(response: str, prior_answers: list[str]) -> bool:
+    """Return True if the response fuzzy-matches any prior-state answer.
+
+    This is the v0.2 signal name. The code signal corresponds to the
+    `prior` policy in the four-policy reference-state selection taxonomy.
+
+    Args:
+        response: The model response being scored.
+        prior_answers: Strings reflecting an earlier reference state.
+
+    Returns:
+        True if any prior_answer fuzzy-matches the response.
+    """
+    return fuzzy_match(response, prior_answers)
+
+
+def has_stale(response: str, stale_answers: list[str]) -> bool:
+    """Deprecated alias for `has_prior`. Emits `DeprecationWarning` on call.
+
+    Kept only so v0.1-framed callers and doc snippets continue to work
+    until the doc-alignment pass lands. New code should use `has_prior`.
+    """
+    warnings.warn(
+        "scoring.has_stale is deprecated; use scoring.has_prior "
+        "(the code signal now corresponds to the `prior` policy in v0.2).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return has_prior(response, stale_answers)
+
+
 def score_response(
     response: str,
     current_answers: list[str],
-    stale_answers: list[str],
+    prior_answers: list[str],
+    clarify_indicators: list[str] | None = None,
+    abstain_indicators: list[str] | None = None,
 ) -> dict:
     """Compute code-based scoring signals for a single response.
 
     The caller combines these with a judge verdict to compute a final
-    pass/fail. This function does not encode the pass rule itself.
+    pass/fail. In v0.2, code signals are audit-only; the judge verdict is
+    pass authority.
 
     Args:
         response: The model response text (typically the Turn 2 assistant
             reply).
         current_answers: Strings that reflect the up-to-date state. A match
-            indicates the model grounded on the most recent context.
-        stale_answers: Strings that reflect the earlier, overridden state.
-            A match indicates the model failed to update.
+            indicates the model grounded in the most recent context.
+        prior_answers: Strings that reflect the earlier reference state.
+            A match indicates the model answered from an earlier state.
+        clarify_indicators: Phrases that signal a clarifying question was
+            asked. Optional; defaults to empty list.
+        abstain_indicators: Phrases that signal the model declined to
+            answer. Optional; defaults to empty list.
 
     Returns:
         Dict with keys:
             has_current (bool): Fuzzy match against any current answer.
-            has_stale (bool): Fuzzy match against any stale answer, after
+            has_prior (bool): Fuzzy match against any prior answer, after
                 the contrastive-pattern suppressor demotes it to False
                 when the response explicitly contrasts earlier with
                 current state.
-            has_stale_raw (bool): Pre-suppression fuzzy-match value,
+            has_prior_raw (bool): Pre-suppression fuzzy-match value,
                 preserved for audit trails.
+            has_clarify (bool): Substring match against any
+                clarify_indicators.
+            has_abstain (bool): Substring match against any
+                abstain_indicators.
             is_refusal (bool): Whether the response refuses or hedges.
-            response_length_tokens (int): Approximate token count, rounded.
+            response_length_tokens_est (int): Approximate token count,
+                rounded.
+            has_stale (bool): Deprecated alias of `has_prior`. Present so
+                v0.1-framed callers continue to work.
+            has_stale_raw (bool): Deprecated alias of `has_prior_raw`.
     """
     has_current = fuzzy_match(response, current_answers)
-    has_stale_raw = fuzzy_match(response, stale_answers)
-    has_stale = has_stale_raw
-    if has_stale and _CONTRASTIVE_RE.search(response or ""):
-        has_stale = False
+    has_prior_raw = fuzzy_match(response, prior_answers)
+    has_prior_value = has_prior_raw
+    if has_prior_value and _CONTRASTIVE_RE.search(response or ""):
+        has_prior_value = False
+    has_clarify_value = substring_match(response, clarify_indicators or [])
+    has_abstain_value = substring_match(response, abstain_indicators or [])
     is_refusal = detect_refusal(response)
 
     word_count = len(response.split()) if response else 0
-    response_length_tokens = int(round(word_count * 1.3))
+    response_length_tokens_est = int(round(word_count * 1.3))
 
     return {
         "has_current": has_current,
-        "has_stale": has_stale,
-        "has_stale_raw": has_stale_raw,
+        "has_prior": has_prior_value,
+        "has_prior_raw": has_prior_raw,
+        "has_clarify": has_clarify_value,
+        "has_abstain": has_abstain_value,
         "is_refusal": is_refusal,
-        "response_length_tokens": response_length_tokens,
+        "response_length_tokens_est": response_length_tokens_est,
+        "has_stale": has_prior_value,
+        "has_stale_raw": has_prior_raw,
     }
