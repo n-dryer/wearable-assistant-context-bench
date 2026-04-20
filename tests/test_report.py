@@ -334,7 +334,7 @@ def test_render_findings_markdown_emits_complete_manifest() -> None:
 def test_render_findings_markdown_manifest_fills_missing_keys() -> None:
     output = render_findings_markdown(
         _fixture_results(),
-        manifest={"benchmark_version": "v1"},
+        manifest={"benchmark_version": "v1.1"},
     )
     match = re.search(r"```json\n(.*?)\n```", output, re.DOTALL)
     assert match is not None
