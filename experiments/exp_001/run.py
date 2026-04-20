@@ -35,9 +35,11 @@ from core.llm_judge import (
     JudgeVerdict,
     LLMJudge,
     build_judge,
+    infer_candidate_family,
     resolve_judge_family,
 )
 from core.models import ClaudeAdapter, ModelConfig
+from core.openai_adapter import OpenAIAdapter
 from core.report import (
     DEFAULT_RANKING_CONDITION,
     BENCHMARK_VERSION,
@@ -186,6 +188,26 @@ def _current_git_commit() -> str:
     return sha or "unknown"
 
 
+def _build_adapter(model_id: str) -> Any:
+    """Pick a candidate adapter based on the model family.
+
+    Routes `claude|sonnet|opus|haiku` prefixes to `ClaudeAdapter` and
+    `gpt|o1|o3|o4|chatgpt` prefixes to `OpenAIAdapter`. Unknown families
+    raise `ValueError` so the runner fails loudly instead of silently
+    defaulting.
+    """
+    family = infer_candidate_family(model_id)
+    if family == "claude":
+        return ClaudeAdapter()
+    if family == "openai":
+        return OpenAIAdapter()
+    raise ValueError(
+        f"Unsupported candidate model family for model_id={model_id!r}. "
+        "Supported families: claude (claude/sonnet/opus/haiku), "
+        "openai (gpt/o1/o3/o4/chatgpt)."
+    )
+
+
 def _build_manifest(
     *,
     effective_config: dict[str, Any],
@@ -262,7 +284,9 @@ def run(
         model_id=effective_config["model_id"],
         temperature=effective_config["temperature"],
     )
-    adapter_ = adapter if adapter is not None else ClaudeAdapter()
+    adapter_ = adapter if adapter is not None else _build_adapter(
+        effective_config["model_id"]
+    )
 
     if judge is None:
         family, resolution_mode = resolve_judge_family(
