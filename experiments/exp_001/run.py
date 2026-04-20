@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -166,6 +167,25 @@ def _sha256_of_file(path: Path) -> str | None:
     return hashlib.sha256(data).hexdigest()
 
 
+def _current_git_commit() -> str:
+    """Return the current git HEAD SHA, or "unknown" if unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=EXP_DIR,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (FileNotFoundError, subprocess.SubprocessError, OSError):
+        return "unknown"
+    if result.returncode != 0:
+        return "unknown"
+    sha = result.stdout.strip()
+    return sha or "unknown"
+
+
 def _build_manifest(
     *,
     effective_config: dict[str, Any],
@@ -206,7 +226,7 @@ def _build_manifest(
         "timestamp_utc": datetime.now(timezone.utc).isoformat(
             timespec="seconds"
         ),
-        "runner_git_commit": None,
+        "runner_git_commit": _current_git_commit(),
     }
     manifest["manifest_warnings"] = warnings
     return manifest
