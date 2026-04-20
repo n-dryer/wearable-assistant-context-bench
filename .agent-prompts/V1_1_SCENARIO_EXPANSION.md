@@ -10,11 +10,11 @@ their corrected form).
 
 ## Purpose
 
-The frozen v1 set is 4 scenarios. This expansion adds 6 to bring v1
-to 10 total, covering construct dimensions not represented in the
-original set: visual-similarity trap, without-prior-Q, temporal shift
-in the same place, screen-domain swap, absence/negative case, and
-numeric/quantitative referent.
+The frozen v1 set is 4 scenarios. This expansion adds 7 to bring
+v1.1 to 11 total, covering construct dimensions not represented in
+the original set: visual-similarity trap, without-prior-Q, temporal
+shift in the same place, screen-domain swap, absence/negative case,
+and numeric/quantitative referent.
 
 Selection rationale from the scenario-review sub-agent: each new
 scenario earns its slot for a distinct construct dimension, not for
@@ -381,7 +381,7 @@ self-explanatory and the judgment ("reasonable?") is context-bound.
 When Claude Code integrates this expansion (after Phase 3
 remediation is green):
 
-1. Append sc-05 through sc-10 to
+1. Append sc-05 through sc-11 to
    `experiments/exp_001/scenarios.json` in the given order.
 2. Append the six corresponding entries to
    `experiments/exp_001/expected_answers.json`.
