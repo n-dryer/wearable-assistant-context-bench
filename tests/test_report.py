@@ -284,7 +284,7 @@ def test_render_findings_markdown_shape() -> None:
     )
     assert BENCHMARK_SLICE in output
     assert "Benchmark summary" in output
-    assert "Per-policy pass rate" in output
+    assert "Per-class pass rate" in output
     assert "Simulated repair rate" in output
     assert "Code-judge disagreement" in output
     assert "Scenario-by-condition matrix" in output
@@ -295,7 +295,11 @@ def test_render_findings_markdown_shape() -> None:
     assert UNSCORED_POLICY_NOTE == DIAGNOSTIC_POLICY_NOTE
     # No old probe-study / aggregate-pass-rate leftovers.
     lowered = output.lower()
-    for forbidden in ("probe study", "aggregate pass rate", "overall pass rate"):
+    for forbidden in (
+        "probe " + "study",
+        "aggregate " + "pass rate",
+        "overall " + "pass rate",
+    ):
         assert forbidden not in lowered
 
 

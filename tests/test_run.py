@@ -1,4 +1,4 @@
-"""Dry-run integration test for experiments.exp_001.run.
+"""Dry-run integration test for benchmark.v1.run.
 
 Stubs the candidate adapter and judge so the loop runs without
 network. Confirms per-trial result shape, JSONL transcript output,
@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from experiments.exp_001 import run as run_module
+from benchmark.v1 import run as run_module
 
 
 class _StubAdapter:

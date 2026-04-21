@@ -4,7 +4,7 @@ The judge labels each Turn 2 response with exactly one policy from the
 four-policy taxonomy: `current`, `prior`, `clarify`, `abstain`. v1's
 scored surface is `prior` vs `current`; `clarify` and `abstain` remain
 emittable tags for diagnostic visibility but count as wrong for the
-primary score (see docs/concept_v0_2.md).
+primary score (see docs/benchmark_spec.md).
 
 A `JudgeAdapter` abstraction lets the judge run against either the
 Claude or OpenAI Messages/Chat APIs. The CLI's default

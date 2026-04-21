@@ -1,9 +1,9 @@
 """Intervention condition loading.
 
-Loads the three prompt conditions (baseline, direct instruction, pre-answer
-scaffold) from an interventions.json file. The JSON file itself is populated
-by the experiment builder in Prompt 2; this module only handles loading and
-lookup.
+Loads the three prompt conditions used by the benchmark v1 slice
+from ``benchmark/v1/interventions.json``. This module is intentionally
+thin: JSON is the only active source of truth for intervention text,
+and the loader only handles parsing and lookup.
 
 Expected JSON schema:
     [

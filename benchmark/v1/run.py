@@ -1,11 +1,13 @@
-"""v1 benchmark runner for visual-context selection.
+"""v1 runnable-slice runner for the Wearable Assistant Context Benchmark.
 
-The runner walks the 11 frozen v1 scenarios through three
-intervention conditions, with a configurable trial count per cell,
-as a 2-turn conversation. On Turn 2 failure it fires a templated
-Turn 3 "I mean, ..." repair anchor and labels the Turn 3 response.
-Per-trial transcripts are written as JSONL. Findings are rendered
-via `core.report`, including a reproducibility manifest.
+This runner implements the v1 scored sub-capability:
+reference-state selection under implicit context shift. It walks
+the 11 frozen v1 scenarios through three intervention conditions,
+with a configurable trial count per cell, as a 2-turn conversation.
+On Turn 2 failure it fires a templated Turn 3 "I mean, ..." repair
+anchor and labels the Turn 3 response. Per-trial transcripts are
+written as JSONL. Findings are rendered via `core.report`, including
+a reproducibility manifest.
 
 Candidate and judge models are selected via CLI flags (`--model`,
 `--judge-model`, `--judge-family`, `--trials`, `--output-dir`).
@@ -48,6 +50,12 @@ from core.report import (
 )
 from core.scoring import score_response
 
+EXP_DIR = Path(__file__).resolve().parent
+DEFAULT_OUTPUT_DIR = EXP_DIR / "runs" / "latest"
+SCENARIOS_PATH = EXP_DIR / "scenarios.json"
+EXPECTED_ANSWERS_PATH = EXP_DIR / "expected_answers.json"
+INTERVENTIONS_PATH = EXP_DIR / "interventions.json"
+
 
 CONFIG: dict[str, Any] = {
     "model_id": "claude-sonnet-4-6",
@@ -55,16 +63,9 @@ CONFIG: dict[str, Any] = {
     "judge_family": "auto",
     "temperature": 0.0,
     "trials_per_cell": 2,
-    "output_dir": "experiments/exp_001/transcripts/",
+    "output_dir": str(DEFAULT_OUTPUT_DIR),
     "ranking_condition": DEFAULT_RANKING_CONDITION,
 }
-
-
-EXP_DIR = Path(__file__).resolve().parent
-SCENARIOS_PATH = EXP_DIR / "scenarios.json"
-EXPECTED_ANSWERS_PATH = EXP_DIR / "expected_answers.json"
-INTERVENTIONS_PATH = EXP_DIR / "interventions.json"
-DEFAULT_FINDINGS_PATH = EXP_DIR / "findings.md"
 
 
 @dataclass
@@ -259,7 +260,7 @@ def _build_manifest(
 
 
 def run(
-    adapter: ClaudeAdapter | None = None,
+    adapter: Any | None = None,
     judge: LLMJudge | None = None,
     config: dict[str, Any] | None = None,
 ) -> list[dict]:
@@ -269,8 +270,8 @@ def run(
     stub `adapter` and `judge` so the loop runs without network.
 
     Args:
-        adapter: Claude adapter for the candidate model. Defaults to a
-            fresh `ClaudeAdapter()`.
+        adapter: Candidate adapter. Defaults to the family-appropriate
+            adapter resolved from `model_id`.
         judge: `LLMJudge`. Defaults to the cross-family `auto`
             resolution against `CONFIG["model_id"]`.
         config: Overrides for CONFIG. Unrecognized keys are ignored.
@@ -342,25 +343,10 @@ def run(
         ranking_condition=effective_config["ranking_condition"],
     )
 
-    findings_path = _findings_path_for_run(effective_config, output_dir)
+    findings_path = output_dir / "findings.md"
     findings_path.write_text(findings, encoding="utf-8")
 
     return results
-
-
-def _findings_path_for_run(
-    effective_config: dict[str, Any], output_dir: Path
-) -> Path:
-    """Resolve where the findings file lands for this run.
-
-    When `--output-dir` is provided, findings land inside it so each
-    run's transcripts and findings stay co-located. When omitted,
-    findings go to the module-level default.
-    """
-    if effective_config.get("output_dir") != CONFIG["output_dir"]:
-        return output_dir / "findings.md"
-    return DEFAULT_FINDINGS_PATH
-
 
 def _run_one_trial(
     *,
@@ -368,7 +354,7 @@ def _run_one_trial(
     answers: AnswerSet,
     condition: InterventionCondition,
     trial: int,
-    adapter: ClaudeAdapter,
+    adapter: Any,
     judge: LLMJudge,
     model_config: ModelConfig,
 ) -> dict:
@@ -398,7 +384,7 @@ def _run_one_trial(
     scenario_description = (
         f"Turn 1 context:\n{scenario.turn_1_user}\n\n"
         f"Between Turn 1 and Turn 2 the user's visual context shifts; "
-        f"the target policy for Turn 2 is `{scenario.target_context}`."
+        f"the target context for Turn 2 is `{scenario.target_context}`."
     )
 
     judge_verdict = judge.label(
@@ -484,18 +470,63 @@ def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the v1 visual-context selection benchmark.",
+        description=(
+            "Run the Wearable Assistant Context Benchmark v1 "
+            "slice (reference-state selection under implicit "
+            "context shift)."
+        ),
+        epilog=(
+            "Example: python -m benchmark.v1.run "
+            "--model claude-sonnet-4-6 --judge-model gpt-4.1"
+        ),
     )
-    parser.add_argument("--model", dest="model", default=None)
-    parser.add_argument("--judge-model", dest="judge_model", default=None)
+    parser.add_argument(
+        "--model",
+        dest="model",
+        default=None,
+        help=(
+            "candidate model ID; default is "
+            f"{CONFIG['model_id']}"
+        ),
+    )
+    parser.add_argument(
+        "--judge-model",
+        dest="judge_model",
+        default=None,
+        help=(
+            "judge model ID; defaults to the family-specific judge chosen for "
+            "the run"
+        ),
+    )
     parser.add_argument(
         "--judge-family",
         dest="judge_family",
         default=None,
         choices=["auto", "claude", "openai", "gemini"],
+        help=(
+            "judge family override; default is auto, which picks a "
+            "cross-family judge when candidate family inference succeeds"
+        ),
     )
-    parser.add_argument("--trials", dest="trials", type=int, default=None)
-    parser.add_argument("--output-dir", dest="output_dir", default=None)
+    parser.add_argument(
+        "--trials",
+        dest="trials",
+        type=int,
+        default=None,
+        help=(
+            "trials per (scenario, condition) cell; default is "
+            f"{CONFIG['trials_per_cell']}"
+        ),
+    )
+    parser.add_argument(
+        "--output-dir",
+        dest="output_dir",
+        default=None,
+        help=(
+            "directory for transcripts, findings, and manifest; defaults to "
+            f"{DEFAULT_OUTPUT_DIR}"
+        ),
+    )
     return parser.parse_args(argv)
 
 
