@@ -38,6 +38,7 @@ from core.llm_judge import (
     infer_candidate_family,
     resolve_judge_family,
 )
+from core.gemini_adapter import GeminiAdapter
 from core.models import ClaudeAdapter, ModelConfig
 from core.openai_adapter import OpenAIAdapter
 from core.report import (
@@ -201,6 +202,8 @@ def _build_adapter(model_id: str) -> Any:
         return ClaudeAdapter()
     if family == "openai":
         return OpenAIAdapter()
+    if family == "gemini":
+        return GeminiAdapter()
     raise ValueError(
         f"Unsupported candidate model family for model_id={model_id!r}. "
         "Supported families: claude (claude/sonnet/opus/haiku), "
@@ -489,7 +492,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--judge-family",
         dest="judge_family",
         default=None,
-        choices=["auto", "claude", "openai"],
+        choices=["auto", "claude", "openai", "gemini"],
     )
     parser.add_argument("--trials", dest="trials", type=int, default=None)
     parser.add_argument("--output-dir", dest="output_dir", default=None)

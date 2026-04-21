@@ -141,7 +141,7 @@ def test_parse_args_accepts_all_flags() -> None:
 
 def test_parse_args_rejects_unknown_judge_family() -> None:
     with pytest.raises(SystemExit):
-        run_module._parse_args(["--judge-family", "gemini"])
+        run_module._parse_args(["--judge-family", "mistral"])
 
 
 def test_parse_args_defaults_are_none() -> None:

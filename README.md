@@ -177,10 +177,11 @@ Flags:
 - `--model`: candidate model string. Required when comparing a new
   release.
 - `--judge-model`: judge model string.
-- `--judge-family`: `auto`, `claude`, or `openai`. Default `auto`
-  picks a family different from the candidate's, inferred from the
-  candidate string. Errors out if the candidate family cannot be
-  inferred.
+- `--judge-family`: `auto`, `claude`, `openai`, or `gemini`. Default
+  `auto` picks a family different from the candidate's, inferred from
+  the candidate string. Errors out if the candidate family cannot be
+  inferred. (`gemini` selects the same-family Gemini judge; the v1
+  cross-family default for a Gemini candidate falls back to OpenAI.)
 - `--trials`: trials per `(scenario, condition)` cell.
 - `--output-dir`: output path for transcripts and the generated
   findings file for this run.
@@ -209,9 +210,12 @@ python -m spacy download en_core_web_sm
 Set API keys as needed:
 
 - `ANTHROPIC_API_KEY` is required when the candidate or judge is a
-  Claude-family model.
-- `OPENAI_API_KEY` is required when the resolved judge family is
-  `openai`.
+  Claude-family model (e.g. `claude-sonnet-4-6`, `claude-haiku-4-5`).
+- `OPENAI_API_KEY` is required when the candidate or resolved judge
+  family is `openai` (e.g. `gpt-5.4`, `gpt-4o-mini`).
+- `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) is required when the
+  candidate or judge is a Gemini-family model (e.g.
+  `gemini-2.5-flash`, `gemini-2.5-flash-lite`).
 
 See `.env.example`.
 
