@@ -6,6 +6,16 @@ All notable changes to Deixis-Bench. This project loosely follows
 to the benchmark set as a whole (scenarios + scoring + reporting),
 not to the codebase.
 
+## Unreleased
+
+### Added
+
+- Gemini candidate adapter (`core/gemini_adapter.py`) and `gemini`
+  family routing in the runner and judge factory. Same-family Gemini
+  judging is supported; cross-family `auto` for a Gemini candidate
+  falls back to OpenAI. `GEMINI_API_KEY` / `GOOGLE_API_KEY` is read
+  from the environment.
+
 ## [v1] (2026-04-20)
 
 **Initial public release.** Deixis-Bench is renamed and reframed

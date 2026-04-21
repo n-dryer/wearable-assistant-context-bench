@@ -119,7 +119,7 @@ def test_resolve_judge_family_auto_errors_on_unknown_candidate() -> None:
 
 def test_resolve_judge_family_rejects_unknown_requested_value() -> None:
     with pytest.raises(ValueError):
-        resolve_judge_family("gemini", "claude-sonnet-4-6")
+        resolve_judge_family("mistral", "claude-sonnet-4-6")
 
 
 # --- Judge adapter routing -----------------------------------------------
@@ -182,7 +182,7 @@ def test_build_judge_accepts_explicit_model_id() -> None:
 
 def test_build_judge_rejects_unknown_family() -> None:
     with pytest.raises(ValueError):
-        build_judge(family="gemini")
+        build_judge(family="mistral")
 
 
 def test_claude_judge_adapter_family() -> None:
