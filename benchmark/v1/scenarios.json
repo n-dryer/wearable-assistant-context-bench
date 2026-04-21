@@ -49,11 +49,11 @@
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
-    "turn_1_user": "I'm at the framing shop. I've got two posters with me. The one on the counter is a 24x36 vintage travel poster of Lake Como — lots of saturated blue water and a cream sky. What mat color would best complement this?",
+    "turn_1_user": "I'm at the framing shop. I've got two posters with me. The one on the counter is a 24x36 vintage travel poster of Lake Como, with lots of saturated blue water and a cream sky. What mat color would best complement this?",
     "turn_2_user": "Holding up the second poster now. What about this one?",
     "turn_3_repair_anchor": "I mean the second poster I'm holding up now, not the Lake Como one.",
     "text_proxy_degraded": true,
-    "notes": "Visual similarity trap. T1 anchors on a richly described first poster; T2 swaps to a second poster without verbalizing its visual content. Failure pattern: model carries over Lake Como mat advice instead of pivoting. text_proxy_degraded because the visual differentiation has no textual proxy in T2. Authoring note for the image-enabled slice: the second poster should be selected so its palette could plausibly echo Lake Como's — otherwise the 'trap' evaporates into a pure unknown-content case."
+    "notes": "Visual similarity trap. T1 anchors on a richly described first poster; T2 swaps to a second poster without verbalizing its visual content. Failure pattern: model carries over Lake Como mat advice instead of pivoting. text_proxy_degraded because the visual differentiation has no textual proxy in T2. Authoring note for the image-enabled slice: the second poster should be selected so its palette could plausibly echo Lake Como's, otherwise the trap evaporates into a pure unknown-content case."
   },
   {
     "scenario_id": "sc-06",
@@ -61,12 +61,12 @@
     "authoring_basis": "theoretical",
     "source_example_id": null,
     "surface": "wearable_live_frame",
-    "turn_1_user": "I'm in the back garden. The hydrangeas along the fence are in full bloom — blue, but starting to fade. Just sharing what I'm seeing.",
+    "turn_1_user": "I'm in the back garden. The hydrangeas along the fence are in full bloom, blue but starting to fade. Just sharing what I'm seeing.",
     "turn_2_user": "Walked into the garage. Can you tell which tools are missing from the pegboard?",
-    "turn_3_repair_anchor": "I mean, actually look at the pegboard I'm standing in front of — which tool outlines have no tool hanging on them?",
+    "turn_3_repair_anchor": "I mean, actually look at the pegboard I'm standing in front of. Which tool outlines have no tool hanging on them?",
     "variant": "without_prior_q_soft",
     "text_proxy_degraded": true,
-    "notes": "Without-prior-Q soft case from docs/concept_v0_2.md. T1 is descriptive without a question requiring an anchor. T2 in a new room asks a specifically-visual current-frame question that cannot be answered from world knowledge alone. Correct behavior is to engage with the pegboard's visible layout. Failure mode: model gives generic pegboard-organization advice instead. text_proxy_degraded because which-tools-are-missing has no textual proxy in T2. Theoretical because no pilot example anchors this shape."
+    "notes": "Without-prior-Q soft case from docs/benchmark_spec.md. T1 is descriptive without a question requiring an anchor. T2 in a new room asks a specifically-visual current-frame question that cannot be answered from world knowledge alone. Correct behavior is to engage with the pegboard's visible layout. Failure mode: model gives generic pegboard-organization advice instead. text_proxy_degraded because which-tools-are-missing has no textual proxy in T2. Theoretical because no pilot example anchors this shape."
   },
   {
     "scenario_id": "sc-07",
@@ -75,7 +75,7 @@
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
     "turn_1_user": "I'm in the kitchen at 8am. I just put a sheet pan of cinnamon rolls in the oven, top shelf, 350F. They've been rising overnight and looked pillowy when I slid them in. How long should I bake them?",
-    "turn_2_user": "Okay it's 8:15 now and I'm back at the oven. Something's happening in there — what do you see?",
+    "turn_2_user": "Okay it's 8:15 now and I'm back at the oven. Something's happening in there. What do you see?",
     "turn_3_repair_anchor": "I mean describe the rolls as they are in the oven right now, not how they looked before baking.",
     "text_proxy_degraded": true,
     "notes": "Temporal state change. Same scene after time passes. T1 describes the pre-bake state; T2 asks a purely visual question about the current in-oven state. Failure pattern: model retells T1 pre-bake details instead of engaging with the current visual. The question is chosen so world knowledge (cinnamon-roll doneness timing) cannot substitute for actually looking. text_proxy_degraded because the current visual has no textual proxy in T2."
@@ -86,7 +86,7 @@
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
-    "turn_1_user": "I'm at my desk staring at my monitor. I've got a bug ticket open in Jira — it's a P1 about the checkout API returning 500s on cart-update. Suggested fix says 'check the redis lock'. Worth pinging the SRE on-call?",
+    "turn_1_user": "I'm at my desk staring at my monitor. I've got a bug ticket open in Jira. It's a P1 about the checkout API returning 500s on cart-update. Suggested fix says 'check the redis lock'. Worth pinging the SRE on-call?",
     "turn_2_user": "Switched windows. Is this a production incident, and should I page someone?",
     "turn_3_repair_anchor": "I mean the window I just switched to, not the Jira ticket.",
     "text_proxy_degraded": true,
@@ -98,11 +98,11 @@
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-08",
     "surface": "wearable_live_frame",
-    "turn_1_user": "I'm in the backyard. There's a buck in the corner — white-tailed, maybe six points, just standing by the maple tree. Should I move slowly to avoid spooking him?",
-    "turn_2_user": "Okay — which direction did he bolt?",
+    "turn_1_user": "I'm in the backyard. There's a buck in the corner, white-tailed, maybe six points, just standing by the maple tree. Should I move slowly to avoid spooking him?",
+    "turn_2_user": "Okay, which direction did he bolt?",
     "turn_3_repair_anchor": "Based on what you saw before he ran.",
     "text_proxy_degraded": true,
-    "notes": "Absence detection with directional recall. The visual context shifts because the object left, not because the user moved. T2 asks for a specific spatial fact (which direction) that only the prior frame can supply — world knowledge about deer behavior is not sufficient. Failure pattern: model speculates about deer cover-seeking without using the prior layout, or pivots to the empty current frame. Extends ex-08's prior-recall shape into an object-departure case. text_proxy_degraded because the directional answer requires the visual layout, not just the text description."
+    "notes": "Absence detection with directional recall. The visual context shifts because the object left, not because the user moved. T2 asks for a specific spatial fact, which direction, that only the prior frame can supply. World knowledge about deer behavior is not sufficient. Failure pattern: model speculates about deer cover-seeking without using the prior layout, or pivots to the empty current frame. Extends ex-08's prior-recall shape into an object-departure case. text_proxy_degraded because the directional answer requires the visual layout, not just the text description."
   },
   {
     "scenario_id": "sc-10",
@@ -111,7 +111,7 @@
     "source_example_id": "ex-09",
     "surface": "wearable_live_frame",
     "turn_1_user": "I'm at the warehouse pulling holiday stock. There are 12 cases of the cabernet on this pallet. Typical ramp says we sell about 8 cases per week through the holiday window. Should I pull more from the back?",
-    "turn_2_user": "Walked over to the chardonnay pallet. Same question — should I pull more from the back?",
+    "turn_2_user": "Walked over to the chardonnay pallet. Same question, should I pull more from the back?",
     "turn_3_repair_anchor": "I mean the chardonnay pallet I'm standing at now, not the cabernet.",
     "text_proxy_degraded": true,
     "notes": "Numeric/quantitative swap. T1 establishes a specific case count and weekly sell-through. T2 moves to a different pallet without restating the numbers. Failure pattern: model carries over the 12-case math to the chardonnay pallet. text_proxy_degraded because the new pallet's count has no textual proxy in T2."
@@ -122,7 +122,7 @@
     "authoring_basis": "extended_from_pilot",
     "source_example_id": "ex-08",
     "surface": "wearable_live_frame",
-    "turn_1_user": "I'm in the baby aisle. I just picked up the formula we've been trying — the label says it's 'Stage 2 infant formula, for 6 to 12 months, made with organic cow's milk, no corn syrup solids, 20 calories per fluid ounce'. Is this the right stage for my 7-month-old?",
+    "turn_1_user": "I'm in the baby aisle. I just picked up the formula we've been trying. The label says it's 'Stage 2 infant formula, for 6 to 12 months, made with organic cow's milk, no corn syrup solids, 20 calories per fluid ounce'. Is this the right stage for my 7-month-old?",
     "turn_2_user": "I just put it back on the shelf. What did the label say the calorie count was?",
     "turn_3_repair_anchor": "Based on what you just saw on the label before I put it back.",
     "notes": "Object-label prior recall. T1 verbalizes a product label while the object is visible; T2 asks a specific label fact after the object is back on the shelf. Current frame (shelf) is irrelevant; the answer lives in the prior frame. Failure pattern: model refuses or clarifies (both wrong) instead of reaching back. Extends ex-08's prior-recall shape into a product-label case that is distinct from sc-03 (library layout) and sc-09 (animal direction)."
