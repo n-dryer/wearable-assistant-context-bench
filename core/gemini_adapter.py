@@ -77,7 +77,8 @@ class GeminiAdapter:
             return None
         with path.open("r", encoding="utf-8") as f:
             payload = json.load(f)
-        return payload.get("response")
+        cached = payload.get("response")
+        return cached if cached else None
 
     def _store_cached(self, key: str, response: str) -> None:
         self._cache_dir.mkdir(parents=True, exist_ok=True)
@@ -108,10 +109,24 @@ class GeminiAdapter:
                 )
             )
 
+        # Flash-lite does not reason, so thinking_budget=0 is safe and
+        # cheap. Flash-2.5 and Pro use thinking internally; forcing
+        # thinking off makes them leak reasoning into output tokens and
+        # loop. Leave thinking at default for those and give them headroom
+        # so the thinking pass plus the text payload both fit.
+        extra: dict[str, Any] = {}
+        model_lower = config.model_id.lower()
+        is_flash_lite = "flash-lite" in model_lower
+        if is_flash_lite:
+            extra["thinking_config"] = gtypes.ThinkingConfig(thinking_budget=0)
+            max_output = config.max_tokens
+        else:
+            max_output = max(config.max_tokens, 8192)
         gen_config = gtypes.GenerateContentConfig(
             system_instruction=system or None,
             temperature=config.temperature,
-            max_output_tokens=config.max_tokens,
+            max_output_tokens=max_output,
+            **extra,
         )
 
         response = self.client.models.generate_content(
@@ -121,7 +136,8 @@ class GeminiAdapter:
         )
 
         text = _extract_text(response)
-        self._store_cached(cache_key, text)
+        if text:
+            self._store_cached(cache_key, text)
         return text
 
 
