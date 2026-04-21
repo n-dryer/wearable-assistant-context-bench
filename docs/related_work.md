@@ -2,8 +2,9 @@
 
 The benchmark's literature-facing anchor is **reference resolution
 under context shift** in multimodal/egocentric settings. The
-benchmark's internal task is prior-versus-current visual-context
-selection.
+benchmark's internal task is **situated reference resolution under
+visual-context shift**, scored on a prior-versus-current
+visual-context axis.
 
 This is not identical to common-ground tracking, clarificational-
 exchange modeling, or egocentric streaming evaluation, but it sits

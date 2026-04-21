@@ -1,20 +1,21 @@
 # Deixis-Bench
 
 `Deixis-Bench` is an internal benchmark for **situated reference
-resolution** in a wearable live-assistant camera product. It
-measures whether a candidate model uses common-sense inference over
-situational cues (the user's words, the object they just picked
-up, the room they just walked into, what they said a minute ago)
-to pick the right visual context when answering an
-ambiguously-referenced question.
+resolution under visual-context shift** in a wearable live-assistant
+camera product. The underlying task is the same phenomenon linguists
+call **deixis**: resolving a reference whose meaning depends on the
+situational context of the utterance. The benchmark measures
+whether a candidate model uses common-sense inference over
+situational cues (the user's words, the object they just picked up,
+the room they just walked into, what they said a minute ago) to
+resolve an ambiguously-referenced question.
 
 Object recognition is assumed. What is scored is the
 reference-resolution decision, operationalized as a binary label:
 does the Turn 2 answer anchor to the **prior** visual context (a
 prior frame) or the **current** visual context (the right-now
-frame)? "Prior vs. current" is the scoring axis; the underlying
-task is **reference resolution under context shift**, the same
-phenomenon linguists call deixis.
+frame)? "Prior vs. current" is the scoring axis, not the framing of
+the task itself.
 
 ## Background
 
@@ -48,9 +49,13 @@ and instead retrieve the prior one.
 
 **It is:**
 
-- a benchmark for visual-context selection
+- a benchmark for **situated reference resolution** under
+  visual-context shift; a test of whether candidate models infer
+  the right visual referent from situational cues
+- (scoring axis) a measurement of whether the Turn 2 answer anchors
+  to the **prior** or **current** visual context, scored as
+  balanced Turn 2 accuracy
 - internal-use: it compares candidate model releases for shipping
-- a measurement of prior-versus-current visual-context selection
 - used for model selection
 
 **It is not:**
