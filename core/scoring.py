@@ -9,14 +9,13 @@ called `has_prior` (it corresponds to the `prior` policy in the
 four-policy reference-state selection taxonomy). `has_clarify` and
 `has_abstain` are new audit-only signals derived from per-seed
 indicator lists. Code signals are no longer pass authority in v0.2;
-the judge verdict is primary. See docs/concept_v0_2.md.
+the judge verdict is primary. See docs/benchmark_spec.md.
 
 Backwards-compat: the `has_stale` function is kept as a deprecated
 thin alias that delegates to `has_prior`. The return dict of
 `score_response` also exposes `has_stale` / `has_stale_raw` keys as
 aliases of `has_prior` / `has_prior_raw` so that the v0.1-curated
-docs/methodology.md description stays accurate until the doc-alignment
-pass lands.
+legacy API remains stable for older call sites.
 
 The contrastive-pattern suppressor (see `_CONTRASTIVE_RE`) demotes
 `has_prior` to False when the response explicitly contrasts an earlier
