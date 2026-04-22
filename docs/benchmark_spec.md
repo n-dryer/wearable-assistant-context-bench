@@ -87,6 +87,44 @@ The active runtime inputs are:
 
 These JSON files are the source files used to run v1.
 
+## Scenario schema
+
+Each entry in `scenarios.json` is an object with the following fields.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `scenario_id` | string | yes | unique identifier, e.g. `sc-01` |
+| `target_context` | enum | yes | `current` or `prior`. The authored correct label for Turn 2. |
+| `authoring_basis` | enum | yes | `pilot`, `extended_from_pilot`, or `theoretical`. How the scenario was sourced. |
+| `source_example_id` | string or null | yes | reference ID from the pilot corpus, or `null` for `theoretical` scenarios |
+| `surface` | enum | yes | `wearable_live_frame` for v1. Reserved values (`mobile_app_chat`, `synthetic`) are not used in v1. |
+| `turn_1_user` | string | yes | the user's first message, establishing the prior context |
+| `turn_2_user` | string | yes | the user's second message, after the context shift, with an ambiguous reference |
+| `turn_3_repair_anchor` | string | yes | templated repair utterance used when Turn 2 fails; runs as a secondary check |
+| `turn_1_image` | string or null | no | image path for Turn 1. Plumbed for future multimodal slices; unset in v1. |
+| `turn_2_image` | string or null | no | image path for Turn 2. Unset in v1. |
+| `variant` | string | no | optional variant label, e.g. `without_prior_q_soft` |
+| `text_proxy_degraded` | boolean | no | `true` when the scenario's visual information has no textual proxy in Turn 2 |
+| `notes` | string | no | authoring commentary |
+
+`expected_answers.json` is a dict keyed by `scenario_id`. Each entry has:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `current_answers` | list of strings | substrings indicating the model anchored to the current context |
+| `prior_answers` | list of strings | substrings indicating the model anchored to the prior context |
+| `clarify_indicators` | list of strings | substrings indicating the model asked a clarifying question |
+| `abstain_indicators` | list of strings | substrings indicating the model refused or claimed it could not see |
+
+These lists drive the code-side scorer, which runs alongside the
+LLM-as-judge. The judge is authoritative for the primary score; the
+code signals surface as a diagnostic disagreement count.
+
+`interventions.json` is a list of intervention conditions. Each has a
+`name` (`baseline`, `condition_a`, or `condition_b`) and a
+`system_prompt`. The system prompt is sent as the candidate's system
+prompt for every trial under that condition.
+
 ## Scoring and ranking
 
 Each trial produces a Turn 2 judge label:
