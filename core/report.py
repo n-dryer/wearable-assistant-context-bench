@@ -1,12 +1,14 @@
-"""Aggregation and Markdown rendering for v1 benchmark results.
+"""Aggregation and Markdown rendering for v1 slice results.
 
-The runner produces one result dict per trial. This module rolls those
-up into:
+The runner produces one result dict per trial. This module rolls
+those up into a findings report for the `Wearable Assistant Context
+Benchmark` v1 runnable slice (reference-state selection under
+implicit context shift):
 
 1. **Benchmark summary.** Headline primary score (balanced Turn 2
    accuracy under the ranking condition), per-class accuracy, and a
    per-condition sensitivity row. This is the ranking-friendly view.
-2. **Per-policy pass rate by condition.** A 4-row internal grid for
+2. **Per-class pass rate by condition.** A 4-row internal grid for
    visibility. Rows without runnable scenarios (v1: `clarify`,
    `abstain`) render as **diagnostic-only** rows with a note; any
    trial whose judge emitted `clarify` or `abstain` is counted as
@@ -45,8 +47,12 @@ DIAGNOSTIC_POLICY_NOTE: str = (
     "diagnostic-only in v1; trials in this row count as wrong for the primary score"
 )
 
+BENCHMARK_NAME: str = "Wearable Assistant Context Benchmark"
 BENCHMARK_VERSION: str = "v1"
-BENCHMARK_SLICE: str = "v1 with-prior-Q slice"
+BENCHMARK_SLICE: str = (
+    "v1 runnable slice (with-prior-Q; reference-state selection under "
+    "implicit context shift)"
+)
 DEFAULT_RANKING_CONDITION: str = "baseline"
 
 # Kept for backwards compatibility with older call sites and tests.
@@ -289,7 +295,9 @@ def render_findings_markdown(
     }
 
     sections = [
-        f"# Benchmark Findings — {BENCHMARK_SLICE}",
+        f"# {BENCHMARK_NAME}: Findings",
+        "",
+        f"**Slice:** {BENCHMARK_SLICE}",
         "",
         "## Benchmark summary",
         "",
@@ -301,7 +309,7 @@ def render_findings_markdown(
             per_condition_balanced=per_condition_balanced,
         ),
         "",
-        "## Per-policy pass rate by condition",
+        "## Per-class pass rate by condition",
         "",
         _render_policy_grid(grid, conditions),
         "",
@@ -342,6 +350,9 @@ def _render_benchmark_summary(
         f"- **Benchmark slice**: {benchmark_slice}",
         f"- **Ranking condition**: `{ranking_condition}`",
         f"- **Primary score** (balanced Turn 2 accuracy): **{_pct(primary_score)}**",
+        "- **How to read this run**: compare candidate models on the "
+        f"`{ranking_condition}` score below; treat the other conditions as "
+        "diagnostic sensitivity checks.",
         f"- **Per-class accuracy under `{ranking_condition}`**:",
     ]
     for policy in SCORED_POLICIES:
@@ -361,7 +372,7 @@ def _render_policy_grid(
     grid: dict[str, dict[str, PassRateCell]],
     conditions: list[str],
 ) -> str:
-    header = "| Policy | " + " | ".join(conditions) + " |"
+    header = "| Class | " + " | ".join(conditions) + " |"
     separator = "| --- | " + " | ".join("---" for _ in conditions) + " |"
     rows = [header, separator]
     for policy in POLICIES:
@@ -414,7 +425,7 @@ def _render_scenario_matrix(
     conditions: list[str],
     scenario_policies: dict[str, str] | None,
 ) -> str:
-    header = "| Scenario | Target policy | " + " | ".join(conditions) + " |"
+    header = "| Scenario | Target context | " + " | ".join(conditions) + " |"
     separator = "| --- | --- | " + " | ".join("---" for _ in conditions) + " |"
     rows = [header, separator]
 
