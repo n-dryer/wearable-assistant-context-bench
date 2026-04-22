@@ -13,7 +13,6 @@ dist/
 .vscode/
 .idea/
 benchmark/v1/runs/
-docs/benchmark_card.pdf
 EXECUTION_PLAN.md
 AGENTS.md
 CLAUDE.md
