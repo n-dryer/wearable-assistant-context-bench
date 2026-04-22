@@ -1,5 +1,9 @@
 # Wearable Assistant Context Benchmark
 
+[![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
+[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 **A benchmark for implicit context tracking in wearable multimodal assistants.**
 
 ## Why this exists
@@ -83,6 +87,36 @@ narrow model-selection question and released publicly for inspection.
 - **Balanced Turn 2 accuracy** as the primary ranking metric
 - **Cross-family LLM judge** by default through `--judge-family auto`
 - **Reproducibility manifest** emitted with each run
+
+## What this benchmark does not measure
+
+- Object recognition accuracy. Object identity is assumed; the
+  benchmark scores the context-selection decision, not whether the
+  model identifies what is in front of it.
+- General assistant quality, latency, cost, instruction following,
+  safety, or refusal calibration. v1 is scoped to one capability.
+- Long-horizon memory across sessions. v1 covers within-session shifts
+  across two conversational turns.
+- Real device telemetry. Scenarios are text proxies for
+  visual-context shifts, not on-device captures.
+
+## How it works
+
+```mermaid
+flowchart LR
+    T1[Turn 1<br/>establishes context] --> Shift[Implicit context<br/>shift]
+    Shift --> T2[Turn 2<br/>ambiguous follow-up]
+    T2 --> Cand[Candidate model<br/>response]
+    Cand --> Judge[Cross-family<br/>LLM judge]
+    Judge --> Label{Selected<br/>policy}
+    Label -->|prior / current| Score[Balanced<br/>Turn 2 accuracy]
+    Label -->|clarify / abstain| Diag[Diagnostic<br/>rows]
+```
+
+Each scenario runs across three prompt conditions and two trials per
+cell at temperature 0. Only Turn 2 is scored. Turn 3 fires on Turn 2
+failure as a templated repair anchor that feeds the simulated repair
+rate.
 
 ## Repository layout
 
@@ -179,6 +213,25 @@ The three prompt conditions are:
 in for likely user correction cost after a wrong follow-up answer, and
 is not part of the ranking. See [docs/benchmark_spec.md](docs/benchmark_spec.md)
 for how it is computed.
+
+## Results
+
+Run results are written to `benchmark/v1/runs/latest/findings.md`
+along with a reproducibility manifest. There is no public leaderboard.
+This benchmark is used internally to compare candidate model releases
+for shipping; published runs will be added under
+`benchmark/v1/runs/` as releases land.
+
+## Contributing
+
+v1 is a frozen scenario set: scenario edits, condition changes, and
+scoring changes are out of scope. Bug fixes, doc improvements, and
+new candidate-model adapters are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the full policy.
+
+## License
+
+Released under the MIT License. See [LICENSE](LICENSE).
 
 ## Citation
 
