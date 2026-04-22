@@ -12,7 +12,8 @@ dist/
 .DS_Store
 .vscode/
 .idea/
-benchmark/v1/runs/
+benchmark/v1/runs/*
+!benchmark/v1/runs/v1-baseline/
 EXECUTION_PLAN.md
 AGENTS.md
 CLAUDE.md
