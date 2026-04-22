@@ -5,8 +5,8 @@ abstract: "Benchmark for implicit context tracking in wearable multimodal assist
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
-repository-code: "https://github.com/n-dryer/deixis-bench"
-url: "https://github.com/n-dryer/deixis-bench"
+repository-code: "https://github.com/n-dryer/wearable-assistant-context-bench"
+url: "https://github.com/n-dryer/wearable-assistant-context-bench"
 keywords:
   - implicit context tracking
   - wearable multimodal assistant
