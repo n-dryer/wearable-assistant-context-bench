@@ -123,9 +123,9 @@ def test_parse_args_accepts_all_flags() -> None:
             "--model",
             "claude-sonnet-4-6",
             "--judge-model",
-            "gpt-5.4",
+            "gemini-2.5-flash",
             "--judge-family",
-            "openai",
+            "gemini",
             "--trials",
             "3",
             "--output-dir",
@@ -133,8 +133,8 @@ def test_parse_args_accepts_all_flags() -> None:
         ]
     )
     assert args.model == "claude-sonnet-4-6"
-    assert args.judge_model == "gpt-5.4"
-    assert args.judge_family == "openai"
+    assert args.judge_model == "gemini-2.5-flash"
+    assert args.judge_family == "gemini"
     assert args.trials == 3
     assert args.output_dir == "/tmp/out"
 
@@ -163,7 +163,7 @@ def test_config_overrides_from_args_full() -> None:
     args = run_module._parse_args(
         [
             "--model",
-            "gpt-5.4",
+            "gemini-2.5-flash",
             "--judge-model",
             "claude-sonnet-4-6",
             "--judge-family",
@@ -176,7 +176,7 @@ def test_config_overrides_from_args_full() -> None:
     )
     overrides = run_module._config_overrides_from_args(args)
     assert overrides == {
-        "model_id": "gpt-5.4",
+        "model_id": "gemini-2.5-flash",
         "judge_model_id": "claude-sonnet-4-6",
         "judge_family": "claude",
         "trials_per_cell": 1,

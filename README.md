@@ -106,7 +106,6 @@ python -m spacy download en_core_web_sm
 Set API keys as needed:
 
 - `ANTHROPIC_API_KEY` for Claude-family candidate or judge models
-- `OPENAI_API_KEY` for OpenAI-family candidate or judge models
 - `GEMINI_API_KEY` or `GOOGLE_API_KEY` for Gemini-family candidate or judge models
 
 An example environment file is provided in [.env.example](.env.example).
@@ -121,7 +120,7 @@ python -m benchmark.v1.run \
 
 Optional flags:
 
-- `--judge-family auto|claude|openai|gemini`
+- `--judge-family auto|claude|gemini`
 - `--trials <int>`
 - `--output-dir <path>`
 
@@ -145,7 +144,7 @@ label) or the current context (the **current** label). By default the
 judge runs in a different model family than the candidate to reduce
 same-family bias.
 `--judge-family auto` picks a different family automatically. Explicit
-`claude`, `openai`, or `gemini` overrides are available if needed.
+`claude` or `gemini` overrides are available if needed.
 
 ## How to read the primary score
 

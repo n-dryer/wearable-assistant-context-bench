@@ -7,17 +7,15 @@ emittable tags for diagnostic visibility but count as wrong for the
 primary score (see docs/benchmark_spec.md).
 
 A `JudgeAdapter` abstraction lets the judge run against either the
-Claude or OpenAI Messages/Chat APIs. The CLI's default
-`--judge-family auto` resolves to a family **different** from the
-candidate's (see `resolve_judge_family` and `infer_candidate_family`).
-Explicit `--judge-family claude|openai` overrides the cross-family
-default.
+Claude or Gemini APIs. The CLI's default `--judge-family auto`
+resolves to a family **different** from the candidate's (see
+`resolve_judge_family` and `infer_candidate_family`). Explicit
+`--judge-family claude|gemini` overrides the cross-family default.
 """
 
 from __future__ import annotations
 
 import json
-import os
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -27,7 +25,6 @@ from core.models import ClaudeAdapter, ModelConfig
 
 
 JUDGE_MODEL_ID_CLAUDE = "claude-sonnet-4-6"
-JUDGE_MODEL_ID_OPENAI = "gpt-5.4"
 JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
 JUDGE_TEMPERATURE = 0.0
 JUDGE_MAX_TOKENS = 1024
@@ -152,51 +149,6 @@ class GeminiJudgeAdapter(JudgeAdapterBase):
         )
 
 
-class OpenAIJudgeAdapter(JudgeAdapterBase):
-    """OpenAI-backed judge adapter using the Chat Completions API."""
-
-    family = "openai"
-
-    def __init__(
-        self,
-        client: Any | None = None,
-        temperature: float = JUDGE_TEMPERATURE,
-        max_tokens: int = JUDGE_MAX_TOKENS,
-    ) -> None:
-        self._client = client
-        self._temperature = temperature
-        self._max_tokens = max_tokens
-
-    @property
-    def client(self) -> Any:
-        if self._client is None:
-            from openai import OpenAI
-
-            self._client = OpenAI()
-        return self._client
-
-    def call(self, *, system: str, user: str, model_id: str) -> str:
-        response = self.client.chat.completions.create(
-            model=model_id,
-            temperature=self._temperature,
-            max_tokens=self._max_tokens,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-        )
-        choice = response.choices[0]
-        message = getattr(choice, "message", None)
-        if message is None and isinstance(choice, dict):
-            message = choice.get("message")
-        if message is None:
-            return ""
-        content = getattr(message, "content", None)
-        if content is None and isinstance(message, dict):
-            content = message.get("content")
-        return content or ""
-
-
 class LLMJudge:
     """Four-policy LLM judge. Family defaults to cross-family via `auto`.
 
@@ -271,19 +223,16 @@ def infer_candidate_family(model_id: str) -> str | None:
     """Infer the candidate model's family from its `--model` string.
 
     Returns:
-        `"claude"`, `"openai"`, or `None` if the family cannot be
+        `"claude"`, `"gemini"`, or `None` if the family cannot be
         inferred. The runner errors out on `None` in `--judge-family auto`.
     """
     if not model_id:
         return None
     lowered = model_id.lower()
     claude_markers = ("claude", "sonnet", "opus", "haiku")
-    openai_markers = ("gpt", "o1", "o3", "o4")
     gemini_markers = ("gemini",)
     if any(marker in lowered for marker in claude_markers):
         return "claude"
-    if any(marker in lowered for marker in openai_markers):
-        return "openai"
     if any(marker in lowered for marker in gemini_markers):
         return "gemini"
     return None
@@ -297,7 +246,7 @@ def resolve_judge_family(
 
     Args:
         requested: Value of `--judge-family`: `auto`, `claude`, or
-            `openai`.
+            `gemini`.
         candidate_model_id: The `--model` string for the candidate.
 
     Returns:
@@ -308,24 +257,21 @@ def resolve_judge_family(
         ValueError: If `requested` is not one of the allowed values, or
             if `auto` cannot infer a family for the candidate.
     """
-    if requested not in ("auto", "claude", "openai", "gemini"):
+    if requested not in ("auto", "claude", "gemini"):
         raise ValueError(
-            f"--judge-family must be auto, claude, openai, or gemini; "
+            f"--judge-family must be auto, claude, or gemini; "
             f"got {requested!r}"
         )
-    if requested in ("claude", "openai", "gemini"):
+    if requested in ("claude", "gemini"):
         return requested, "explicit"
     candidate_family = infer_candidate_family(candidate_model_id)
     if candidate_family is None:
         raise ValueError(
             f"--judge-family auto could not infer the candidate family "
             f"from model string {candidate_model_id!r}. Pass --judge-family "
-            "claude, openai, or gemini explicitly."
+            "claude or gemini explicitly."
         )
-    # Cross-family: default to openai as the other family for claude/gemini,
-    # and claude for openai. (Smoke-test scaffold; the v1 release only
-    # promises claude <-> openai.)
-    cross = {"claude": "openai", "openai": "claude", "gemini": "openai"}
+    cross = {"claude": "gemini", "gemini": "claude"}
     return (cross[candidate_family], "auto")
 
 
@@ -337,7 +283,7 @@ def build_judge(
     """Factory: build an LLMJudge for the given family.
 
     Args:
-        family: `"claude"` or `"openai"`.
+        family: `"claude"` or `"gemini"`.
         model_id: Optional explicit model string; defaults to the
             family's canonical judge model.
         adapter: Optional pre-built adapter (for tests).
@@ -348,9 +294,6 @@ def build_judge(
     if family == "claude":
         resolved_model = model_id or JUDGE_MODEL_ID_CLAUDE
         adapter_ = adapter if adapter is not None else ClaudeJudgeAdapter()
-    elif family == "openai":
-        resolved_model = model_id or JUDGE_MODEL_ID_OPENAI
-        adapter_ = adapter if adapter is not None else OpenAIJudgeAdapter()
     elif family == "gemini":
         resolved_model = model_id or JUDGE_MODEL_ID_GEMINI
         adapter_ = adapter if adapter is not None else GeminiJudgeAdapter()
@@ -425,7 +368,3 @@ def parse_verdict(raw: str) -> JudgeVerdict:
     rationale = str(payload.get("rationale", "")).strip()
 
     return JudgeVerdict(selected_policy=selected_policy, rationale=rationale)
-
-
-# Silence unused-import warnings when OPENAI_API_KEY isn't required.
-_ = os
