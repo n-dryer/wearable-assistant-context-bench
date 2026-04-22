@@ -1,11 +1,8 @@
 """Gemini candidate-model adapter.
 
-Parallel to `core.openai_adapter.OpenAIAdapter` and
-`core.models.ClaudeAdapter`. Wraps the `google-genai` SDK behind the
-same `query(messages, system, config) -> str` interface so the runner
-can route by family.
-
-Smoke-test scaffold. Not part of the frozen v1 release surface.
+Parallel to `core.models.ClaudeAdapter`. Wraps the `google-genai` SDK
+behind the same `query(messages, system, config) -> str` interface so
+the runner can route by family.
 """
 
 from __future__ import annotations

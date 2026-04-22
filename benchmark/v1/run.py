@@ -42,7 +42,6 @@ from core.llm_judge import (
 )
 from core.gemini_adapter import GeminiAdapter
 from core.models import ClaudeAdapter, ModelConfig
-from core.openai_adapter import OpenAIAdapter
 from core.report import (
     DEFAULT_RANKING_CONDITION,
     BENCHMARK_VERSION,
@@ -194,21 +193,19 @@ def _build_adapter(model_id: str) -> Any:
     """Pick a candidate adapter based on the model family.
 
     Routes `claude|sonnet|opus|haiku` prefixes to `ClaudeAdapter` and
-    `gpt|o1|o3|o4|chatgpt` prefixes to `OpenAIAdapter`. Unknown families
-    raise `ValueError` so the runner fails loudly instead of silently
+    `gemini` prefixes to `GeminiAdapter`. Unknown families raise
+    `ValueError` so the runner fails loudly instead of silently
     defaulting.
     """
     family = infer_candidate_family(model_id)
     if family == "claude":
         return ClaudeAdapter()
-    if family == "openai":
-        return OpenAIAdapter()
     if family == "gemini":
         return GeminiAdapter()
     raise ValueError(
         f"Unsupported candidate model family for model_id={model_id!r}. "
         "Supported families: claude (claude/sonnet/opus/haiku), "
-        "openai (gpt/o1/o3/o4/chatgpt)."
+        "gemini (gemini)."
     )
 
 
@@ -477,7 +474,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
         epilog=(
             "Example: python -m benchmark.v1.run "
-            "--model claude-sonnet-4-6 --judge-model gpt-4.1"
+            "--model claude-sonnet-4-6 --judge-model gemini-2.5-flash"
         ),
     )
     parser.add_argument(
@@ -502,7 +499,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--judge-family",
         dest="judge_family",
         default=None,
-        choices=["auto", "claude", "openai", "gemini"],
+        choices=["auto", "claude", "gemini"],
         help=(
             "judge family override; default is auto, which picks a "
             "cross-family judge when candidate family inference succeeds"

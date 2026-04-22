@@ -159,13 +159,13 @@ baseline ranking condition.
 
 ## Judge and runtime behavior
 
-The runner supports candidate and judge models across Claude, OpenAI, and
-Gemini families.
+The runner supports candidate and judge models across Claude and Gemini
+families.
 
 - `--judge-family auto` is the default
 - under `auto`, the judge family must differ from the candidate family to
   reduce same-family bias
-- explicit `claude`, `openai`, or `gemini` overrides remain available
+- explicit `claude` or `gemini` overrides remain available
 
 Each run emits:
 

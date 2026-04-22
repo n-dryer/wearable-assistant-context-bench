@@ -9,12 +9,12 @@ import pytest
 from core.llm_judge import (
     ALLOWED_POLICIES,
     JUDGE_MODEL_ID_CLAUDE,
-    JUDGE_MODEL_ID_OPENAI,
+    JUDGE_MODEL_ID_GEMINI,
     JUDGE_SYSTEM_PROMPT,
     ClaudeJudgeAdapter,
+    GeminiJudgeAdapter,
     JudgeAdapterBase,
     LLMJudge,
-    OpenAIJudgeAdapter,
     build_judge,
     infer_candidate_family,
     parse_verdict,
@@ -79,10 +79,10 @@ def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
         ("claude-opus-4-7", "claude"),
         ("claude-haiku-4-5", "claude"),
         ("Sonnet-4.6", "claude"),
-        ("gpt-4o", "openai"),
-        ("gpt-5.4", "openai"),
-        ("o1-preview", "openai"),
-        ("o3-mini", "openai"),
+        ("gemini-2.5-flash", "gemini"),
+        ("gemini-2.5-pro", "gemini"),
+        ("gemini-2.5-flash-lite", "gemini"),
+        ("Gemini-2.5-Flash", "gemini"),
         ("something-unknown", None),
         ("", None),
     ],
@@ -92,21 +92,21 @@ def test_infer_candidate_family(model_id: str, expected: str | None) -> None:
 
 
 def test_resolve_judge_family_explicit_returns_requested() -> None:
-    family, mode = resolve_judge_family("claude", "gpt-4o")
+    family, mode = resolve_judge_family("claude", "gemini-2.5-flash")
     assert family == "claude"
     assert mode == "explicit"
 
-    family, mode = resolve_judge_family("openai", "claude-sonnet-4-6")
-    assert family == "openai"
+    family, mode = resolve_judge_family("gemini", "claude-sonnet-4-6")
+    assert family == "gemini"
     assert mode == "explicit"
 
 
 def test_resolve_judge_family_auto_picks_opposite_family() -> None:
     family, mode = resolve_judge_family("auto", "claude-sonnet-4-6")
-    assert family == "openai"
+    assert family == "gemini"
     assert mode == "auto"
 
-    family, mode = resolve_judge_family("auto", "gpt-5.4")
+    family, mode = resolve_judge_family("auto", "gemini-2.5-flash")
     assert family == "claude"
     assert mode == "auto"
 
@@ -167,8 +167,8 @@ def test_judge_label_round_trips_through_stub_adapter() -> None:
 def test_build_judge_defaults_to_family_canonical_model() -> None:
     judge = build_judge(family="claude", adapter=_StubAdapter("x"))
     assert judge.model_id == JUDGE_MODEL_ID_CLAUDE
-    judge = build_judge(family="openai", adapter=_StubAdapter("x"))
-    assert judge.model_id == JUDGE_MODEL_ID_OPENAI
+    judge = build_judge(family="gemini", adapter=_StubAdapter("x"))
+    assert judge.model_id == JUDGE_MODEL_ID_GEMINI
 
 
 def test_build_judge_accepts_explicit_model_id() -> None:
@@ -189,5 +189,5 @@ def test_claude_judge_adapter_family() -> None:
     assert ClaudeJudgeAdapter.family == "claude"
 
 
-def test_openai_judge_adapter_family() -> None:
-    assert OpenAIJudgeAdapter.family == "openai"
+def test_gemini_judge_adapter_family() -> None:
+    assert GeminiJudgeAdapter.family == "gemini"
