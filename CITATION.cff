@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you reference the Wearable Assistant Context Benchmark, cite this file with the exact release tag."
 title: "Wearable Assistant Context Benchmark"
-abstract: "Benchmark for implicit context tracking in mobile multimodal assistants. This repo packages the v1 runnable slice for reference-state selection under implicit context shift on a frozen scenario set."
+abstract: "Benchmark for implicit context tracking in wearable multimodal assistants. Developed around a wearable multimodal assistant and applicable to related multimodal assistant devices on or near the user. v1 measures reference-state selection under implicit context shift on a frozen 11-scenario set."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
@@ -9,10 +9,12 @@ repository-code: "https://github.com/n-dryer/deixis-bench"
 url: "https://github.com/n-dryer/deixis-bench"
 keywords:
   - implicit context tracking
+  - wearable multimodal assistant
+  - multimodal assistant device
   - reference-state selection
-  - mobile multimodal assistant
+  - context inference
   - context shift
   - LLM-as-judge
-license: "Proprietary"
+license: "MIT"
 version: "v1"
 date-released: "2026-04-21"
