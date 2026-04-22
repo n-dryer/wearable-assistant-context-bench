@@ -219,18 +219,16 @@
   <div class="page">
     <article class="card">
       <section class="hero">
-        <div class="kicker">v1 runnable slice</div>
+        <div class="kicker">v1 (current version)</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-          A benchmark for implicit context tracking in mobile multimodal assistants.
-          The active release contains the v1 runnable slice for reference-state selection
-          under implicit context shift.
+          A benchmark for implicit context tracking in wearable multimodal assistants.
+          Makes the right inference about what the user is referring to when the user's context changes.
         </p>
         <div class="badges">
           <span class="badge">11 frozen scenarios</span>
-          <span class="badge">3 conditions</span>
+          <span class="badge">3 prompt conditions</span>
           <span class="badge">2 trials per cell</span>
-          <span class="badge">with-prior-Q implemented</span>
           <span class="badge">balanced accuracy primary score</span>
         </div>
       </section>
@@ -239,17 +237,22 @@
         <section class="section left split">
           <h2>What v1 measures</h2>
           <p>
-            The scored v1 behavior is a context-selection decision. When the
-            user’s visual context changes between turns, does the assistant answer
-            from the prior visual context or the current one?
+            This benchmark measures whether a wearable multimodal
+            assistant makes the right inference about what the user is
+            referring to when the user's context changes.
+          </p>
+          <p>
+            It focuses on a recurring interaction problem: the assistant
+            sometimes makes the wrong inference about what the user is
+            referring to and answers from the wrong context.
           </p>
           <p>
             Example: Turn 1 asks about a screwdriver. Turn 2 asks "am I holding
             this correctly?" after the user has picked up a hammer.
           </p>
           <ul>
-            <li><strong>Prior context</strong>: an object or place from a prior frame</li>
-            <li><strong>Current context</strong>: an object or place from the current frame</li>
+            <li><strong>Prior context</strong>: the object, place, or surrounding context from the earlier moment</li>
+            <li><strong>Current context</strong>: the object, place, or surrounding context from the current moment</li>
             <li><strong>Out of scope</strong>: object recognition itself</li>
           </ul>
         </section>
@@ -266,17 +269,16 @@
             <code>(prior_class_accuracy + current_class_accuracy) / 2</code>
           </div>
           <p>
-            <code>condition_a</code> and <code>condition_b</code> remain
-            diagnostic. <code>clarify</code> and <code>abstain</code> stay visible
-            in reporting, but count as wrong for the primary score in v1.
+            <code>condition_a</code> and <code>condition_b</code> are extra
+            checks. <code>clarify</code> and <code>abstain</code> stay visible in
+            the report, but count as wrong for the primary score in v1.
           </p>
         </section>
 
         <section class="section left">
           <h2>Benchmark structure</h2>
           <table class="table">
-            <tr><td>Slice</td><td>v1 runnable slice</td></tr>
-            <tr><td>Implemented variant</td><td>with-prior-Q</td></tr>
+            <tr><td>Current version</td><td>v1</td></tr>
             <tr><td>Scenario set</td><td>11 frozen items</td></tr>
             <tr><td>Class mix</td><td>8 current / 3 prior</td></tr>
             <tr><td>Judge</td><td>Cross-family auto by default</td></tr>
@@ -286,7 +288,7 @@
 
         <section class="section">
           <h2>Quick start</h2>
-          <p>Install dependencies, then run a candidate against the v1 slice.</p>
+          <p>Install dependencies, then run a candidate against v1.</p>
           <p>
             <code>python -m benchmark.v1.run --model &lt;candidate_model_id&gt; --judge-model &lt;judge_model_id&gt;</code>
           </p>
@@ -298,9 +300,9 @@
       </div>
 
       <footer class="footer">
-        <p><strong>Public identity:</strong> benchmark for implicit context tracking</p>
-        <p><strong>Current slice:</strong> v1 runnable slice</p>
-        <p><strong>Scored sub-capability:</strong> reference-state selection under implicit context shift</p>
+        <p><strong>Benchmark:</strong> implicit context tracking in wearable multimodal assistants</p>
+        <p><strong>Current version:</strong> v1</p>
+        <p><strong>What it measures:</strong> whether the answer follows the earlier context or the current one</p>
       </footer>
     </article>
   </div>

@@ -1,36 +1,36 @@
 # Benchmark Spec: Wearable Assistant Context Benchmark
 
-**Subtitle:** A benchmark for implicit context tracking in mobile multimodal
-assistants.
+**Subtitle:** A benchmark for implicit context tracking in wearable
+multimodal assistants.
 
-This document is the canonical benchmark spec for the active release. The
-repository contains the **v1 runnable slice** for **reference-state selection
-under implicit context shift**.
-
-## Public benchmark and current slice
-
-- **Public benchmark**: Wearable Assistant Context Benchmark
-- **Current repository scope**: v1 runnable slice for reference-state
-  selection under implicit context shift
-- **Scored v1 behavior**: binary `prior` vs `current` Turn 2 anchor selection
-
-Reference-state selection is a scored sub-capability, not the full benchmark
-identity.
+This document defines v1 of the benchmark. In the spec, the v1 task is
+called **reference-state selection under implicit context shift**. It
+checks whether the answer follows the **prior** context or the
+**current** context in Turn 2.
 
 ## What the benchmark measures
 
-Mobile multimodal assistants operate in a world that changes silently between
-turns. The user walks into a new room, sets down one object and picks up
-another, returns to something from a minute ago, or asks with a deictic cue
-like “this” or “here”. The benchmark measures whether the assistant tracks the
-right implicit context for the user’s question.
+This benchmark measures how a wearable multimodal assistant handles
+ambiguous user references when the user's context changes between
+turns, such as where they are, what they are holding, or what is
+around them. It focuses on a recurring interaction problem: the
+assistant sometimes makes the wrong inference about what the user is
+referring to and answers from the wrong context.
 
-The v1 runnable slice scores **reference-state selection under implicit context
-shift**. In a two-turn conversation with a context shift between turns, does
-the assistant answer from the:
+In v1, the benchmark asks a specific question: after the user's context
+changes between turns, does the assistant answer from the:
 
-- **prior visual context**: an object or place from a prior frame
-- **current visual context**: an object or place from the current frame
+- **prior context**: the object, place, or surrounding context from the
+  earlier moment
+- **current context**: the object, place, or surrounding context from the
+  current moment
+
+Although the benchmark was developed around a wearable multimodal
+assistant, it can also apply to other multimodal assistant devices. The
+device may be worn or simply on or near the user, but it must support
+live multimodal input, such as audio and video, and respond through
+audio and/or text. It also must be positioned to capture the context
+relevant to the user's activity or question.
 
 Object recognition is assumed and out of scope.
 
@@ -41,35 +41,51 @@ Concrete example:
 - The scored question is whether the answer follows the prior context or the
   current one
 
-## v1 runnable slice
+## Where the scenarios came from
 
-The active runnable slice contains:
+This benchmark was built to support model-selection decisions for a wearable
+multimodal assistant.
+
+The scenarios come from a mix of pilot user feedback on a wearable
+multimodal assistant at a stealth AI startup, direct hands-on testing of real
+multimodal assistants and wearables, generalized cases based on repeated
+patterns, and a smaller number of conceptual cases added to cover important
+situations cleanly.
+
+This pattern comes up often in real use, can be scored clearly, and keeps
+the benchmark focused on context judgment rather than object recognition,
+which is assumed and out of scope.
+
+## What v1 includes
+
+The current v1 set contains:
 
 - **11 frozen scenarios**
-- **3 intervention conditions**
+- **3 prompt conditions**: `baseline`, `condition_a`, `condition_b`
 - **2 trials per (scenario, condition) cell** by default
 - **Turn 2 scoring only**
-- **Turn 3 repair** as a secondary diagnostic
+- **Turn 3 repair** as a secondary check
 
-The implemented slice is the **with-prior-Q** variant:
+Every scenario is a two-turn setup:
 
 - Turn 1 establishes a referent
-- Turn 2 shifts context and asks an ambiguously anchored follow-up
+- Turn 2 shifts context and asks an ambiguous follow-up
 - The model must decide whether the answer belongs to the prior or current
   context
 
-The **without-prior-Q** variant remains part of the benchmark definition but is
-not yet implemented in v1.
+The benchmark is intentionally narrow. It measures one product-relevant
+interaction problem and should not be read as a full measure of assistant
+quality.
 
-## Scenario and intervention inputs
+## Runtime inputs
 
-The only active runtime inputs for the slice are:
+The active runtime inputs are:
 
 - [`benchmark/v1/scenarios.json`](../benchmark/v1/scenarios.json)
 - [`benchmark/v1/expected_answers.json`](../benchmark/v1/expected_answers.json)
 - [`benchmark/v1/interventions.json`](../benchmark/v1/interventions.json)
 
-These JSON files are the canonical runtime inputs for v1.
+These JSON files are the source files used to run v1.
 
 ## Scoring and ranking
 
@@ -85,7 +101,8 @@ For v1, authored targets are only `current` or `prior`. If the judge emits
 
 ### Primary score
 
-The primary score is **balanced Turn 2 accuracy under the ranking condition**.
+The primary score is **balanced Turn 2 accuracy under the ranking
+condition**.
 
 ```text
 primary_score = (prior_class_accuracy + current_class_accuracy) / 2
@@ -98,9 +115,9 @@ ranking condition.
 
 `baseline` is the default condition used to compare candidate models.
 
-`condition_a` and `condition_b` remain in the benchmark as diagnostic
-conditions. Their purpose is to show prompt sensitivity, not to replace the
-baseline ranking condition unless the production wrapper changes later.
+`condition_a` and `condition_b` remain in the benchmark as extra checks.
+Their purpose is to show prompt sensitivity, not to replace the
+baseline ranking condition.
 
 ## Judge and runtime behavior
 
@@ -108,7 +125,8 @@ The runner supports candidate and judge models across Claude, OpenAI, and
 Gemini families.
 
 - `--judge-family auto` is the default
-- under `auto`, the judge family must differ from the candidate family
+- under `auto`, the judge family must differ from the candidate family to
+  reduce same-family bias
 - explicit `claude`, `openai`, or `gemini` overrides remain available
 
 Each run emits:
@@ -117,31 +135,62 @@ Each run emits:
 - `findings.md`
 - a machine-readable manifest bundled into the findings output
 
-The manifest records the scenario, answers, and intervention SHAs, judge prompt
-version/hash, model IDs, trial count, ranking condition, timestamp, and git
-commit.
+The manifest records the scenario, answers, and prompt file SHAs, judge
+prompt version/hash, model IDs, trial count, ranking condition, timestamp,
+and git commit.
 
-## Governance
+## Governance and versioning
 
-- The v1 scenario set is **frozen**
-- candidate models are compared on the same frozen set
-- benchmark growth happens through new versioned slices or extensions, not by
-  silently changing v1
+The following benchmark content is frozen in v1:
+
+- scenario text
+- expected answers
+- prompt text
+- scoring semantics
+- the default ranking condition
+
+The following changes do not require a new benchmark version:
+
+- documentation clarifications
+- implementation refactors that do not change benchmark meaning
+- report or manifest polish that does not affect scoring
+
+The following changes require a new version or explicit release change:
+
+- changing scenario wording
+- changing answer keys
+- changing prompt wording
+- changing score semantics
+- changing the default ranking condition
+- expanding what the benchmark measures in a way that changes what can be
+  fairly compared to v1
+
+Future published results should cite the release tag and the manifest details
+for the run being reported.
 
 ## Limitations
 
-The repo is intentionally narrow:
+v1 is intentionally narrow:
 
-- v1 measures one sub-capability, not the full benchmark space
-- v1 is still a text-proxy slice; image fields are plumbed but unset
+- it measures one specific interaction problem relevant to product evaluation, not
+  overall model quality or product quality
+- image fields on the scenarios are plumbed but unset
 - the class mix is skewed toward `current`, which is why the primary metric is
   balanced accuracy
-- v1 currently implements only the with-prior-Q variant
-- prompt interventions are useful diagnostics, but baseline is the canonical
-  ranking condition
+- prompt conditions are useful extra checks, but `baseline` is the
+  default ranking condition
+- results are best used for like-for-like model comparison on the same
+  benchmark release
 
-## Future slices
+## Where this benchmark fits
 
-The next material extension is **without-prior-Q** coverage. Later work may add
-image-enabled inputs, broader context-tracking behaviors, and larger evaluation
-sets, but those are outside the scope of this v1 release.
+This benchmark sits near multimodal assistant evaluation, wearable or
+egocentric multimodal evaluation, and context-tracking or
+reference-resolution under changing context.
+
+It uses familiar benchmark mechanics: frozen scenarios, controlled
+prompt conditions, judge scoring, and saved run details.
+
+It does not claim to be a general multimodal benchmark, a full measure of
+assistant quality, or a benchmark whose main contribution is research
+novelty.
