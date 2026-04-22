@@ -216,11 +216,16 @@ for how it is computed.
 
 ## Results
 
-Run results are written to `benchmark/v1/runs/latest/findings.md`
-along with a reproducibility manifest. There is no public leaderboard.
-This benchmark is used internally to compare candidate model releases
-for shipping; published runs will be added under
-`benchmark/v1/runs/` as releases land.
+v1 ships with one example baseline run under
+`benchmark/v1/runs/v1-baseline/`. It uses `gemini-2.5-flash-lite` as
+both candidate and judge — same-family, same-model — which inflates
+the absolute score via self-preference. Treat it as a **shape demo**,
+not a credible measurement. Cross-family baselines will land when an
+ANTHROPIC_API_KEY is wired.
+
+Future published runs will land under `benchmark/v1/runs/<run-label>/`.
+See the manifest in each run directory for candidate model, judge
+model, ranking condition, trial count, and git commit.
 
 ## Contributing
 
