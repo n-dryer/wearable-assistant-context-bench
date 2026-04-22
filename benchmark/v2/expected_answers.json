@@ -9,7 +9,11 @@
       "choke up",
       "swing",
       "wrist",
-      "nail"
+      "nail",
+      "different tool",
+      "the one in your hand now",
+      "new tool",
+      "swapped"
     ],
     "prior_answers": [
       "screwdriver",
@@ -656,22 +660,17 @@
     ]
   },
   "sc-24": {
-    "current_answers": [
-      "the computer",
-      "the reference desk screen",
-      "I'd have to go back",
-      "your monitor"
-    ],
+    "current_answers": [],
     "prior_answers": [
-      "second shelf",
-      "from the top",
-      "oversize section",
-      "atlases",
-      "six of them",
-      "spine-out"
+      "823.914 CLA",
+      "823.914",
+      "CLA",
+      "Clarke",
+      "fiction",
+      "823.914 Clarke"
     ],
     "clarify_indicators": [
-      "which shelf",
+      "which book",
       "remind me"
     ],
     "abstain_indicators": [
@@ -949,12 +948,9 @@
       "Priya or Anita",
       "which cousin",
       "can you specify",
-      "who said",
-      "I haven't heard"
+      "who do you mean"
     ],
-    "abstain_indicators": [
-      "I don't know who"
-    ]
+    "abstain_indicators": []
   },
   "sc-38": {
     "current_answers": [],
@@ -1552,6 +1548,520 @@
       "don't know",
       "no information about the party",
       "can't tell you"
+    ]
+  },
+  "sc-82": {
+    "current_answers": [
+      "the closet",
+      "in here",
+      "light here",
+      "enough light",
+      "dim",
+      "bright enough"
+    ],
+    "prior_answers": [
+      "bedroom",
+      "duvet",
+      "shams",
+      "throw",
+      "the bed"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-83": {
+    "current_answers": [
+      "drill press",
+      "the machine I'm at",
+      "current setup",
+      "the table here",
+      "the chuck"
+    ],
+    "prior_answers": [
+      "table saw",
+      "blade guard",
+      "push stick",
+      "ripping"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-84": {
+    "current_answers": [
+      "dining room",
+      "current room",
+      "in here",
+      "the room I'm in",
+      "lighting now"
+    ],
+    "prior_answers": [
+      "living room",
+      "couch",
+      "throw blanket",
+      "coffee table"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-85": {
+    "current_answers": [
+      "the tool in your hand",
+      "current tool",
+      "new tool",
+      "what you're holding now",
+      "middle-drawer tool"
+    ],
+    "prior_answers": [
+      "cordless drill",
+      "drill",
+      "bottom drawer"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-86": {
+    "current_answers": [
+      "current attachment",
+      "new attachment",
+      "what you're using now",
+      "the grip on now"
+    ],
+    "prior_answers": [
+      "single-handle",
+      "single handle",
+      "lower pulley",
+      "30 pounds"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-87": {
+    "current_answers": [
+      "the plane in your hand",
+      "current plane",
+      "new plane",
+      "what you're holding now"
+    ],
+    "prior_answers": [
+      "block plane",
+      "block",
+      "rounding",
+      "shelf edge"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-88": {
+    "current_answers": [
+      "now",
+      "2pm",
+      "current state",
+      "the dock right now",
+      "afternoon"
+    ],
+    "prior_answers": [
+      "9am",
+      "20 pallets",
+      "just dropped",
+      "cold storage"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-89": {
+    "current_answers": [
+      "now",
+      "8:15",
+      "current energy",
+      "the room right now",
+      "after the toast"
+    ],
+    "prior_answers": [
+      "7pm",
+      "40 people",
+      "bar open",
+      "appetizers"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-90": {
+    "current_answers": [
+      "now",
+      "2pm",
+      "fork-tender",
+      "ready now",
+      "current state"
+    ],
+    "prior_answers": [
+      "11am",
+      "just put in",
+      "when you put it in"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-91": {
+    "current_answers": [
+      "the cushion",
+      "nothing",
+      "nothing left",
+      "empty",
+      "no trace",
+      "clean"
+    ],
+    "prior_answers": [
+      "Buck",
+      "dog",
+      "rawhide",
+      "half-chewed"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-92": {
+    "current_answers": [
+      "the nightstand",
+      "nothing knocked over",
+      "everything in place",
+      "lamp still standing",
+      "glass still there"
+    ],
+    "prior_answers": [
+      "moth",
+      "fluttered",
+      "landed"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-93": {
+    "current_answers": [
+      "the book in your hand",
+      "the one still here",
+      "new book",
+      "the remaining one"
+    ],
+    "prior_answers": [
+      "three books",
+      "all three",
+      "atlas",
+      "dictionary",
+      "style guide"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-94": {
+    "current_answers": [
+      "the wrench in your hand now",
+      "the new one",
+      "current wrench"
+    ],
+    "prior_answers": [
+      "crescent wrench",
+      "crescent",
+      "too small"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-95": {
+    "current_answers": [
+      "185",
+      "the bar",
+      "the loaded bar",
+      "what's on the rack right now",
+      "the weight you're under"
+    ],
+    "prior_answers": [
+      "spotter stand",
+      "empty stand"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-96": {
+    "current_answers": [
+      "the cell you scrolled to",
+      "current cell",
+      "this cell",
+      "the new cell"
+    ],
+    "prior_answers": [
+      "KeyError",
+      "customer_id",
+      "third merge"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-97": {
+    "current_answers": [],
+    "prior_answers": [
+      "ceramic dish",
+      "blue dish",
+      "dresser",
+      "top of the dresser",
+      "gold rim"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-98": {
+    "current_answers": [],
+    "prior_answers": [
+      "aisle 7",
+      "bay 3",
+      "aisle 7 bay 3"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-99": {
+    "current_answers": [],
+    "prior_answers": [
+      "pad thai",
+      "chicken",
+      "lime wedge",
+      "crushed peanuts"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-100": {
+    "current_answers": [],
+    "prior_answers": [
+      "1977",
+      "first edition 1977"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-101": {
+    "current_answers": [],
+    "prior_answers": [
+      "slate gray",
+      "gray",
+      "semi-gloss",
+      "exterior latex"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-102": {
+    "current_answers": [],
+    "prior_answers": [
+      "black sequined top",
+      "sequined top",
+      "wide-leg pants"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-103": {
+    "current_answers": [],
+    "prior_answers": [
+      "Don't Follow Me",
+      "I'm Lost Too",
+      "Don't Follow Me — I'm Lost Too"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-104": {
+    "current_answers": [],
+    "prior_answers": [
+      "mezcal",
+      "tamales",
+      "bottle of mezcal",
+      "tray of tamales"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-105": {
+    "current_answers": [],
+    "prior_answers": [
+      "180",
+      "180 pounds"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-106": {
+    "current_answers": [],
+    "prior_answers": [
+      "45 minutes",
+      "45",
+      "forty-five"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-107": {
+    "current_answers": [],
+    "prior_answers": [
+      "Faroe Islands",
+      "whale hunts",
+      "New Yorker",
+      "eighteen islands"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-108": {
+    "current_answers": [],
+    "prior_answers": [
+      "Boise",
+      "Boise Idaho",
+      "Idaho"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-109": {
+    "current_answers": [],
+    "prior_answers": [
+      "$3,428.50",
+      "3428.50",
+      "3428",
+      "3,428.50"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-110": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "what are you doing at the desk",
+      "where's the light gap",
+      "what kind of work",
+      "what's the lamp for"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-111": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "what's the project",
+      "what tool is it",
+      "what are you making",
+      "what material"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-112": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "what did you buy",
+      "what's the issue",
+      "which item",
+      "why return"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-113": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which window",
+      "what does 'right' mean",
+      "the draft or the reference",
+      "which one"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-114": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "who do you mean",
+      "who is he",
+      "what did he say",
+      "what was said"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-115": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "where are you going",
+      "what's your destination",
+      "what's the GPS saying",
+      "which route is the GPS picking"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-116": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which one",
+      "which bag",
+      "carry-on or checked",
+      "where is it going"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-117": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "no windows",
+      "can't see outside",
+      "don't have that frame",
+      "no view from the rec room"
+    ]
+  },
+  "sc-118": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "didn't see the tag",
+      "don't know the spec",
+      "can't tell you",
+      "didn't look at the label"
+    ]
+  },
+  "sc-119": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "not at the copier",
+      "can't see the display",
+      "walked away",
+      "no frame of the copier"
+    ]
+  },
+  "sc-120": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "didn't look",
+      "didn't read the plate",
+      "don't know",
+      "no way to tell"
+    ]
+  },
+  "sc-121": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "no next message",
+      "hasn't been sent",
+      "doesn't exist yet",
+      "not there yet",
+      "nothing to read"
     ]
   }
 }
