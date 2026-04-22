@@ -1,0 +1,1019 @@
+{
+  "sc-01": {
+    "current_answers": [
+      "hammer",
+      "handle",
+      "head",
+      "claw",
+      "grip the handle",
+      "choke up",
+      "swing",
+      "wrist",
+      "nail"
+    ],
+    "prior_answers": [
+      "screwdriver",
+      "phillips",
+      "rubber grip",
+      "magnetic tip",
+      "ridges",
+      "torque",
+      "screw"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I don't know which",
+      "not sure what you're holding"
+    ]
+  },
+  "sc-02": {
+    "current_answers": [
+      "kitchen",
+      "cabinet",
+      "counter",
+      "backsplash",
+      "open shelving",
+      "fridge",
+      "stove",
+      "culinary",
+      "food",
+      "herb"
+    ],
+    "prior_answers": [
+      "bedroom",
+      "sage green",
+      "oak",
+      "headboard",
+      "landscape",
+      "closet"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I don't know which room",
+      "not sure which walls"
+    ]
+  },
+  "sc-03": {
+    "current_answers": [
+      "front desk",
+      "reception"
+    ],
+    "prior_answers": [
+      "young-adult",
+      "young adult",
+      "author",
+      "last name",
+      "alphabetical",
+      "back wall",
+      "library",
+      "shelved",
+      "twenty"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I don't have that information",
+      "I can't see",
+      "no video",
+      "I don't recall"
+    ]
+  },
+  "sc-04": {
+    "current_answers": [
+      "onion",
+      "knife",
+      "cutting board",
+      "counter",
+      "kitchen",
+      "chop",
+      "dice",
+      "prep",
+      "dinner"
+    ],
+    "prior_answers": [
+      "desk",
+      "laptop",
+      "coffee mug",
+      "legal pad",
+      "home office",
+      "meeting notes"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I don't know",
+      "can't see",
+      "no information"
+    ]
+  },
+  "sc-05": {
+    "current_answers": [
+      "the second poster",
+      "second one",
+      "this poster",
+      "the new poster",
+      "the other poster",
+      "holding up"
+    ],
+    "prior_answers": [
+      "Lake Como",
+      "blue water",
+      "cream sky",
+      "vintage travel",
+      "saturated blue",
+      "24x36"
+    ],
+    "clarify_indicators": [
+      "describe the second",
+      "what's on the second",
+      "tell me about the other",
+      "what does the second poster show"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-06": {
+    "current_answers": [
+      "the gap",
+      "the outline",
+      "empty hook",
+      "empty outline",
+      "I can see the",
+      "looking at the board",
+      "looking at the pegboard",
+      "the shadow board shows",
+      "outlined spot"
+    ],
+    "prior_answers": [
+      "hydrangea",
+      "fence",
+      "fading blue",
+      "garden"
+    ],
+    "clarify_indicators": [
+      "describe the pegboard",
+      "what's on the pegboard"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-07": {
+    "current_answers": [
+      "golden brown",
+      "look at",
+      "let me see",
+      "puffed",
+      "color",
+      "tops",
+      "what do they look like",
+      "describe"
+    ],
+    "prior_answers": [
+      "pillowy",
+      "rising",
+      "350",
+      "top shelf",
+      "overnight",
+      "8am"
+    ],
+    "clarify_indicators": [
+      "what color are they",
+      "how do they look now",
+      "describe their appearance"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-08": {
+    "current_answers": [
+      "depends what's on",
+      "depends on the new window",
+      "the new window",
+      "this window shows",
+      "I can see this",
+      "the window you switched to",
+      "this is a"
+    ],
+    "prior_answers": [
+      "Jira",
+      "ticket",
+      "redis",
+      "SRE",
+      "P1",
+      "checkout API",
+      "cart-update",
+      "500",
+      "page the SRE",
+      "page on-call"
+    ],
+    "clarify_indicators": [
+      "what's on the new window",
+      "what application did you switch",
+      "describe what you switched to"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-09": {
+    "current_answers": [
+      "the empty corner",
+      "I don't see him",
+      "nothing there now"
+    ],
+    "prior_answers": [
+      "toward the maple",
+      "toward the fence",
+      "past the maple",
+      "behind the maple",
+      "into the tree line",
+      "into the trees",
+      "through the gap",
+      "away from",
+      "opposite",
+      "toward the fence line",
+      "north",
+      "south",
+      "east",
+      "west"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I can't see",
+      "I didn't see him bolt",
+      "I can't tell",
+      "no information"
+    ]
+  },
+  "sc-10": {
+    "current_answers": [
+      "chardonnay",
+      "how many cases",
+      "depends on how many",
+      "the chardonnay pallet",
+      "count the chardonnay",
+      "let me know how many"
+    ],
+    "prior_answers": [
+      "12 cases",
+      "cabernet",
+      "8 per week",
+      "8 cases",
+      "holiday ramp"
+    ],
+    "clarify_indicators": [
+      "how many chardonnay cases",
+      "what's the chardonnay count",
+      "how many cases of chardonnay are on the pallet"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-11": {
+    "current_answers": [
+      "the shelf",
+      "back on the shelf",
+      "I can't read it from here",
+      "you put it back"
+    ],
+    "prior_answers": [
+      "20 calories",
+      "20 cal",
+      "per fluid ounce",
+      "stage 2",
+      "6 to 12 months",
+      "organic cow's milk",
+      "no corn syrup",
+      "organic"
+    ],
+    "clarify_indicators": [
+      "show me the label again",
+      "can I see the label"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "I didn't catch",
+      "I can't recall",
+      "no information"
+    ]
+  },
+  "sc-12": {
+    "current_answers": [
+      "the wall",
+      "this wall",
+      "family room",
+      "living room",
+      "sofa",
+      "couch",
+      "above the",
+      "gallery wall",
+      "mirror",
+      "framed"
+    ],
+    "prior_answers": [
+      "nursery",
+      "floating shelf",
+      "changing table",
+      "diapers",
+      "above the changing"
+    ],
+    "clarify_indicators": [
+      "describe the wall",
+      "what's on this wall",
+      "which wall"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-13": {
+    "current_answers": [
+      "flooring",
+      "vinyl",
+      "laminate",
+      "tile",
+      "plank",
+      "this aisle",
+      "what you're looking at",
+      "in front of you",
+      "depends on",
+      "let me see"
+    ],
+    "prior_answers": [
+      "eggshell",
+      "Cotton Balls",
+      "hallway paint",
+      "latex",
+      "sheen",
+      "the paint"
+    ],
+    "clarify_indicators": [
+      "which aisle",
+      "what product",
+      "describe what you're looking at"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-14": {
+    "current_answers": [
+      "miter",
+      "drill press",
+      "router",
+      "planer",
+      "bandsaw",
+      "this station",
+      "the tool you're at",
+      "fence",
+      "depth",
+      "depends on"
+    ],
+    "prior_answers": [
+      "table saw",
+      "ripping blade",
+      "24-tooth",
+      "carbide",
+      "2x4",
+      "studs",
+      "92"
+    ],
+    "clarify_indicators": [
+      "which tool",
+      "what station are you at",
+      "describe the tool"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-15": {
+    "current_answers": [
+      "this avocado",
+      "the new one",
+      "the one you're holding",
+      "the second one",
+      "firmer",
+      "softer",
+      "let me see",
+      "looks ripe",
+      "give it a few"
+    ],
+    "prior_answers": [
+      "the first avocado",
+      "the first one",
+      "Hass",
+      "dark skin",
+      "gives slightly"
+    ],
+    "clarify_indicators": [
+      "what does it look like",
+      "describe the new one",
+      "how does this one look"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-16": {
+    "current_answers": [
+      "this device",
+      "the one in your hand",
+      "the new laptop",
+      "Chromebook",
+      "MacBook",
+      "depends on",
+      "what model",
+      "this laptop"
+    ],
+    "prior_answers": [
+      "ThinkPad",
+      "T14",
+      "16 gigs",
+      "16 GB",
+      "refurbished",
+      "middle school"
+    ],
+    "clarify_indicators": [
+      "what device",
+      "what are you holding now",
+      "describe it"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-17": {
+    "current_answers": [
+      "this bar",
+      "the new one",
+      "15-pound",
+      "25-pound",
+      "EZ-curl",
+      "trap bar",
+      "safety squat bar",
+      "depends on your lift",
+      "depends on what"
+    ],
+    "prior_answers": [
+      "45-pound",
+      "the 45",
+      "deadlift",
+      "three sets of five",
+      "95",
+      "warm-up"
+    ],
+    "clarify_indicators": [
+      "which bar",
+      "what bar is that",
+      "describe the bar"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-18": {
+    "current_answers": [
+      "firm",
+      "set",
+      "opaque",
+      "hardened",
+      "ready to demold",
+      "still soft",
+      "looks set",
+      "looks hard",
+      "no longer translucent"
+    ],
+    "prior_answers": [
+      "glassy",
+      "translucent",
+      "liquid still",
+      "just poured",
+      "settles when you tap"
+    ],
+    "clarify_indicators": [
+      "what do they look like",
+      "how firm"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-19": {
+    "current_answers": [
+      "sear",
+      "char",
+      "grill marks",
+      "golden",
+      "medium-rare",
+      "flip them",
+      "they look",
+      "pull them",
+      "color is",
+      "browned"
+    ],
+    "prior_answers": [
+      "red-hot coals",
+      "7:02",
+      "raw steaks",
+      "just set them on"
+    ],
+    "clarify_indicators": [
+      "what do they look like",
+      "describe the steaks"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-20": {
+    "current_answers": [
+      "this jacket",
+      "the one you're holding now",
+      "the second one",
+      "bomber",
+      "corduroy",
+      "wool",
+      "depends on",
+      "fair price for this"
+    ],
+    "prior_answers": [
+      "Levi's",
+      "the denim",
+      "vintage",
+      "patch",
+      "thirty-eight",
+      "38 dollars"
+    ],
+    "clarify_indicators": [
+      "describe the jacket",
+      "what kind is it",
+      "what brand"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-21": {
+    "current_answers": [
+      "this draft",
+      "the new draft",
+      "depends on",
+      "what's in the draft",
+      "let me see",
+      "the other message",
+      "the current draft"
+    ],
+    "prior_answers": [
+      "thank-you",
+      "renewing",
+      "warm tone",
+      "formal sign-off",
+      "the client"
+    ],
+    "clarify_indicators": [
+      "what's the new draft",
+      "what does it say",
+      "which message"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-22": {
+    "current_answers": [
+      "this tool",
+      "the one in your hand",
+      "pry bar",
+      "cat's paw",
+      "nail puller",
+      "pincers",
+      "depends on",
+      "better for"
+    ],
+    "prior_answers": [
+      "pliers",
+      "slip-joint",
+      "seven-inch",
+      "plastic-dipped"
+    ],
+    "clarify_indicators": [
+      "which tool",
+      "describe it",
+      "what's in your hand"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-23": {
+    "current_answers": [
+      "oil pressure",
+      "temperature",
+      "battery",
+      "ABS",
+      "tire pressure",
+      "low fuel",
+      "this icon",
+      "the new light",
+      "pull over",
+      "stop driving"
+    ],
+    "prior_answers": [
+      "check engine",
+      "trip meter",
+      "412",
+      "the check-engine light"
+    ],
+    "clarify_indicators": [
+      "describe the icon",
+      "what color is it",
+      "what shape"
+    ],
+    "abstain_indicators": [
+      "I can't see",
+      "no information"
+    ]
+  },
+  "sc-24": {
+    "current_answers": [
+      "the computer",
+      "the reference desk screen",
+      "I'd have to go back",
+      "your monitor"
+    ],
+    "prior_answers": [
+      "second shelf",
+      "from the top",
+      "oversize section",
+      "atlases",
+      "six of them",
+      "spine-out"
+    ],
+    "clarify_indicators": [
+      "which shelf",
+      "remind me"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "I can't recall",
+      "no information"
+    ]
+  },
+  "sc-25": {
+    "current_answers": [
+      "upstairs",
+      "in the bedroom",
+      "I'd have to look",
+      "downstairs doesn't have it"
+    ],
+    "prior_answers": [
+      "behind the lamp",
+      "the lamp",
+      "nightstand lamp",
+      "tucked behind",
+      "behind the",
+      "nightstand"
+    ],
+    "clarify_indicators": [
+      "which charger",
+      "remind me"
+    ],
+    "abstain_indicators": [
+      "I don't know",
+      "I don't remember",
+      "no information"
+    ]
+  },
+  "sc-26": {
+    "current_answers": [
+      "the new one",
+      "NGK",
+      "the new plug",
+      "I can see the new",
+      "clean porcelain"
+    ],
+    "prior_answers": [
+      "charred",
+      "black",
+      "darkened",
+      "fouled",
+      "dark porcelain",
+      "charred black"
+    ],
+    "clarify_indicators": [
+      "remind me",
+      "show me"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "no information"
+    ]
+  },
+  "sc-27": {
+    "current_answers": [
+      "this one",
+      "the new blouse",
+      "the one you're trying",
+      "the second blouse"
+    ],
+    "prior_answers": [
+      "ivory",
+      "closer to bone",
+      "bone",
+      "warm white",
+      "not true white",
+      "off-white"
+    ],
+    "clarify_indicators": [
+      "show me again",
+      "remind me"
+    ],
+    "abstain_indicators": [
+      "I don't know",
+      "no information"
+    ]
+  },
+  "sc-28": {
+    "current_answers": [
+      "let me look now",
+      "I don't know how they look now",
+      "let me check the current"
+    ],
+    "prior_answers": [
+      "pink",
+      "dripping jus",
+      "pink slices",
+      "beautiful pink",
+      "rare looking"
+    ],
+    "clarify_indicators": [
+      "remind me",
+      "when you pulled"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "no information"
+    ]
+  },
+  "sc-29": {
+    "current_answers": [
+      "they're gone",
+      "empty spot",
+      "the line moved up",
+      "the car ahead is different"
+    ],
+    "prior_answers": [
+      "left",
+      "right",
+      "toward",
+      "merged",
+      "turned out",
+      "exited",
+      "north",
+      "south",
+      "east",
+      "west"
+    ],
+    "clarify_indicators": [
+      "which car",
+      "remind me"
+    ],
+    "abstain_indicators": [
+      "I didn't see",
+      "I can't tell",
+      "I didn't track"
+    ]
+  },
+  "sc-30": {
+    "current_answers": [
+      "she's gone",
+      "I don't see her",
+      "the spot where she was",
+      "she left"
+    ],
+    "prior_answers": [
+      "toward the street",
+      "back to her house",
+      "across the lawn",
+      "toward the grill",
+      "she went",
+      "north",
+      "south",
+      "east",
+      "west"
+    ],
+    "clarify_indicators": [
+      "which way",
+      "remind me"
+    ],
+    "abstain_indicators": [
+      "I didn't see",
+      "I can't tell"
+    ]
+  },
+  "sc-31": {
+    "current_answers": [
+      "the case is back",
+      "I'd have to look again",
+      "on the rack"
+    ],
+    "prior_answers": [
+      "2028-03",
+      "2028",
+      "March 2028",
+      "03 2028",
+      "MXR-4407"
+    ],
+    "clarify_indicators": [
+      "remind me",
+      "which label"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "no information"
+    ]
+  },
+  "sc-32": {
+    "current_answers": [
+      "let me switch tabs",
+      "the current doc doesn't",
+      "back to the chart"
+    ],
+    "prior_answers": [
+      "NA",
+      "North America",
+      "5.1 million",
+      "5.1",
+      "highest was NA"
+    ],
+    "clarify_indicators": [
+      "remind me",
+      "show me the chart"
+    ],
+    "abstain_indicators": [
+      "I don't remember",
+      "no information"
+    ]
+  },
+  "sc-33": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "where are you going",
+      "what trip",
+      "how long",
+      "what conditions",
+      "tell me more",
+      "more context",
+      "where and when",
+      "I need more info",
+      "which trip"
+    ],
+    "abstain_indicators": [
+      "I don't know enough",
+      "can't say without"
+    ]
+  },
+  "sc-34": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "what are you holding",
+      "what tool",
+      "what is it",
+      "describe what you're holding",
+      "tell me what",
+      "I need to know what"
+    ],
+    "abstain_indicators": [
+      "I can't tell without",
+      "can't see"
+    ]
+  },
+  "sc-35": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which one",
+      "which of",
+      "TV, laptop, or phone",
+      "which device",
+      "which screen",
+      "can you specify"
+    ],
+    "abstain_indicators": [
+      "I can't tell",
+      "no way to know"
+    ]
+  },
+  "sc-36": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which one",
+      "which squirrel",
+      "the one with the longer tail",
+      "can you specify",
+      "which of the two"
+    ],
+    "abstain_indicators": [
+      "I didn't see which"
+    ]
+  },
+  "sc-37": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which one",
+      "Priya or Anita",
+      "which cousin",
+      "can you specify",
+      "who said",
+      "I haven't heard"
+    ],
+    "abstain_indicators": [
+      "I don't know who"
+    ]
+  },
+  "sc-38": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "open the curtain",
+      "let me see outside"
+    ],
+    "abstain_indicators": [
+      "I can't see through",
+      "no view of outside",
+      "curtains are drawn",
+      "I don't have a view",
+      "I can't tell from here",
+      "can't see out"
+    ]
+  },
+  "sc-39": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "switch to tomorrow",
+      "open tomorrow's view"
+    ],
+    "abstain_indicators": [
+      "I can only see today",
+      "tomorrow isn't showing",
+      "not visible on the current view",
+      "I don't have tomorrow",
+      "I can't see tomorrow"
+    ]
+  },
+  "sc-40": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "pull it back out"
+    ],
+    "abstain_indicators": [
+      "didn't see the cover",
+      "don't have that information",
+      "you didn't look",
+      "I can't tell you",
+      "no way to know"
+    ]
+  },
+  "sc-41": {
+    "current_answers": [],
+    "prior_answers": [],
+    "clarify_indicators": [
+      "which sign",
+      "point it out",
+      "describe where"
+    ],
+    "abstain_indicators": [
+      "I don't have a sign",
+      "no sign was shown",
+      "can't see any sign",
+      "I didn't see one"
+    ]
+  }
+}
