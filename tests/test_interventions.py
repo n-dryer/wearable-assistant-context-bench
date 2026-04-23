@@ -9,8 +9,11 @@ import pytest
 
 from core.interventions import (
     InterventionCondition,
+    PromptCondition,
     get_intervention_by_name,
+    get_prompt_condition_by_name,
     load_interventions,
+    load_prompt_conditions,
 )
 
 
@@ -66,6 +69,13 @@ def test_load_interventions_from_valid_fixture() -> None:
     assert all(c.token_count > 0 for c in conditions)
 
 
+def test_prompt_condition_aliases_match_existing_loader() -> None:
+    prompt_conditions = load_prompt_conditions(FIXTURE_PATH)
+    intervention_conditions = load_interventions(FIXTURE_PATH)
+    assert prompt_conditions == intervention_conditions
+    assert all(isinstance(c, PromptCondition) for c in prompt_conditions)
+
+
 def test_load_interventions_raises_on_malformed_json(tmp_path: Path) -> None:
     bad = tmp_path / "bad.json"
     bad.write_text("{ this is not valid json", encoding="utf-8")
@@ -78,6 +88,13 @@ def test_get_intervention_by_name_returns_correct_condition() -> None:
     condition = get_intervention_by_name(conditions, "condition_a")
     assert condition.name == "condition_a"
     assert "visual context" in condition.system_prompt.lower()
+
+
+def test_get_prompt_condition_by_name_returns_correct_condition() -> None:
+    conditions = load_prompt_conditions(FIXTURE_PATH)
+    condition = get_prompt_condition_by_name(conditions, "condition_b")
+    assert condition.name == "condition_b"
+    assert "relevant context" in condition.system_prompt.lower()
 
 
 def test_get_intervention_by_name_raises_on_unknown() -> None:

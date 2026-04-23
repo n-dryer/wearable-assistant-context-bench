@@ -28,6 +28,18 @@ REQUIRED_FIELDS = {
     "turn_3_repair_anchor",
 }
 OPTIONAL_IMAGE_FIELDS = {"turn_1_image", "turn_2_image"}
+OPTIONAL_METADATA_FIELDS = {
+    "cue_type",
+    "activity_domain",
+    "time_gap_bucket",
+    "ambiguity_marker",
+    "modality_required",
+    "cognitive_load",
+    "difficulty_tier",
+    "variant",
+    "text_proxy_degraded",
+    "notes",
+}
 ALLOWED_CONTEXTS = {"current", "prior", "clarify", "abstain"}
 ALLOWED_SURFACES = {"wearable_live_frame", "mobile_app_chat", "synthetic"}
 ALLOWED_AUTHORING_BASIS = {"pilot", "extended_from_pilot", "theoretical"}
@@ -45,7 +57,12 @@ def expected_answers() -> dict:
 
 def test_scenarios_json_is_non_empty_list(scenarios: list[dict]) -> None:
     assert isinstance(scenarios, list)
-    assert len(scenarios) == 11
+    assert len(scenarios) > 0
+
+
+def test_scenario_ids_are_unique(scenarios: list[dict]) -> None:
+    ids = [entry["scenario_id"] for entry in scenarios]
+    assert len(ids) == len(set(ids))
 
 
 def test_every_scenario_has_required_fields(scenarios: list[dict]) -> None:
@@ -119,14 +136,36 @@ def test_image_seam_fields_allowed_but_optional(scenarios: list[dict]) -> None:
                 )
 
 
-def test_v1_composition_is_eight_current_three_prior(scenarios: list[dict]) -> None:
+def test_optional_metadata_fields_have_expected_types(
+    scenarios: list[dict],
+) -> None:
+    for entry in scenarios:
+        for field_name in OPTIONAL_METADATA_FIELDS:
+            if field_name not in entry:
+                continue
+            value = entry[field_name]
+            if field_name == "text_proxy_degraded":
+                assert value is None or isinstance(value, bool), (
+                    f"{entry['scenario_id']}.{field_name}: must be null or bool, "
+                    f"got {type(value).__name__}"
+                )
+                continue
+            assert value is None or isinstance(value, str), (
+                f"{entry['scenario_id']}.{field_name}: must be null or str, "
+                f"got {type(value).__name__}"
+            )
+
+
+def test_canonical_v1_composition_includes_all_four_contexts(
+    scenarios: list[dict],
+) -> None:
     counts: dict[str, int] = {}
     for entry in scenarios:
         counts[entry["target_context"]] = counts.get(entry["target_context"], 0) + 1
-    assert counts.get("current") == 8, f"expected 8 current, got {counts}"
-    assert counts.get("prior") == 3, f"expected 3 prior, got {counts}"
-    assert counts.get("clarify", 0) == 0
-    assert counts.get("abstain", 0) == 0
+    for context in ALLOWED_CONTEXTS:
+        assert counts.get(context, 0) > 0, (
+            f"expected canonical v1 to include {context!r} scenarios, got {counts}"
+        )
 
 
 def test_scenario_notes_do_not_reference_removed_paths(scenarios: list[dict]) -> None:

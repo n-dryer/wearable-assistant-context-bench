@@ -1,9 +1,8 @@
-"""v1 runnable-slice runner for the Wearable Assistant Context Benchmark.
+"""Runner for the canonical v1 Wearable Assistant Context Benchmark.
 
-This runner implements the v1 scored sub-capability:
-reference-state selection under implicit context shift. It walks
-the 11 frozen v1 scenarios through three intervention conditions,
-with a configurable trial count per cell, as a 2-turn conversation.
+This runner implements the benchmark task over the canonical v1
+scenario set, with a configurable trial count per cell, as a 2-turn
+conversation.
 On Turn 2 failure it fires a templated Turn 3 "I mean, ..." repair
 anchor and labels the Turn 3 response. Per-trial transcripts are
 written as JSONL. Findings are rendered via `core.report`, including
@@ -27,10 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from core.interventions import (
-    InterventionCondition,
-    load_interventions,
-)
+from core.interventions import PromptCondition, load_prompt_conditions
 from core.llm_judge import (
     JUDGE_PROMPT_VERSION,
     JUDGE_SYSTEM_PROMPT,
@@ -41,6 +37,7 @@ from core.llm_judge import (
     resolve_judge_family,
 )
 from core.gemini_adapter import GeminiAdapter
+from core.litellm_adapter import LiteLLMAdapter
 from core.models import ClaudeAdapter, ModelConfig
 from core.report import (
     DEFAULT_RANKING_CONDITION,
@@ -69,19 +66,27 @@ CONFIG: dict[str, Any] = {
 
 @dataclass
 class Scenario:
-    """One frozen v1 scenario.
+    """One canonical v1 scenario.
 
     JSON schema (scenarios.json is a list of these):
         scenario_id: str
-        target_context: str   # one of current, prior (v1), or clarify/abstain (reserved)
+        target_context: str   # current | prior | clarify | abstain
         authoring_basis: str # pilot | extended_from_pilot | theoretical
         source_example_id: str | None
-        surface: str         # wearable_live_frame | mobile_app_chat | synthetic
+        surface: str         # internal input-setting label
         turn_1_user: str
         turn_2_user: str
         turn_3_repair_anchor: str
         turn_1_image: str | None
         turn_2_image: str | None
+        cue_type: str | None
+        activity_domain: str | None
+        time_gap_bucket: str | None
+        ambiguity_marker: str | None
+        modality_required: str | None
+        cognitive_load: str | None
+        difficulty_tier: str | None
+        variant: str | None
         notes: str (optional)
     """
 
@@ -95,6 +100,15 @@ class Scenario:
     turn_3_repair_anchor: str
     turn_1_image: str | None = None
     turn_2_image: str | None = None
+    cue_type: str | None = None
+    activity_domain: str | None = None
+    time_gap_bucket: str | None = None
+    ambiguity_marker: str | None = None
+    modality_required: str | None = None
+    cognitive_load: str | None = None
+    difficulty_tier: str | None = None
+    variant: str | None = None
+    text_proxy_degraded: bool | None = None
     notes: str = ""
 
 
@@ -137,6 +151,15 @@ def load_scenarios(path: Path) -> list[Scenario]:
                 turn_3_repair_anchor=entry["turn_3_repair_anchor"],
                 turn_1_image=entry.get("turn_1_image"),
                 turn_2_image=entry.get("turn_2_image"),
+                cue_type=entry.get("cue_type"),
+                activity_domain=entry.get("activity_domain"),
+                time_gap_bucket=entry.get("time_gap_bucket"),
+                ambiguity_marker=entry.get("ambiguity_marker"),
+                modality_required=entry.get("modality_required"),
+                cognitive_load=entry.get("cognitive_load"),
+                difficulty_tier=entry.get("difficulty_tier"),
+                variant=entry.get("variant"),
+                text_proxy_degraded=entry.get("text_proxy_degraded"),
                 notes=entry.get("notes", ""),
             )
         )
@@ -190,22 +213,18 @@ def _current_git_commit() -> str:
 
 
 def _build_adapter(model_id: str) -> Any:
-    """Pick a candidate adapter based on the model family.
-
-    Routes `claude|sonnet|opus|haiku` prefixes to `ClaudeAdapter` and
-    `gemini` prefixes to `GeminiAdapter`. Unknown families raise
-    `ValueError` so the runner fails loudly instead of silently
-    defaulting.
-    """
+    """Pick a candidate adapter based on the model string and family."""
     family = infer_candidate_family(model_id)
+    if "/" in model_id or family == "openai":
+        return LiteLLMAdapter()
     if family == "claude":
         return ClaudeAdapter()
     if family == "gemini":
         return GeminiAdapter()
     raise ValueError(
         f"Unsupported candidate model family for model_id={model_id!r}. "
-        "Supported families: claude (claude/sonnet/opus/haiku), "
-        "gemini (gemini)."
+        "Supported families: claude, gemini, openai, plus provider-qualified "
+        "LiteLLM-backed model IDs such as openrouter/... and huggingface/...."
     )
 
 
@@ -269,8 +288,8 @@ def run(
     Args:
         adapter: Candidate adapter. Defaults to the family-appropriate
             adapter resolved from `model_id`.
-        judge: `LLMJudge`. Defaults to the cross-family `auto`
-            resolution against `CONFIG["model_id"]`.
+        judge: `LLMJudge`. Defaults to the auto resolution against
+            `CONFIG["model_id"]`.
         config: Overrides for CONFIG. Unrecognized keys are ignored.
 
     Returns:
@@ -280,7 +299,7 @@ def run(
 
     scenarios = load_scenarios(SCENARIOS_PATH)
     answers_by_id = load_expected_answers(EXPECTED_ANSWERS_PATH)
-    conditions = load_interventions(INTERVENTIONS_PATH)
+    conditions = load_prompt_conditions(INTERVENTIONS_PATH)
 
     model_config = ModelConfig(
         model_id=effective_config["model_id"],
@@ -324,7 +343,16 @@ def run(
                     )
                     results.append(result)
                     transcript_file.write(
-                        json.dumps(result, ensure_ascii=False) + "\n"
+                        json.dumps(
+                            {
+                                **result,
+                                "turn_2_code_signals": _public_code_signals(
+                                    result["turn_2_code_signals"]
+                                ),
+                            },
+                            ensure_ascii=False,
+                        )
+                        + "\n"
                     )
 
     manifest = _build_manifest(
@@ -349,7 +377,7 @@ def _run_one_trial(
     *,
     scenario: Scenario,
     answers: AnswerSet,
-    condition: InterventionCondition,
+    condition: PromptCondition,
     trial: int,
     adapter: Any,
     judge: LLMJudge,
@@ -380,7 +408,7 @@ def _run_one_trial(
 
     scenario_description = (
         f"Turn 1 context:\n{scenario.turn_1_user}\n\n"
-        f"Between Turn 1 and Turn 2 the user's visual context shifts; "
+        f"Between Turn 1 and Turn 2 the user's context changes; "
         f"the target context for Turn 2 is `{scenario.target_context}`."
     )
 
@@ -452,13 +480,20 @@ def _run_one_trial(
     }
 
 
+def _public_code_signals(signals: dict[str, Any]) -> dict[str, Any]:
+    """Return the code-signal subset suitable for shipped transcripts."""
+    return {
+        key: value
+        for key, value in signals.items()
+        if key not in {"has_stale", "has_stale_raw"}
+    }
+
+
 def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]:
     """Build a single chat message.
 
-    v1 is a text-proxy slice; `image` is plumbed through the message
-    payload but unused because no v1 scenario sets it. When a future
-    slice attaches images, this is the seam where the adapter would
-    receive a multimodal block.
+    Canonical v1 is a transcript-proxy benchmark. `image` is plumbed
+    through the message payload but currently unset in shipped inputs.
     """
     if image:
         return {"role": role, "content": text, "image": image}
@@ -468,9 +503,7 @@ def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the Wearable Assistant Context Benchmark v1 "
-            "slice (reference-state selection under implicit "
-            "context shift)."
+            "Run v1 of the Wearable Assistant Context Benchmark."
         ),
         epilog=(
             "Example: python -m benchmark.v1.run "
@@ -499,10 +532,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--judge-family",
         dest="judge_family",
         default=None,
-        choices=["auto", "claude", "gemini"],
+        choices=["auto", "claude", "gemini", "openai"],
         help=(
-            "judge family override; default is auto, which picks a "
-            "cross-family judge when candidate family inference succeeds"
+            "judge family override; default is auto, which picks a judge "
+            "from a different model family when candidate family inference succeeds"
         ),
     )
     parser.add_argument(

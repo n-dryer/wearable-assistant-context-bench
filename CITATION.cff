@@ -1,20 +1,20 @@
 cff-version: 1.2.0
 message: "If you reference the Wearable Assistant Context Benchmark, cite this file with the exact release tag."
 title: "Wearable Assistant Context Benchmark"
-abstract: "Benchmark for implicit context tracking in wearable multimodal assistants. Developed around a wearable multimodal assistant and applicable to related multimodal assistant devices on or near the user. v1 measures reference-state selection under implicit context shift on a frozen 11-scenario set."
+abstract: "Product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant. Built from real user feedback and product testing to support a practical model-selection decision. Current public v1 uses a frozen 101-scenario bank and transcript proxies for spoken user queries."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
 repository-code: "https://github.com/n-dryer/wearable-assistant-context-bench"
 url: "https://github.com/n-dryer/wearable-assistant-context-bench"
 keywords:
-  - implicit context tracking
+  - product benchmark
   - wearable multimodal assistant
-  - multimodal assistant device
-  - reference-state selection
-  - context inference
+  - reference resolution
+  - context change
+  - model selection
   - context shift
   - LLM-as-judge
 license: "MIT"
 version: "v1"
-date-released: "2026-04-21"
+date-released: "2026-04-22"
