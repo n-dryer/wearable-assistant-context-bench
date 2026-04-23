@@ -6,14 +6,14 @@
   <title>Wearable Assistant Context Benchmark</title>
   <style>
     :root {
-      --bg: #f5f0e8;
-      --paper: #fffaf2;
-      --ink: #181512;
-      --muted: #5f564c;
-      --line: #d9cdbd;
-      --accent: #b44d2f;
-      --accent-soft: #f2dfd6;
-      --code: #f1ece4;
+      --bg: #f6f1ea;
+      --paper: #fffaf4;
+      --ink: #191613;
+      --muted: #5c564e;
+      --line: #ddd0bf;
+      --accent: #b14f31;
+      --accent-soft: #f4dfd5;
+      --soft: #f0e8dd;
     }
 
     * { box-sizing: border-box; }
@@ -21,38 +21,38 @@
     body {
       margin: 0;
       background:
-        radial-gradient(circle at top left, #fff6ea 0, transparent 35%),
-        linear-gradient(180deg, #efe8de 0%, var(--bg) 100%);
+        radial-gradient(circle at top left, #fff6ee 0, transparent 35%),
+        linear-gradient(180deg, #efe7db 0%, var(--bg) 100%);
       color: var(--ink);
       font-family: "Helvetica Neue", Arial, sans-serif;
     }
 
     .page {
-      max-width: 1080px;
-      margin: 32px auto;
-      padding: 28px;
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 20px;
     }
 
     .card {
       background: var(--paper);
       border: 1px solid var(--line);
       border-radius: 28px;
-      box-shadow: 0 18px 60px rgba(41, 26, 10, 0.10);
+      box-shadow: 0 24px 80px rgba(41, 26, 10, 0.10);
       overflow: hidden;
     }
 
     .hero {
-      padding: 34px 36px 26px;
+      padding: 34px 36px 28px;
       border-bottom: 1px solid var(--line);
       background:
-        linear-gradient(135deg, rgba(180, 77, 47, 0.10), transparent 50%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 242, 0.96));
+        linear-gradient(135deg, rgba(177, 79, 49, 0.10), transparent 52%),
+        linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,250,244,0.96));
     }
 
     .kicker {
       display: inline-block;
       margin-bottom: 14px;
-      padding: 6px 10px;
+      padding: 7px 11px;
       border-radius: 999px;
       background: var(--accent-soft);
       color: var(--accent);
@@ -63,20 +63,20 @@
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: clamp(34px, 5vw, 56px);
-      line-height: 0.96;
+      margin: 0 0 12px;
+      max-width: 12ch;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 0.95;
       letter-spacing: -0.04em;
       font-weight: 800;
-      max-width: 12ch;
     }
 
     .subtitle {
-      max-width: 58ch;
-      font-size: 18px;
-      line-height: 1.45;
-      color: var(--muted);
       margin: 0 0 22px;
+      max-width: 62ch;
+      font-size: 18px;
+      line-height: 1.48;
+      color: var(--muted);
     }
 
     .badges {
@@ -89,24 +89,19 @@
       padding: 8px 12px;
       border-radius: 999px;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255,255,255,0.82);
       font-size: 13px;
       font-weight: 600;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 0;
+      grid-template-columns: 1fr 1fr;
     }
 
     .section {
       padding: 28px 36px 32px;
       border-top: 1px solid var(--line);
-    }
-
-    .section.split {
-      border-top: none;
     }
 
     .section.left {
@@ -123,9 +118,9 @@
 
     p {
       margin: 0 0 12px;
-      line-height: 1.6;
-      color: var(--muted);
       font-size: 15px;
+      line-height: 1.62;
+      color: var(--muted);
     }
 
     ul {
@@ -136,69 +131,42 @@
 
     li {
       margin: 0 0 10px;
-      line-height: 1.55;
+      line-height: 1.56;
     }
 
     .metric {
-      padding: 18px 20px;
-      border-radius: 18px;
-      background: var(--code);
-      border: 1px solid var(--line);
       margin-bottom: 16px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--soft);
     }
 
     .metric strong {
       display: block;
       margin-bottom: 6px;
-      font-size: 16px;
       color: var(--ink);
+      font-size: 16px;
     }
 
     code {
-      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
-      font-size: 13px;
-      background: rgba(255, 255, 255, 0.9);
       padding: 2px 5px;
       border-radius: 6px;
+      background: rgba(255,255,255,0.9);
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 13px;
     }
 
     a {
       color: var(--accent);
       text-decoration: none;
-      border-bottom: 1px solid rgba(180, 77, 47, 0.25);
-    }
-
-    a:hover {
-      border-bottom-color: var(--accent);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    .table td {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--line);
-      vertical-align: top;
-    }
-
-    .table td:first-child {
-      color: var(--muted);
-      width: 40%;
-      padding-right: 16px;
+      border-bottom: 1px solid rgba(177, 79, 49, 0.3);
     }
 
     .footer {
-      padding: 20px 36px 26px;
+      padding: 18px 36px 24px;
       border-top: 1px solid var(--line);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 24px;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.65);
+      background: rgba(255,255,255,0.68);
     }
 
     .footer p {
@@ -207,10 +175,9 @@
     }
 
     @media (max-width: 860px) {
-      .page { padding: 14px; margin: 0; }
+      .page { margin: 0; padding: 12px; }
       .grid { grid-template-columns: 1fr; }
       .section.left { border-right: none; }
-      .section.split { border-top: 1px solid var(--line); }
       .hero, .section, .footer { padding-left: 22px; padding-right: 22px; }
     }
   </style>
@@ -219,91 +186,89 @@
   <div class="page">
     <article class="card">
       <section class="hero">
-        <div class="kicker">v1 (current version)</div>
+        <div class="kicker">Current public v1</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-          A benchmark for implicit context tracking in wearable multimodal assistants.
-          Makes the right inference about what the user is referring to when the user's context changes.
+          A product benchmark for comparing models on
+          <strong>cross-turn reference resolution under context change</strong>
+          in a wearable multimodal assistant.
         </p>
         <div class="badges">
-          <span class="badge">11 frozen scenarios</span>
+          <span class="badge">101 frozen scenarios</span>
           <span class="badge">3 prompt conditions</span>
           <span class="badge">2 trials per cell</span>
-          <span class="badge">balanced accuracy primary score</span>
+          <span class="badge">balanced Turn 2 accuracy</span>
         </div>
       </section>
 
       <div class="grid">
-        <section class="section left split">
-          <h2>What v1 measures</h2>
+        <section class="section left">
+          <h2>Product problem</h2>
           <p>
-            This benchmark measures whether a wearable multimodal
-            assistant makes the right inference about what the user is
-            referring to when the user's context changes.
+            Users should not have to keep restating what they are
+            looking at, holding, or referring to after they move,
+            switch objects, change screens, or otherwise change context.
           </p>
           <p>
-            It focuses on a recurring interaction problem: the assistant
-            sometimes makes the wrong inference about what the user is
-            referring to and answers from the wrong context.
-          </p>
-          <p>
-            Example: Turn 1 asks about a screwdriver. Turn 2 asks "am I holding
-            this correctly?" after the user has picked up a hammer.
+            Canonical examples:
           </p>
           <ul>
-            <li><strong>Prior context</strong>: the object, place, or surrounding context from the earlier moment</li>
-            <li><strong>Current context</strong>: the object, place, or surrounding context from the current moment</li>
-            <li><strong>Out of scope</strong>: object recognition itself</li>
+            <li>Bedroom to kitchen. The user asks about the bedroom wall, walks into the kitchen, and asks about the wall again. The assistant should answer about the kitchen, not the bedroom.</li>
+            <li>Hammer to screwdriver. The user asks about a hammer, swaps to a screwdriver, then asks "how do I use this?" The assistant should answer about the screwdriver.</li>
           </ul>
         </section>
 
-        <section class="section split">
-          <h2>Primary score</h2>
-          <div class="metric">
-            <strong>Balanced Turn 2 accuracy under <code>baseline</code></strong>
-            <p>
-              The primary ranking metric is the mean of class accuracy for
-              <code>prior</code> and <code>current</code>. This keeps the
-              current-heavy v1 class mix from dominating the score.
-            </p>
-            <code>(prior_class_accuracy + current_class_accuracy) / 2</code>
-          </div>
+        <section class="section">
+          <h2>What v1 measures</h2>
           <p>
-            <code>condition_a</code> and <code>condition_b</code> are extra
-            checks. <code>clarify</code> and <code>abstain</code> stay visible in
-            the report, but count as wrong for the primary score in v1.
+            Canonical v1 measures whether the assistant answers about
+            the right thing after the user's context changes.
           </p>
+          <div class="metric">
+            <strong>Measured task</strong>
+            Cross-turn reference resolution under context change.
+          </div>
+          <div class="metric">
+            <strong>Primary score</strong>
+            Balanced Turn 2 accuracy over the <code>current</code> and
+            <code>prior</code> scored classes under
+            <code>baseline</code>.
+          </div>
+          <div class="metric">
+            <strong>Secondary metric</strong>
+            Simulated repair rate, used as a proxy for likely user
+            correction cost after a miss.
+          </div>
         </section>
 
         <section class="section left">
-          <h2>Benchmark structure</h2>
-          <table class="table">
-            <tr><td>Current version</td><td>v1</td></tr>
-            <tr><td>Scenario set</td><td>11 frozen items</td></tr>
-            <tr><td>Class mix</td><td>8 current / 3 prior</td></tr>
-            <tr><td>Judge</td><td>Cross-family auto by default</td></tr>
-            <tr><td>Outputs</td><td>transcripts, findings, manifest</td></tr>
-          </table>
+          <h2>Scope notes</h2>
+          <ul>
+            <li>Built from real user feedback and product testing.</li>
+            <li>Spoken user questions are part of the cue set, but canonical v1 uses transcript proxies rather than raw audio.</li>
+            <li>Canonical v1 does not yet directly test raw acoustic grounding, speaker attribution, or ambient audio cues.</li>
+            <li>The benchmark is narrow on purpose and optimized for model-selection usefulness.</li>
+          </ul>
         </section>
 
         <section class="section">
-          <h2>Quick start</h2>
-          <p>Install dependencies, then run a candidate against v1.</p>
-          <p>
-            <code>python -m benchmark.v1.run --model &lt;candidate_model_id&gt; --judge-model &lt;judge_model_id&gt;</code>
-          </p>
-          <p>
-            Start with <a href="../README.md">README.md</a>. The full spec lives
-            in <a href="benchmark_spec.md">docs/benchmark_spec.md</a>.
-          </p>
+          <h2>Repo pointers</h2>
+          <ul>
+            <li><a href="../README.md">README.md</a> for the product framing and quickstart</li>
+            <li><a href="benchmark_spec.md">benchmark_spec.md</a> for the benchmark contract</li>
+            <li><a href="benchmark_notes.md">benchmark_notes.md</a> for interpretation guidance</li>
+            <li><a href="decisions.md">decisions.md</a> for the scoping rationale</li>
+          </ul>
         </section>
       </div>
 
-      <footer class="footer">
-        <p><strong>Benchmark:</strong> implicit context tracking in wearable multimodal assistants</p>
-        <p><strong>Current version:</strong> v1</p>
-        <p><strong>What it measures:</strong> whether the answer follows the earlier context or the current one</p>
-      </footer>
+      <section class="footer">
+        <p>
+          This benchmark is designed to support a practical model-selection
+          decision for a live wearable assistant, not to act as a general
+          multimodal benchmark.
+        </p>
+      </section>
     </article>
   </div>
 </body>

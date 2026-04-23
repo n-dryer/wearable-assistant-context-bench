@@ -65,13 +65,19 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(
         config={"output_dir": str(output_dir)},
     )
 
-    # 11 scenarios x 3 conditions x 2 trials = 66 cells
-    assert len(results) == 66
+    scenario_count = len(run_module.load_scenarios(run_module.SCENARIOS_PATH))
+    condition_count = len(
+        run_module.load_prompt_conditions(run_module.INTERVENTIONS_PATH)
+    )
+    expected_trials = (
+        scenario_count * condition_count * run_module.CONFIG["trials_per_cell"]
+    )
+    assert len(results) == expected_trials
 
     transcript_path = output_dir / "transcripts.jsonl"
     assert transcript_path.exists()
     lines = transcript_path.read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 66
+    assert len(lines) == expected_trials
 
     for line in lines:
         payload = json.loads(line)
@@ -93,10 +99,13 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(
             "turn_3_repair_passed",
         ):
             assert required in payload, f"missing {required} in transcript row"
+        signals = payload["turn_2_code_signals"]
+        assert "has_stale" not in signals
+        assert "has_stale_raw" not in signals
 
     pass_count = sum(1 for r in results if r["turn_2_passed"])
     repair_attempts = sum(1 for r in results if r["turn_3_repair_attempted"])
-    assert pass_count + repair_attempts == 66
+    assert pass_count + repair_attempts == expected_trials
 
 
 def test_run_output_dir_governs_findings_location(tmp_path: Path) -> None:
@@ -125,7 +134,7 @@ def test_parse_args_accepts_all_flags() -> None:
             "--judge-model",
             "gemini-2.5-flash",
             "--judge-family",
-            "gemini",
+            "openai",
             "--trials",
             "3",
             "--output-dir",
@@ -134,7 +143,7 @@ def test_parse_args_accepts_all_flags() -> None:
     )
     assert args.model == "claude-sonnet-4-6"
     assert args.judge_model == "gemini-2.5-flash"
-    assert args.judge_family == "gemini"
+    assert args.judge_family == "openai"
     assert args.trials == 3
     assert args.output_dir == "/tmp/out"
 
@@ -163,11 +172,11 @@ def test_config_overrides_from_args_full() -> None:
     args = run_module._parse_args(
         [
             "--model",
-            "gemini-2.5-flash",
+            "openai/gpt-4.1-mini",
             "--judge-model",
-            "claude-sonnet-4-6",
+            "gemini-2.5-flash",
             "--judge-family",
-            "claude",
+            "gemini",
             "--trials",
             "1",
             "--output-dir",
@@ -176,9 +185,9 @@ def test_config_overrides_from_args_full() -> None:
     )
     overrides = run_module._config_overrides_from_args(args)
     assert overrides == {
-        "model_id": "gemini-2.5-flash",
-        "judge_model_id": "claude-sonnet-4-6",
-        "judge_family": "claude",
+        "model_id": "openai/gpt-4.1-mini",
+        "judge_model_id": "gemini-2.5-flash",
+        "judge_family": "gemini",
         "trials_per_cell": 1,
         "output_dir": "out/",
     }

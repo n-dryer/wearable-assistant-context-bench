@@ -1,16 +1,17 @@
-"""LLM-as-judge with cross-family support.
+"""LLM-as-judge with support for multiple provider families.
 
-The judge labels each Turn 2 response with exactly one policy from the
-four-policy taxonomy: `current`, `prior`, `clarify`, `abstain`. v1's
-scored surface is `prior` vs `current`; `clarify` and `abstain` remain
-emittable tags for diagnostic visibility but count as wrong for the
-primary score (see docs/benchmark_spec.md).
+The judge labels each Turn 2 response with exactly one label:
+`current`, `prior`, `clarify`, or `abstain`. In v1, `prior` and
+`current` are the scored labels; `clarify` and `abstain` stay visible
+for diagnostics but count as wrong for the primary score (see
+docs/benchmark_spec.md).
 
-A `JudgeAdapter` abstraction lets the judge run against either the
-Claude or Gemini APIs. The CLI's default `--judge-family auto`
+A `JudgeAdapter` abstraction lets the judge run against native Claude
+or Gemini adapters plus a LiteLLM-backed OpenAI-family path. The
+CLI's default `--judge-family auto`
 resolves to a family **different** from the candidate's (see
 `resolve_judge_family` and `infer_candidate_family`). Explicit
-`--judge-family claude|gemini` overrides the cross-family default.
+`--judge-family claude|gemini|openai` overrides that default.
 """
 
 from __future__ import annotations
@@ -21,11 +22,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
+from core.litellm_adapter import LiteLLMAdapter
 from core.models import ClaudeAdapter, ModelConfig
 
 
 JUDGE_MODEL_ID_CLAUDE = "claude-sonnet-4-6"
 JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
+JUDGE_MODEL_ID_OPENAI = "openai/gpt-4.1-mini"
 JUDGE_TEMPERATURE = 0.0
 JUDGE_MAX_TOKENS = 1024
 JUDGE_PROMPT_VERSION = "v1.0.0"
@@ -35,14 +38,14 @@ ALLOWED_POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
 
 
 JUDGE_SYSTEM_PROMPT = """You are an evaluator labeling an AI assistant's \
-response with exactly one reference-state policy.
+response with exactly one judge label.
 
-The four policies are defined as follows. Each scored response is \
+The available labels are defined as follows. Each scored response is \
 labeled with exactly one:
 
 - `current`: answer from the newest relevant state.
 - `prior`: answer from an earlier state on purpose.
-- `clarify`: ask a question because the intended reference state is \
+- `clarify`: ask a question because the intended context is \
 ambiguous.
 - `abstain`: decline because the available evidence is insufficient.
 
@@ -53,11 +56,11 @@ occurred between Turn 1 and Turn 2.
 3. The assistant's Turn 2 response being labeled.
 4. Four reference answer lists for the scenario (CURRENT, PRIOR, \
 CLARIFY indicators, ABSTAIN indicators). These are provided so you can \
-see which concrete tokens anchor each policy for this scenario. They \
+see which concrete tokens anchor each label for this scenario. They \
 are not a scoring shortcut: a response can match tokens from one list \
-and still be better described by another policy.
+and still be better described by another label.
 
-Reason briefly about which policy best describes the response, grounded \
+Reason briefly about which label best describes the response, grounded \
 in the definitions above.
 
 Then emit a single JSON object on the final line with this exact shape:
@@ -65,7 +68,7 @@ Then emit a single JSON object on the final line with this exact shape:
 "rationale": "<one-sentence justification>"}
 
 Output no text after the JSON object. `selected_policy` MUST be exactly \
-one of the four policy names."""
+one of the four label names."""
 
 
 @dataclass
@@ -149,8 +152,70 @@ class GeminiJudgeAdapter(JudgeAdapterBase):
         )
 
 
+class OpenAIJudgeAdapter(JudgeAdapterBase):
+    """LiteLLM-backed OpenAI-family judge adapter."""
+
+    family = "openai"
+
+    def __init__(
+        self,
+        adapter: LiteLLMAdapter | None = None,
+        temperature: float = JUDGE_TEMPERATURE,
+        max_tokens: int = JUDGE_MAX_TOKENS,
+    ) -> None:
+        self._adapter = adapter if adapter is not None else LiteLLMAdapter()
+        self._temperature = temperature
+        self._max_tokens = max_tokens
+
+    def call(self, *, system: str, user: str, model_id: str) -> str:
+        config = ModelConfig(
+            model_id=model_id,
+            temperature=self._temperature,
+            max_tokens=self._max_tokens,
+        )
+        return self._adapter.query(
+            messages=[{"role": "user", "content": user}],
+            system=system,
+            config=config,
+        )
+
+
+class LiteLLMJudgeAdapter(JudgeAdapterBase):
+    """LiteLLM-backed judge adapter for provider-qualified model IDs.
+
+    This keeps explicit judge model strings like
+    `openrouter/anthropic/...` or `openrouter/google/...` on the
+    unified LiteLLM transport instead of forcing them through the
+    native provider adapters.
+    """
+
+    def __init__(
+        self,
+        family: str,
+        adapter: LiteLLMAdapter | None = None,
+        temperature: float = JUDGE_TEMPERATURE,
+        max_tokens: int = JUDGE_MAX_TOKENS,
+    ) -> None:
+        self.family = family
+        self._adapter = adapter if adapter is not None else LiteLLMAdapter()
+        self._temperature = temperature
+        self._max_tokens = max_tokens
+
+    def call(self, *, system: str, user: str, model_id: str) -> str:
+        config = ModelConfig(
+            model_id=model_id,
+            temperature=self._temperature,
+            max_tokens=self._max_tokens,
+        )
+        return self._adapter.query(
+            messages=[{"role": "user", "content": user}],
+            system=system,
+            config=config,
+        )
+
+
 class LLMJudge:
-    """Four-policy LLM judge. Family defaults to cross-family via `auto`.
+    """LLM judge for the four allowed labels. Family defaults to `auto`.
 
     The judge itself does not decide the family; the runner resolves it
     with `resolve_judge_family` and instantiates the correct
@@ -223,18 +288,34 @@ def infer_candidate_family(model_id: str) -> str | None:
     """Infer the candidate model's family from its `--model` string.
 
     Returns:
-        `"claude"`, `"gemini"`, or `None` if the family cannot be
-        inferred. The runner errors out on `None` in `--judge-family auto`.
+        `"claude"`, `"gemini"`, `"openai"`, or `None` if the family
+        cannot be inferred. The runner errors out on `None` in
+        `--judge-family auto`.
     """
     if not model_id:
         return None
     lowered = model_id.lower()
+    if "/" in lowered:
+        provider, remainder = lowered.split("/", 1)
+        if provider in {"anthropic", "claude"}:
+            return "claude"
+        if provider in {"gemini", "google"}:
+            return "gemini"
+        if provider == "openai":
+            return "openai"
+        if provider == "openrouter" and remainder:
+            return infer_candidate_family(remainder)
+        if provider in {"vertexai", "vertex_ai"} and "gemini" in remainder:
+            return "gemini"
     claude_markers = ("claude", "sonnet", "opus", "haiku")
     gemini_markers = ("gemini",)
+    openai_prefixes = ("gpt-", "o1", "o3", "o4")
     if any(marker in lowered for marker in claude_markers):
         return "claude"
     if any(marker in lowered for marker in gemini_markers):
         return "gemini"
+    if lowered.startswith(openai_prefixes):
+        return "openai"
     return None
 
 
@@ -245,8 +326,8 @@ def resolve_judge_family(
     """Resolve the judge family from the CLI flag and the candidate model.
 
     Args:
-        requested: Value of `--judge-family`: `auto`, `claude`, or
-            `gemini`.
+        requested: Value of `--judge-family`: `auto`, `claude`,
+            `gemini`, or `openai`.
         candidate_model_id: The `--model` string for the candidate.
 
     Returns:
@@ -257,21 +338,21 @@ def resolve_judge_family(
         ValueError: If `requested` is not one of the allowed values, or
             if `auto` cannot infer a family for the candidate.
     """
-    if requested not in ("auto", "claude", "gemini"):
+    if requested not in ("auto", "claude", "gemini", "openai"):
         raise ValueError(
-            f"--judge-family must be auto, claude, or gemini; "
+            f"--judge-family must be auto, claude, gemini, or openai; "
             f"got {requested!r}"
         )
-    if requested in ("claude", "gemini"):
+    if requested in ("claude", "gemini", "openai"):
         return requested, "explicit"
     candidate_family = infer_candidate_family(candidate_model_id)
     if candidate_family is None:
         raise ValueError(
             f"--judge-family auto could not infer the candidate family "
             f"from model string {candidate_model_id!r}. Pass --judge-family "
-            "claude or gemini explicitly."
+            "claude, gemini, or openai explicitly."
         )
-    cross = {"claude": "gemini", "gemini": "claude"}
+    cross = {"claude": "gemini", "gemini": "openai", "openai": "gemini"}
     return (cross[candidate_family], "auto")
 
 
@@ -283,7 +364,7 @@ def build_judge(
     """Factory: build an LLMJudge for the given family.
 
     Args:
-        family: `"claude"` or `"gemini"`.
+        family: `"claude"`, `"gemini"`, or `"openai"`.
         model_id: Optional explicit model string; defaults to the
             family's canonical judge model.
         adapter: Optional pre-built adapter (for tests).
@@ -293,10 +374,28 @@ def build_judge(
     """
     if family == "claude":
         resolved_model = model_id or JUDGE_MODEL_ID_CLAUDE
-        adapter_ = adapter if adapter is not None else ClaudeJudgeAdapter()
+        if adapter is not None:
+            adapter_ = adapter
+        elif "/" in resolved_model:
+            adapter_ = LiteLLMJudgeAdapter(family=family)
+        else:
+            adapter_ = ClaudeJudgeAdapter()
     elif family == "gemini":
         resolved_model = model_id or JUDGE_MODEL_ID_GEMINI
-        adapter_ = adapter if adapter is not None else GeminiJudgeAdapter()
+        if adapter is not None:
+            adapter_ = adapter
+        elif "/" in resolved_model:
+            adapter_ = LiteLLMJudgeAdapter(family=family)
+        else:
+            adapter_ = GeminiJudgeAdapter()
+    elif family == "openai":
+        resolved_model = model_id or JUDGE_MODEL_ID_OPENAI
+        if adapter is not None:
+            adapter_ = adapter
+        elif "/" in resolved_model:
+            adapter_ = LiteLLMJudgeAdapter(family=family)
+        else:
+            adapter_ = OpenAIJudgeAdapter()
     else:
         raise ValueError(f"Unknown judge family: {family!r}")
     return LLMJudge(adapter=adapter_, model_id=resolved_model)

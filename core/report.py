@@ -1,24 +1,22 @@
-"""Aggregation and Markdown rendering for v1 slice results.
+"""Aggregation and Markdown rendering for canonical v1 benchmark results.
 
 The runner produces one result dict per trial. This module rolls
 those up into a findings report for the `Wearable Assistant Context
-Benchmark` v1 runnable slice (reference-state selection under
-implicit context shift):
+Benchmark` v1 benchmark:
 
 1. **Benchmark summary.** Headline primary score (balanced Turn 2
-   accuracy under the ranking condition), per-class accuracy, and a
-   per-condition sensitivity row. This is the ranking-friendly view.
+   accuracy under the default comparison condition), per-class
+   accuracy, and a per-condition sensitivity row.
 2. **Per-class pass rate by condition.** A 4-row internal grid for
-   visibility. Rows without runnable scenarios (v1: `clarify`,
-   `abstain`) render as **diagnostic-only** rows with a note; any
-   trial whose judge emitted `clarify` or `abstain` is counted as
-   wrong for the primary score.
+   visibility. `current` and `prior` are the primary classes.
+   `clarify` and `abstain` are auxiliary diagnostic classes in the
+   canonical release and are not included in the primary score.
 3. **Simulated repair rate per condition.**
 4. **Code-judge disagreement count per scenario.**
 5. **Scenario-by-condition matrix.**
 6. **Reproducibility manifest.** A JSON block with the scenario /
    interventions / judge-prompt SHAs, model strings, trials,
-   temperature, and the ranking condition.
+   temperature, and the default comparison condition.
 
 Expected per-trial result dict keys:
     scenario_id (str)
@@ -43,20 +41,22 @@ from typing import Any
 POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
 SCORED_POLICIES: tuple[str, ...] = ("current", "prior")
 CONDITIONS_ORDER: tuple[str, ...] = ("baseline", "condition_a", "condition_b")
-DIAGNOSTIC_POLICY_NOTE: str = (
-    "diagnostic-only in v1; trials in this row count as wrong for the primary score"
+AUXILIARY_POLICY_NOTE: str = (
+    "auxiliary in canonical v1; not included in the primary current/prior score"
 )
 
 BENCHMARK_NAME: str = "Wearable Assistant Context Benchmark"
 BENCHMARK_VERSION: str = "v1"
-BENCHMARK_SLICE: str = (
-    "v1 runnable slice (with-prior-Q; reference-state selection under "
-    "implicit context shift)"
+BENCHMARK_LABEL: str = (
+    "canonical v1 benchmark for cross-turn reference resolution under "
+    "context change"
 )
 DEFAULT_RANKING_CONDITION: str = "baseline"
 
 # Kept for backwards compatibility with older call sites and tests.
-UNSCORED_POLICY_NOTE: str = DIAGNOSTIC_POLICY_NOTE
+BENCHMARK_SLICE: str = BENCHMARK_LABEL
+DIAGNOSTIC_POLICY_NOTE: str = AUXILIARY_POLICY_NOTE
+UNSCORED_POLICY_NOTE: str = AUXILIARY_POLICY_NOTE
 
 
 @dataclass
@@ -66,18 +66,18 @@ class PassRateCell:
     Attributes:
         passed: Trials in this cell where `turn_2_passed` was True.
         total: Total trials in this cell.
-        scored: False when the policy row has no runnable v1 scenarios
-            (clarify, abstain). Callers render a note instead of a rate
-            when `scored` is False.
+        primary_scored: True when the policy contributes to the primary
+            balanced-accuracy metric (`current`, `prior`). Auxiliary
+            policies still report rates when scenarios are present.
     """
 
     passed: int
     total: int
-    scored: bool
+    primary_scored: bool
 
     @property
     def rate(self) -> float | None:
-        if not self.scored or self.total == 0:
+        if self.total == 0:
             return None
         return self.passed / self.total
 
@@ -112,7 +112,7 @@ def per_policy_pass_rate_by_condition(
         for condition in conditions:
             if policy not in observed_policies:
                 grid[policy][condition] = PassRateCell(
-                    passed=0, total=0, scored=False
+                    passed=0, total=0, primary_scored=(policy in SCORED_POLICIES)
                 )
                 continue
             passed = 0
@@ -126,7 +126,9 @@ def per_policy_pass_rate_by_condition(
                 if bool(trial["turn_2_passed"]):
                     passed += 1
             grid[policy][condition] = PassRateCell(
-                passed=passed, total=total, scored=True
+                passed=passed,
+                total=total,
+                primary_scored=(policy in SCORED_POLICIES),
             )
     return grid
 
@@ -161,7 +163,7 @@ def balanced_accuracy_under_condition(
     results: list[dict],
     condition: str,
 ) -> float | None:
-    """Primary benchmark score under a given ranking condition.
+    """Primary benchmark score under a given default comparison condition.
 
     Defined as the mean of per-class accuracy across the two scored
     policies (`prior`, `current`). Clarify / abstain trials contribute
@@ -297,12 +299,12 @@ def render_findings_markdown(
     sections = [
         f"# {BENCHMARK_NAME}: Findings",
         "",
-        f"**Slice:** {BENCHMARK_SLICE}",
+        f"**Benchmark:** {BENCHMARK_LABEL}",
         "",
         "## Benchmark summary",
         "",
         _render_benchmark_summary(
-            benchmark_slice=BENCHMARK_SLICE,
+            benchmark_slice=BENCHMARK_LABEL,
             ranking_condition=ranking_condition,
             primary_score=primary_score,
             class_accs=class_accs,
@@ -347,8 +349,8 @@ def _render_benchmark_summary(
         return f"{value * 100:.1f}%"
 
     lines: list[str] = [
-        f"- **Benchmark slice**: {benchmark_slice}",
-        f"- **Ranking condition**: `{ranking_condition}`",
+        f"- **Benchmark**: {benchmark_slice}",
+        f"- **Default comparison condition**: `{ranking_condition}`",
         f"- **Primary score** (balanced Turn 2 accuracy): **{_pct(primary_score)}**",
         "- **How to read this run**: compare candidate models on the "
         f"`{ranking_condition}` score below; treat the other conditions as "
@@ -363,7 +365,7 @@ def _render_benchmark_summary(
     lines.append("| Condition | Balanced Turn 2 accuracy |")
     lines.append("| --- | --- |")
     for condition, score in per_condition_balanced.items():
-        marker = " (ranking)" if condition == ranking_condition else ""
+        marker = " (default)" if condition == ranking_condition else ""
         lines.append(f"| {condition}{marker} | {_pct(score)} |")
     return "\n".join(lines)
 
@@ -378,13 +380,16 @@ def _render_policy_grid(
     for policy in POLICIES:
         label = f"`{policy}`"
         if policy not in SCORED_POLICIES:
-            label = f"`{policy}` (diagnostic)"
+            label = f"`{policy}` (auxiliary)"
         cells = [label]
         for condition in conditions:
             cell = grid[policy][condition]
-            if not cell.scored:
-                cells.append(DIAGNOSTIC_POLICY_NOTE)
-            elif cell.total == 0:
+            if cell.total == 0:
+                if cell.primary_scored:
+                    cells.append("-")
+                else:
+                    cells.append(AUXILIARY_POLICY_NOTE)
+            elif cell.rate is None:
                 cells.append("-")
             else:
                 pct = cell.rate * 100 if cell.rate is not None else 0.0
