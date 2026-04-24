@@ -25,16 +25,16 @@ two-turn structure:
 - Turn 2 changes the context and asks an ambiguous follow-up
 
 That structure makes it possible to compare candidate models on a
-frozen scenario bank without needing a full device-evaluation stack for
-the first public release.
+frozen scenario bank without needing a full device-evaluation stack
+before tagging the first public release.
 
-## Why the public release uses one consolidated v1
+## Why the pre-release bank uses one consolidated v1
 
 The repo originally contained a smaller 11-scenario draft and a larger
-scenario bank in a separate directory. The public release now uses one
-consolidated canonical `benchmark/v1/` so the repo has a single active
-benchmark surface instead of parallel versions that tell different
-stories.
+scenario bank in a separate directory. The pre-release v1 bank now
+lives in one consolidated canonical `benchmark/v1/` so the repo has a
+single active benchmark surface instead of parallel versions that tell
+different stories.
 
 Canonical v1 now means:
 
@@ -43,13 +43,13 @@ Canonical v1 now means:
 - one active set of prompt conditions
 - one active scoring contract
 
-## Why transcript proxies are acceptable for this release
+## Why transcript proxies are acceptable for the pre-release bank
 
 Spoken user questions are already part of the cue set in this
-benchmark, but the public release represents them through transcript
-proxies rather than raw audio.
+benchmark, but the pre-release v1 bank represents them through
+transcript proxies rather than raw audio.
 
-That tradeoff was acceptable for this release because:
+That tradeoff was acceptable for the pre-release bank because:
 
 - it lets the benchmark ship with inspectable, reproducible inputs
 - it still tests interpretation of spoken user queries

@@ -9,8 +9,7 @@ next public release.
 
 An audit is an internal QA pass. It identifies which candidate scenarios
 are ready to ship, which need rewriting, and which should be dropped or
-merged. Verdicts apply to the candidate bank in the working tree, not to
-any already-released v1 bank on `main`.
+merged. Verdicts apply to the candidate bank in the working tree.
 
 Each audit is a three-file artifact produced by
 `scripts/scenario_audit/bootstrap_audit.py`:
@@ -39,7 +38,7 @@ has to change first.
 ## 2026-04-22 audit
 
 The 2026-04-22 audit is the post-consolidation health check on the
-101-scenario canonical v1 bank. It was also the audit that motivated
+101-scenario candidate v1 bank. It was also the audit that motivated
 the consolidation: the pre-consolidation candidate bank (121 scenarios)
 returned 77 `rewrite`, 3 `merge`, 4 `remove`, and 37 `keep` verdicts,
 driven mainly by hidden visual dependencies and generic answer keys.
@@ -74,5 +73,6 @@ the pre-consolidation audit produced 6/10 exact agreement on
 Disagreements clustered on low- and medium-severity edge cases. The
 high-severity findings that drove the rewrite backlog were trustworthy.
 
-The shipped v1 release on `main` remains the frozen 11-scenario bank
-until a tagged release promotes the consolidated 101-scenario bank.
+No public release has been tagged yet. The consolidated 101-scenario
+bank on `main` will become v1 when the first public release is tagged
+alongside the accompanying benchmark results.
