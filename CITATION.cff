@@ -1,7 +1,9 @@
 cff-version: 1.2.0
-message: "This benchmark is pre-release and has no tagged version yet. A version field and date-released will be added when the first public release is tagged as v1."
+message: "If you reference the Wearable Assistant Context Benchmark, cite this file."
 title: "Wearable Assistant Context Benchmark"
-abstract: "Product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant. Built from real user feedback and product testing to support a practical model-selection decision. The pre-release bank contains 101 scenarios and represents spoken user queries through transcript proxies."
+version: "v1.0.0"
+date-released: "2026-04-24"
+abstract: "Product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant. Built from real user feedback and product testing to support a practical model-selection decision. v1.0.0 uses a frozen 101-scenario bank and represents spoken user queries through transcript proxies."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
