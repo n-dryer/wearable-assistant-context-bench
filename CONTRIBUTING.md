@@ -2,8 +2,10 @@
 
 Thanks for your interest in this benchmark.
 
-The current public v1 release is intentionally narrow and frozen in
-meaning so model runs stay comparable.
+This benchmark is pre-release. The first public release will be tagged
+`v1` alongside the accompanying benchmark results. The v1 bank is
+intentionally narrow and will be frozen in meaning at tag time so that
+model runs stay comparable across the release window.
 
 ## What is welcome
 

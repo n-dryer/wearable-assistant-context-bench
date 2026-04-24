@@ -10,7 +10,7 @@ The Wearable Assistant Context Benchmark is a **product benchmark**. It
 was built to help choose the model that best infers what a user is
 referring to during live wearable assistant interactions.
 
-The current public v1 benchmark measures **cross-turn reference resolution under context change**.
+This benchmark is pre-release; the first public release will be tagged `v1` alongside the accompanying benchmark results. In its pre-release form, v1 measures **cross-turn reference resolution under context change**.
 
 That means the benchmark focuses on a recurring product problem:
 
@@ -90,7 +90,7 @@ The scenario bank was built from a mix of:
 - generalized patterns derived from repeated failures
 - a smaller number of theoretical coverage cases
 
-The current public release uses one consolidated 101-scenario bank.
+The pre-release bank is one consolidated 101-scenario set.
 The goal was not to maximize scenario count for its own sake. The goal
 was to capture the recurring shapes of this product problem in a frozen
 set that can support fair candidate comparison.

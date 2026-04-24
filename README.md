@@ -31,8 +31,10 @@ and a saved run record.
 
 ## What v1 currently measures
 
-The current public v1 benchmark measures **cross-turn reference
-resolution under context change**.
+This benchmark is pre-release. The first public release will be tagged
+`v1` alongside the accompanying benchmark results. In its current
+pre-release form, v1 measures **cross-turn reference resolution under
+context change**.
 
 In plain language, it checks whether the assistant answers about the
 right thing after the user's context changes, instead of forcing the
@@ -60,7 +62,7 @@ See [docs/benchmark_spec.md](docs/benchmark_spec.md) for the benchmark
 contract, [docs/benchmark_notes.md](docs/benchmark_notes.md) for
 interpretation guidance, [docs/benchmark_card.html](docs/benchmark_card.html)
 for the one-page summary, and [docs/decisions.md](docs/decisions.md)
-for the scoping rationale behind this release.
+for the scoping rationale behind the pre-release bank.
 
 ## What canonical v1 includes
 

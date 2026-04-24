@@ -19,8 +19,10 @@ compared on the same conditions over time.
 
 ## Current v1 measured task
 
-The current public v1 benchmark measures **cross-turn reference
-resolution under context change**.
+This benchmark is pre-release; the first public release will be
+tagged `v1` alongside the accompanying benchmark results. In its
+pre-release form, v1 measures **cross-turn reference resolution under
+context change**.
 
 In plain language, it checks whether the assistant answers about the
 right thing after the user's context changes, instead of forcing the
@@ -78,7 +80,7 @@ Each entry in `scenarios.json` is an object with the following fields.
 | `target_context` | enum | yes | one of `current`, `prior`, `clarify`, `abstain` |
 | `authoring_basis` | enum | yes | internal source label such as `pilot`, `extended_from_pilot`, or `theoretical` |
 | `source_example_id` | string or null | yes | internal source reference, or `null` |
-| `surface` | enum | yes | current public release uses `wearable_live_frame` |
+| `surface` | enum | yes | pre-release v1 uses `wearable_live_frame` |
 | `turn_1_user` | string | yes | first user message, establishing the earlier reference state |
 | `turn_2_user` | string | yes | second user message after the context change |
 | `turn_3_repair_anchor` | string | yes | repair prompt used only after a Turn 2 miss |
@@ -182,7 +184,7 @@ condition, timestamp, and git commit.
 ## Audio and transcript-proxy scope
 
 Spoken user questions already count as part of the cue set in the
-benchmark. In the current public release, those spoken queries are
+benchmark. In the pre-release v1 bank, those spoken queries are
 represented through transcript proxies rather than raw audio.
 
 Canonical v1 does **not** yet directly test:

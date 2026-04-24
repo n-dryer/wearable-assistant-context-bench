@@ -2,9 +2,12 @@
 
 All notable benchmark-release changes live here.
 
-## [v1] - 2026-04-22
+## [Unreleased]
 
-Current public release of the **Wearable Assistant Context Benchmark**.
+Pre-release state of the **Wearable Assistant Context Benchmark**. This
+section describes the changes that will make up the first public
+release. No version has been tagged yet. The first public release will
+be tagged `v1` when the accompanying benchmark results are published.
 
 ### Included
 
