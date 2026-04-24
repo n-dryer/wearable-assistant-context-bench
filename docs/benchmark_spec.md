@@ -107,54 +107,87 @@ has:
 | `clarify_indicators` | list of strings | substrings indicating a clarifying question |
 | `abstain_indicators` | list of strings | substrings indicating refusal or inability to answer |
 
-These lists drive the deterministic code-side scorer. The judge remains
-authoritative for the benchmark verdict.
+These lists drive the deterministic substring scorer described in the
+Scoring section above.
 
 `interventions.json` stores the three prompt conditions. Each entry has
 a `name`, `description`, `system_prompt`, and `token_count`. The prompt
 text is frozen for the current release.
 
-## Scoring and ranking
+## Scoring
 
-Each trial produces a Turn 2 judge label:
+### Method
 
-- `current`
-- `prior`
-- `clarify`
-- `abstain`
+v1.0 uses **deterministic substring containment** scoring. No LLM judge
+is required for the primary score. LLM-as-judge scoring is deferred to
+v1.1.
 
-### Primary score
+Each Turn 2 response is scored correct or incorrect per scenario using
+word-boundary substring matching against `expected_answers.json`:
 
-The primary score is **balanced Turn 2 accuracy under the default
-comparison condition**.
+- **current scenarios**: correct if the response contains any token from
+  `current_answers`.
+- **prior scenarios**: correct if the response contains any token from
+  `prior_answers`.
+- **clarify scenarios**: correct if the response contains any token from
+  `clarify_indicators` AND does not contain any token from
+  `current_answers` or `prior_answers` (no confident wrong answer).
+- **abstain scenarios**: correct if the response contains any token from
+  `abstain_indicators` AND does not contain any token from
+  `current_answers` or `prior_answers`.
 
-Canonical v1 computes the headline score over the two scored classes:
-`current` and `prior`.
+Matching is case-insensitive and word-boundary delimited (regex
+`\b<token>\b`).
+
+### Main score
+
+The main score is the **macro average of the four per-category
+accuracy means**:
 
 ```text
-primary_score = (current_class_accuracy + prior_class_accuracy) / 2
+main_score = mean(
+    current_accuracy,
+    prior_accuracy,
+    clarify_accuracy,
+    abstain_accuracy
+)
 ```
 
-`clarify` and `abstain` trials remain visible in the findings output,
-but they are auxiliary diagnostic classes in the current release rather
-than part of the headline ranking score.
+Macro averaging prevents the larger categories (50 current, 24 prior)
+from dominating the number. Clarify and abstain remain visible and
+contribute equally.
+
+### Recovery metric
+
+For scenarios with a non-empty `turn_3_repair_anchor`, the runner fires
+the repair anchor after a Turn 2 miss and scores the Turn 3 response
+using the same substring rules. The recovery metric is:
+
+```text
+recovery_rate = (
+    count of scenarios where T2 incorrect and T3 correct
+) / (
+    count of scenarios where T2 incorrect
+)
+```
+
+Reported per category.
+
+### Clarify vs abstain
+
+- Use `clarify` when some context is present but the referent is
+  ambiguous (the question could be answered, but clarification is needed
+  first).
+- Use `abstain` when the needed information is simply not available in
+  the context.
 
 ### Default comparison condition
 
 `baseline` is the default comparison condition used to rank candidate
-models.
+models. `condition_a` and `condition_b` expose prompt sensitivity but
+do not replace `baseline` as the ranking reference.
 
-`condition_a` and `condition_b` remain in the benchmark to expose
-prompt sensitivity, not to replace `baseline` as the default comparison
-condition.
-
-### Secondary metric
-
-**Simulated repair rate** is reported as a secondary metric. It uses
-Turn 3 repair prompts after Turn 2 misses as a rough stand-in for user
-correction cost.
-
-## Judge and runtime behavior
+## Runtime behavior
 
 The runner supports native and LiteLLM-backed model access.
 
