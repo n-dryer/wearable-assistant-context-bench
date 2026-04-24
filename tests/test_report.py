@@ -118,10 +118,10 @@ def test_per_policy_grid_includes_all_four_rows() -> None:
 def test_per_policy_grid_clarify_and_abstain_are_diagnostic() -> None:
     grid = per_policy_pass_rate_by_condition(_fixture_results())
     for condition_cell in grid["clarify"].values():
-        assert condition_cell.scored is False
+        assert condition_cell.primary_scored is False
         assert condition_cell.rate is None
     for condition_cell in grid["abstain"].values():
-        assert condition_cell.scored is False
+        assert condition_cell.primary_scored is False
 
 
 def test_per_policy_grid_prior_rates_reflect_fixture() -> None:
@@ -299,6 +299,13 @@ def test_render_findings_markdown_shape() -> None:
         "probe " + "study",
         "aggregate " + "pass rate",
         "overall " + "pass rate",
+    ):
+        assert forbidden not in lowered
+    for forbidden in (
+        "benchmark slice",
+        "v1 runnable slice",
+        "with-prior-q",
+        "ranking-friendly",
     ):
         assert forbidden not in lowered
 

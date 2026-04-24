@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -20,12 +20,56 @@ from core.models import ModelConfig
 DEFAULT_GEMINI_CACHE_DIR = Path(".cache/gemini_models")
 
 
+@dataclass
+class _FallbackPart:
+    text: str
+
+    @classmethod
+    def from_text(cls, text: str) -> "_FallbackPart":
+        return cls(text=text)
+
+
+@dataclass
+class _FallbackContent:
+    role: str
+    parts: list[_FallbackPart]
+
+
+@dataclass
+class _FallbackThinkingConfig:
+    thinking_budget: int
+
+
+@dataclass
+class _FallbackGenerateContentConfig:
+    system_instruction: str | None
+    temperature: float
+    max_output_tokens: int
+    thinking_config: _FallbackThinkingConfig | None = None
+
+
+class _FallbackTypes:
+    Content = _FallbackContent
+    Part = _FallbackPart
+    ThinkingConfig = _FallbackThinkingConfig
+    GenerateContentConfig = _FallbackGenerateContentConfig
+
+
 def _resolve_api_key() -> str | None:
     for var in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_API_KEY"):
         val = os.environ.get(var)
         if val:
             return val
     return None
+
+
+def _gemini_types() -> Any:
+    try:
+        from google.genai import types as gtypes
+
+        return gtypes
+    except ModuleNotFoundError:
+        return _FallbackTypes
 
 
 class GeminiAdapter:
@@ -94,7 +138,7 @@ class GeminiAdapter:
         if cached is not None:
             return cached
 
-        from google.genai import types as gtypes
+        gtypes = _gemini_types()
 
         contents = []
         for m in messages:

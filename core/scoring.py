@@ -1,26 +1,19 @@
 """Code-based scoring utilities.
 
-These functions implement the deterministic half of the hybrid scoring
-scheme. Callers combine the returned signals with an LLM judge verdict
-(see core.llm_judge) to reach a final pass/fail decision.
+These functions implement the deterministic half of the scoring flow.
+Callers combine the returned signals with a judge verdict
+(`core.llm_judge`) to reach a final pass/fail decision.
 
-v0.2 upgrade note: the code signal formerly called `has_stale` is now
-called `has_prior` (it corresponds to the `prior` policy in the
-four-policy reference-state selection taxonomy). `has_clarify` and
-`has_abstain` are new audit-only signals derived from per-seed
-indicator lists. Code signals are no longer pass authority in v0.2;
-the judge verdict is primary. See docs/benchmark_spec.md.
-
-Backwards-compat: the `has_stale` function is kept as a deprecated
-thin alias that delegates to `has_prior`. The return dict of
-`score_response` also exposes `has_stale` / `has_stale_raw` keys as
-aliases of `has_prior` / `has_prior_raw` so that the v0.1-curated
-legacy API remains stable for older call sites.
+`has_stale` is kept only as a deprecated compatibility alias for older
+callers. The preferred signal name is `has_prior`, which reflects that
+the response followed the earlier context. `score_response` still
+returns the deprecated `has_stale` keys so older code keeps working,
+but new transcript output should not surface them.
 
 The contrastive-pattern suppressor (see `_CONTRASTIVE_RE`) demotes
 `has_prior` to False when the response explicitly contrasts an earlier
 state with the current one. The pre-suppression value is preserved as
-`has_prior_raw` in the returned dict for audit trails.
+`has_prior_raw` for audit trails.
 """
 
 from __future__ import annotations
@@ -177,12 +170,12 @@ def detect_refusal(response: str) -> bool:
 def has_prior(response: str, prior_answers: list[str]) -> bool:
     """Return True if the response fuzzy-matches any prior-state answer.
 
-    This is the v0.2 signal name. The code signal corresponds to the
-    `prior` policy in the four-policy reference-state selection taxonomy.
+    This is the preferred signal name for answers grounded in the
+    earlier context.
 
     Args:
         response: The model response being scored.
-        prior_answers: Strings reflecting an earlier reference state.
+        prior_answers: Strings reflecting the earlier context.
 
     Returns:
         True if any prior_answer fuzzy-matches the response.
@@ -193,8 +186,8 @@ def has_prior(response: str, prior_answers: list[str]) -> bool:
 def has_stale(response: str, stale_answers: list[str]) -> bool:
     """Deprecated alias for `has_prior`. Emits `DeprecationWarning` on call.
 
-    Kept only so v0.1-framed callers and doc snippets continue to work
-    until the doc-alignment pass lands. New code should use `has_prior`.
+    Kept only so older callers and doc snippets continue to work. New
+    code should use `has_prior`.
     """
     warnings.warn(
         "scoring.has_stale is deprecated; use scoring.has_prior "
@@ -215,16 +208,16 @@ def score_response(
     """Compute code-based scoring signals for a single response.
 
     The caller combines these with a judge verdict to compute a final
-    pass/fail. In v0.2, code signals are audit-only; the judge verdict is
-    pass authority.
+    pass/fail. Code signals are audit-only; the judge verdict is the
+    source of truth for the benchmark score.
 
     Args:
         response: The model response text (typically the Turn 2 assistant
             reply).
         current_answers: Strings that reflect the up-to-date state. A match
             indicates the model grounded in the most recent context.
-        prior_answers: Strings that reflect the earlier reference state.
-            A match indicates the model answered from an earlier state.
+        prior_answers: Strings that reflect the earlier context. A
+            match indicates the model answered from an earlier state.
         clarify_indicators: Phrases that signal a clarifying question was
             asked. Optional; defaults to empty list.
         abstain_indicators: Phrases that signal the model declined to
@@ -246,8 +239,7 @@ def score_response(
             is_refusal (bool): Whether the response refuses or hedges.
             response_length_tokens_est (int): Approximate token count,
                 rounded.
-            has_stale (bool): Deprecated alias of `has_prior`. Present so
-                v0.1-framed callers continue to work.
+            has_stale (bool): Deprecated alias of `has_prior`.
             has_stale_raw (bool): Deprecated alias of `has_prior_raw`.
     """
     has_current = fuzzy_match(response, current_answers)

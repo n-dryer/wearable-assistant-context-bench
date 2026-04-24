@@ -1,20 +1,9 @@
-"""Intervention condition loading.
+"""Prompt condition loading for benchmark v1.
 
-Loads the three prompt conditions used by the benchmark v1 slice
-from ``benchmark/v1/interventions.json``. This module is intentionally
-thin: JSON is the only active source of truth for intervention text,
-and the loader only handles parsing and lookup.
-
-Expected JSON schema:
-    [
-        {
-            "name": str,
-            "description": str,
-            "system_prompt": str,
-            "token_count": int
-        },
-        ...
-    ]
+The benchmark stores its three prompt conditions in
+``benchmark/v1/interventions.json`` for compatibility with the frozen
+v1 file layout. This module provides the preferred prompt-condition
+API while retaining intervention-based aliases for older callers.
 """
 
 from __future__ import annotations
@@ -25,15 +14,14 @@ from pathlib import Path
 
 
 @dataclass
-class InterventionCondition:
+class PromptCondition:
     """A single prompt condition applied to every scenario.
 
     Attributes:
-        name: Short identifier (e.g. "baseline", "condition_a").
-        description: One-line human-readable summary of the strategy.
-        system_prompt: The full system prompt sent to the model under test.
-        token_count: Approximate token count of the system prompt; used for
-            reporting prompt overhead alongside pass-rate deltas.
+        name: Short identifier such as ``baseline`` or ``condition_a``.
+        description: One-line summary of the prompt strategy.
+        system_prompt: Full system prompt sent to the candidate model.
+        token_count: Approximate prompt length used for prompt-overhead reporting.
     """
 
     name: str
@@ -42,21 +30,12 @@ class InterventionCondition:
     token_count: int
 
 
-def load_interventions(path: Path) -> list[InterventionCondition]:
-    """Load intervention conditions from a JSON file.
+# Backwards-compatible alias for older imports.
+InterventionCondition = PromptCondition
 
-    Args:
-        path: Path to a JSON file containing a list of condition objects.
 
-    Returns:
-        List of InterventionCondition in the order defined in the file.
-
-    Raises:
-        FileNotFoundError: If the path does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
-        KeyError: If a condition object is missing a required field.
-        TypeError: If the top-level JSON is not a list.
-    """
+def load_prompt_conditions(path: Path) -> list[PromptCondition]:
+    """Load prompt conditions from a JSON file."""
     with path.open("r", encoding="utf-8") as f:
         raw = json.load(f)
 
@@ -65,10 +44,10 @@ def load_interventions(path: Path) -> list[InterventionCondition]:
             f"Expected top-level JSON list of conditions, got {type(raw).__name__}"
         )
 
-    conditions: list[InterventionCondition] = []
+    conditions: list[PromptCondition] = []
     for entry in raw:
         conditions.append(
-            InterventionCondition(
+            PromptCondition(
                 name=entry["name"],
                 description=entry["description"],
                 system_prompt=entry["system_prompt"],
@@ -78,25 +57,24 @@ def load_interventions(path: Path) -> list[InterventionCondition]:
     return conditions
 
 
-def get_intervention_by_name(
-    conditions: list[InterventionCondition], name: str
-) -> InterventionCondition:
-    """Return the condition with the given name.
+def load_interventions(path: Path) -> list[InterventionCondition]:
+    """Compatibility wrapper around :func:`load_prompt_conditions`."""
+    return load_prompt_conditions(path)
 
-    Args:
-        conditions: List of loaded intervention conditions.
-        name: Name to look up.
 
-    Returns:
-        The matching InterventionCondition.
-
-    Raises:
-        ValueError: If no condition with that name exists. The error message
-            includes the list of known names to aid debugging typos in
-            experiment runners.
-    """
+def get_prompt_condition_by_name(
+    conditions: list[PromptCondition], name: str
+) -> PromptCondition:
+    """Return the prompt condition with the given name."""
     for condition in conditions:
         if condition.name == name:
             return condition
     known = ", ".join(c.name for c in conditions) or "(none loaded)"
-    raise ValueError(f"Unknown intervention name {name!r}. Known: {known}")
+    raise ValueError(f"Unknown prompt condition name {name!r}. Known: {known}")
+
+
+def get_intervention_by_name(
+    conditions: list[InterventionCondition], name: str
+) -> InterventionCondition:
+    """Compatibility wrapper around :func:`get_prompt_condition_by_name`."""
+    return get_prompt_condition_by_name(conditions, name)

@@ -1,4 +1,4 @@
-"""Unit tests for core.llm_judge (four-policy rubric + auto family)."""
+"""Unit tests for core.llm_judge label parsing and family selection."""
 
 from __future__ import annotations
 
@@ -10,11 +10,14 @@ from core.llm_judge import (
     ALLOWED_POLICIES,
     JUDGE_MODEL_ID_CLAUDE,
     JUDGE_MODEL_ID_GEMINI,
+    JUDGE_MODEL_ID_OPENAI,
     JUDGE_SYSTEM_PROMPT,
     ClaudeJudgeAdapter,
     GeminiJudgeAdapter,
     JudgeAdapterBase,
     LLMJudge,
+    LiteLLMJudgeAdapter,
+    OpenAIJudgeAdapter,
     build_judge,
     infer_candidate_family,
     parse_verdict,
@@ -83,6 +86,9 @@ def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
         ("gemini-2.5-pro", "gemini"),
         ("gemini-2.5-flash-lite", "gemini"),
         ("Gemini-2.5-Flash", "gemini"),
+        ("openai/gpt-4.1-mini", "openai"),
+        ("openrouter/openai/gpt-4.1-mini", "openai"),
+        ("gpt-4.1-mini", "openai"),
         ("something-unknown", None),
         ("", None),
     ],
@@ -100,6 +106,10 @@ def test_resolve_judge_family_explicit_returns_requested() -> None:
     assert family == "gemini"
     assert mode == "explicit"
 
+    family, mode = resolve_judge_family("openai", "gemini-2.5-flash")
+    assert family == "openai"
+    assert mode == "explicit"
+
 
 def test_resolve_judge_family_auto_picks_opposite_family() -> None:
     family, mode = resolve_judge_family("auto", "claude-sonnet-4-6")
@@ -107,7 +117,11 @@ def test_resolve_judge_family_auto_picks_opposite_family() -> None:
     assert mode == "auto"
 
     family, mode = resolve_judge_family("auto", "gemini-2.5-flash")
-    assert family == "claude"
+    assert family == "openai"
+    assert mode == "auto"
+
+    family, mode = resolve_judge_family("auto", "openai/gpt-4.1-mini")
+    assert family == "gemini"
     assert mode == "auto"
 
 
@@ -169,6 +183,8 @@ def test_build_judge_defaults_to_family_canonical_model() -> None:
     assert judge.model_id == JUDGE_MODEL_ID_CLAUDE
     judge = build_judge(family="gemini", adapter=_StubAdapter("x"))
     assert judge.model_id == JUDGE_MODEL_ID_GEMINI
+    judge = build_judge(family="openai", adapter=_StubAdapter("x"))
+    assert judge.model_id == JUDGE_MODEL_ID_OPENAI
 
 
 def test_build_judge_accepts_explicit_model_id() -> None:
@@ -178,6 +194,22 @@ def test_build_judge_accepts_explicit_model_id() -> None:
         adapter=_StubAdapter("x"),
     )
     assert judge.model_id == "claude-haiku-4-5"
+
+
+@pytest.mark.parametrize(
+    "family,model_id",
+    [
+        ("claude", "openrouter/anthropic/claude-3.5-haiku"),
+        ("gemini", "openrouter/google/gemini-2.5-flash"),
+    ],
+)
+def test_build_judge_uses_litellm_for_provider_qualified_models(
+    family: str, model_id: str
+) -> None:
+    judge = build_judge(family=family, model_id=model_id)
+    assert judge.model_id == model_id
+    assert isinstance(judge._adapter, LiteLLMJudgeAdapter)
+    assert judge.family == family
 
 
 def test_build_judge_rejects_unknown_family() -> None:
@@ -191,3 +223,11 @@ def test_claude_judge_adapter_family() -> None:
 
 def test_gemini_judge_adapter_family() -> None:
     assert GeminiJudgeAdapter.family == "gemini"
+
+
+def test_openai_judge_adapter_family() -> None:
+    assert OpenAIJudgeAdapter.family == "openai"
+
+
+def test_litellm_judge_adapter_family_is_configurable() -> None:
+    assert LiteLLMJudgeAdapter(family="claude").family == "claude"

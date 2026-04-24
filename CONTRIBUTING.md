@@ -1,40 +1,38 @@
 # Contributing
 
-Thanks for your interest in this benchmark. The scope below reflects
-that v1 is intentionally small and frozen so that runs across model
-releases stay comparable.
+Thanks for your interest in this benchmark.
+
+This benchmark is pre-release. The first public release will be tagged
+`v1` alongside the accompanying benchmark results. The v1 bank is
+intentionally narrow and will be frozen in meaning at tag time so that
+model runs stay comparable across the release window.
 
 ## What is welcome
 
-- Bug fixes in the runner, adapters, judge, scoring, or report.
-- New candidate-model adapters that conform to the existing
-  `core/models.py` and `core/gemini_adapter.py` shape.
-- Documentation improvements: clarifications, typo fixes, broken
-  links, additional reading guidance.
-- Test coverage for existing behavior.
-- Reproducibility improvements: tighter manifest fields, better
-  cache hygiene, clearer run output.
+- bug fixes in the runner, adapters, judge, scoring, or report
+- new candidate-model adapter support that preserves benchmark semantics
+- documentation improvements, typo fixes, and broken-link fixes
+- test coverage for existing behavior
+- reproducibility improvements such as better manifest fields, cache
+  hygiene, or run-output clarity
 
-## What is out of scope for v1
+## What is out of scope for canonical v1
 
-v1 is **frozen**. The following changes do not land in v1 because they
-would break run-over-run comparability:
+Canonical v1 is frozen in the following areas:
 
-- Edits to scenarios in `benchmark/v1/scenarios/`.
-- Edits to expected-answer lists, the four-policy taxonomy, or the
-  judge system prompt.
-- Edits to `benchmark/v1/interventions.json` or the conditions list.
-- Changes to the primary scoring rule (balanced Turn 2 accuracy).
-- Changes to the trial count, temperature, or ranking-condition
-  default.
+- edits to `benchmark/v1/scenarios.json`
+- edits to `benchmark/v1/expected_answers.json`
+- edits to `benchmark/v1/interventions.json`
+- changes to the judge label set
+- changes to the primary scoring rule
+- changes to the default comparison condition
 
-Ideas in those areas belong in `docs/deferred_roadmap.md` or in a new
-versioned slice (e.g. `benchmark/v2/`).
+Those changes would alter benchmark meaning and should be treated as a
+new benchmark-release discussion, not an in-place edit to canonical v1.
 
 ## Workflow
 
-1. Open an issue first for non-trivial changes so we can confirm the
-   change fits the scope above.
+1. Open an issue first for non-trivial changes.
 2. Fork and branch from `main`.
 3. Run the test suite locally:
 
@@ -47,19 +45,18 @@ versioned slice (e.g. `benchmark/v2/`).
 
 ## Code style
 
-- Python 3.11+ with type hints on every public function.
-- Docstrings on every public function. Module-level docstrings on
-  every file in `core/` and `benchmark/`.
-- Dataclasses for structured payloads.
-- No bare `except:` clauses.
-- Constants live in a single config dict at the top of the runner,
-  not inline in code.
+- Python 3.11+ with type hints on every public function
+- docstrings on every public function and module-level docstrings on
+  files in `core/` and `benchmark/`
+- dataclasses for structured payloads where they improve readability
+- no bare `except:` clauses
+- preserve the runner CLI contract unless a change is explicitly needed
 
 ## Reporting issues
 
-When filing a runner or judge bug, please include:
+When filing a runner or judge bug, include:
 
-- The exact CLI invocation.
-- The contents of `manifest` from `findings.md` (or attach the file).
-- The candidate model and judge model IDs.
-- The Python version.
+- the exact CLI invocation
+- the manifest block from `findings.md`, or the full file
+- the candidate model and judge model IDs
+- the Python version

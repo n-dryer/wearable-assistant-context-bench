@@ -1,7 +1,7 @@
 [
   {
     "name": "baseline",
-    "description": "Minimal system prompt. Default ranking condition for the primary benchmark score.",
+    "description": "Minimal system prompt. Default comparison condition for the primary benchmark score.",
     "system_prompt": "You are an assistant helping a user with an ongoing project.",
     "token_count": 13
   },
