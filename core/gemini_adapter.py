@@ -180,11 +180,36 @@ class GeminiAdapter:
             **extra,
         )
 
-        response = self.client.models.generate_content(
-            model=config.model_id,
-            contents=contents,
-            config=gen_config,
-        )
+        import time
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                response = self.client.models.generate_content(
+                    model=config.model_id,
+                    contents=contents,
+                    config=gen_config,
+                )
+                break
+            except Exception as exc:
+                # Retry on transient read timeouts (httpx.ReadTimeout,
+                # httpcore.ReadTimeout). Raise immediately on other errors.
+                exc_name = type(exc).__name__
+                if "ReadTimeout" in exc_name or "Timeout" in exc_name:
+                    last_exc = exc
+                    if attempt < 2:
+                        time.sleep(10 * (attempt + 1))
+                    continue
+                raise
+        else:
+            # All 3 attempts timed out — return empty string so the runner
+            # can continue with other scenarios rather than crashing.
+            import warnings
+            warnings.warn(
+                f"GeminiAdapter.query timed out after 3 attempts: {last_exc}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return ""
 
         text = _extract_text(response)
         if text:
