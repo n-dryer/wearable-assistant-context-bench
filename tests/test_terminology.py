@@ -55,9 +55,9 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
 
 def test_public_docs_use_v1_framing() -> None:
     """The four main framing docs must carry the v1 framing language:
-    the wearable use case, the camera channel with perceptual
-    descriptions, and the four judge labels (`current`, `prior`,
-    `clarify`, `abstain`).
+    the wearable use case, the camera channel with scene descriptions,
+    and the four judge labels (`current`, `prior`, `clarify`,
+    `abstain`).
 
     This is a positive check — if a future edit reverts to a different
     framing (drops the camera channel, drops the four-label vocabulary,
@@ -66,7 +66,7 @@ def test_public_docs_use_v1_framing() -> None:
     required = (
         "wearable",
         "camera",
-        "perceptual",
+        "scene description",
         "current",
         "prior",
         "clarify",
@@ -102,20 +102,20 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
             "wearable",
             "model-selection",
             "context tracking",
-            "perceptual",
+            "scene description",
             "as a proxy",
             "real video",
         ),
         "docs/benchmark_spec.md": (
             "wearable",
-            "perceptual",
+            "scene description",
             "real video",
             "does not measure",
         ),
         "docs/benchmark_notes.md": (
             "wearable",
             "context tracking",
-            "perceptual text",
+            "scene descriptions in text",
             "as a proxy",
             "real video",
             "does not measure",
@@ -124,7 +124,7 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
             "wearable",
             "model-selection",
             "context tracking",
-            "perceptual",
+            "scene description",
             "as a proxy",
             "real video",
         ),

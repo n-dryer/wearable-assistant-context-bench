@@ -35,13 +35,15 @@ This benchmark measures **context tracking**. It tests whether a
 model uses the current situational evidence visible in the camera
 frame, or stays anchored to prior context after a shift.
 
-The bank is **50 scenarios across 8 cue_type categories**: object in
+The bank is **50 scenarios across 8 shift-type categories**: object in
 hand, object state, sequential task, location, object in view, absent
 referent, screen content, and pre-conversation recall. Each scenario
-is a 3-turn conversation with perceptual image descriptions injected
-on the user side as `[Camera: ...]` blocks. The model has to integrate
-those camera blocks with the deictic user speech to figure out what
-context the question refers to.
+is a 3-turn conversation with scene descriptions injected on the user
+side as `[Camera: ...]` blocks. Scene descriptions are what a vision
+system would say about a camera frame — shape, material, color,
+motion, position — without naming the object directly. The model has
+to integrate those camera blocks with the deictic user speech to
+figure out what context the question refers to.
 
 The judge labels each Turn 2 response with one of `current`, `prior`,
 `clarify`, or `abstain`. The primary score is balanced accuracy across
@@ -55,7 +57,7 @@ It does not directly evaluate:
 - Whether the coaching advice is correct, safe, or domain-appropriate
 - Multi-turn conversation dynamics beyond a 3-turn structure
 - Performance on real video frames (the camera channel uses
-  perceptual text descriptions as a proxy)
+  scene descriptions in text as a proxy)
 - Proactive coaching — noticing without being asked
 - Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
 - Latency, cost, audio perception, speaker attribution, or long-horizon
@@ -80,12 +82,12 @@ flowchart LR
 ```
 
 The candidate sees the audio channel (user speech) and the camera
-channel (perceptual descriptions). The judge also receives a
-ground-truth section that names the actual objects in T1 and T2 — the
-candidate never sees that. Each scenario runs across three prompt
-conditions (`baseline`, `condition_a`, `condition_b`) at temperature 0.
-Turn 3 fires only after a Turn 2 miss and feeds the simulated repair
-rate.
+channel (scene descriptions). The judge also receives a
+ground-truth section that names the actual objects in Turn 1 and
+Turn 2 — the candidate never sees that. Each scenario runs across
+three prompt conditions (`baseline`, `condition_a`, `condition_b`) at
+temperature 0. Turn 3 fires only after a Turn 2 miss and feeds the
+repair rate.
 
 ## Repository layout
 
@@ -166,14 +168,16 @@ one of `current`, `prior`, `clarify`, or `abstain`.
 By default, `--judge-family auto` resolves to a different model family
 than the candidate (Claude candidate → Gemini judge, Gemini candidate
 → OpenAI judge, OpenAI candidate → Gemini judge). This reduces
-self-judging artifacts. Explicit `claude`, `gemini`, and `openai`
-overrides are supported.
+**self-preference bias**, the tendency of a model to rate outputs from
+its own family more favorably. Explicit `claude`, `gemini`, and
+`openai` overrides are supported.
 
 The judge receives the same audio and camera channels as the
 candidate, plus a ground-truth section that names the actual objects
-in the T1 and T2 frames. The candidate never sees this ground-truth
-section. The split lets the judge reliably determine whether the
-response reflects T2 (current) or T1 (prior) context.
+in the Turn 1 and Turn 2 frames. The candidate never sees this
+ground-truth section. The split lets the judge reliably determine
+whether the response reflects Turn 2 (current) or Turn 1 (prior)
+context.
 
 ## How to read the primary score
 
@@ -218,7 +222,7 @@ Condition sensitivity (balanced Turn 2 accuracy):
 | `condition_a` | 90.2% |
 | `condition_b` | 100.0% |
 
-Simulated repair rate by condition:
+Repair rate by condition:
 
 | Condition | Repair rate (repaired / failures) |
 |-----------|-----------------------------------|

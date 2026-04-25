@@ -82,18 +82,21 @@ does not narrate what the camera sees.
 
 ### Special case: prior scenarios
 
-For scenarios where the correct answer refers back to T1 context
-(`target_context: "prior"`), T2 user speech may use a temporal
+For scenarios where the correct answer refers back to Turn 1 context
+(`target_context: "prior"`), Turn 2 user speech may use a temporal
 reference (`"thinking back to before"`, `"what was the reading
-earlier"`). It still must not name the T1 object or describe what was
-previously visible.
+earlier"`). It still must not name the Turn 1 object or describe what
+was previously visible.
 
 ---
 
 ## Camera channel rules
 
-Describe what a camera frame would contain at the perceptual level.
-Physical properties only. No object names. No technique evaluation.
+Describe what a camera frame would contain at the scene level. Scene
+descriptions are what a vision system would say about a camera frame
+— shape, material, color, motion, position — without naming the
+object directly. Physical properties only. No object names. No
+technique evaluation.
 
 ### Must
 
@@ -121,9 +124,9 @@ Physical properties only. No object names. No technique evaluation.
 
 Show the description to a person with no scenario context. They should
 be able to identify the object with high confidence. If they cannot,
-add more distinguishing perceptual detail. If they identify it
-immediately from one feature, that is acceptable — the description
-does not need to be cryptic, only non-labeled.
+add more distinguishing scene detail. If they identify it immediately
+from one feature, that is acceptable — the description does not need
+to be cryptic, only non-labeled.
 
 ### Examples
 
@@ -137,8 +140,8 @@ does not need to be cryptic, only non-labeled.
 
 ## Context shift rules
 
-The shift between T1 and T2 is visible only in the camera channel. It is
-never announced in the audio channel.
+The shift between Turn 1 and Turn 2 is visible only in the camera
+channel. It is never announced in the audio channel.
 
 - `turn_1_image` and `turn_2_image` describe different situations
   (different object, location, or state)
@@ -147,18 +150,18 @@ never announced in the audio channel.
 
 The shift between states is intentionally implicit in the benchmark.
 A real wearable model processes a continuous video stream and observes
-transitions naturally; the benchmark represents the moment of T1 and
-the moment of T2 and lets the model infer that a shift occurred from
-the difference.
+transitions naturally; the benchmark represents the moment of Turn 1
+and the moment of Turn 2 and lets the model infer that a shift
+occurred from the difference.
 
 ### When to use `context_image`
 
 Set `context_image` when the scenario requires the model to access a
-state that existed **before T1 was spoken**. This applies to:
+state that existed **before Turn 1 was spoken**. This applies to:
 
-- Recall scenarios where T2 asks about something from before the
+- Recall scenarios where Turn 2 asks about something from before the
   conversation began
-- `pre_conversation_recall` cue type scenarios
+- `pre_conversation_recall` shift type scenarios
 
 For all other scenarios, `context_image` is null and `turn_1_image`
 establishes the initial state.
@@ -217,7 +220,7 @@ The runner builds each user turn as:
 
 When the image field is null, the camera block is omitted and only the
 user message is sent. When `context_image` is populated, it is injected
-as a `[Camera: ...]` block before T1, with no user message attached.
+as a `[Camera: ...]` block before Turn 1, with no user message attached.
 
 The candidate model sees the camera block as part of the user turn.
 The judge receives the same content plus the ground-truth answer keys

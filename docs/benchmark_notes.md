@@ -66,7 +66,7 @@ is in front of it, ignoring the user's reference to an earlier state.
 
 A model that scores well on `prior` but badly on `current` is unusual.
 Most often this means the model is confused about what to attend to
-and is over-anchoring on T1 even when T2 is the right frame.
+and is over-anchoring on Turn 1 even when Turn 2 is the right frame.
 
 A balanced model handles both. The headline score is balanced for
 exactly this reason — to reward models that handle both, not just one.
@@ -99,13 +99,19 @@ sensitivity:
 
 `condition_a` and `condition_b` are diagnostics, not headline scores.
 
-## Simulated repair rate
+## Repair rate
 
-When the candidate misses on Turn 2, the runner appends Turn 3 — a
-repair anchor that names the intended frame explicitly (`"I mean the
-hammer I'm holding now, not the screwdriver from before"`). The judge
-labels the T3 response, and the simulated repair rate is the fraction
-of T2 misses that pass on T3.
+**Repair rate.** When the model gets Turn 2 wrong, the user can
+clarify with a follow-up like "I mean the hammer I'm holding now, not
+the one from before." The repair rate is how often the model fixes
+its answer after this kind of correction. It measures how recoverable
+a Turn 2 miss is.
+
+In the runner, when the candidate misses on Turn 2, the runner appends
+Turn 3 — a repair anchor that names the intended frame explicitly
+(`"I mean the hammer I'm holding now, not the screwdriver from
+before"`). The judge labels the Turn 3 response, and the repair rate
+is the fraction of Turn 2 misses that pass on Turn 3.
 
 This number stands in for the cost of user correction. A high repair
 rate means the model recovers gracefully when the user clarifies. A
@@ -117,6 +123,18 @@ patterns, or the linguistic variety of how users actually repair
 context misses. The repair anchor is templated and explicit. It tells
 you whether the model can be corrected, not whether real users would
 phrase their corrections that way.
+
+## Variance and reproducibility
+
+Each (scenario, condition) cell is run with `--trials 2`. The judge
+prompt and scenario file are content-hashed in the run manifest so two
+runs with the same hashes evaluate identical content.
+
+Formal variance estimation across multi-seed reruns is not yet
+measured. As a rough guide on this 50-scenario bank, treat score
+deltas under approximately 3 percentage points with caution until
+variance is bounded. Multi-seed variance estimation is acknowledged
+as future work.
 
 ## Limitations
 
@@ -131,10 +149,18 @@ Specifically, it does not measure:
 - **Multi-turn dynamics.** The conversation is 3 turns. Long
   conversations, branching dialogue, or extended back-and-forth are
   out of scope.
-- **Real video.** The camera channel uses perceptual text descriptions
+- **Real video.** The camera channel uses scene descriptions in text
   as a proxy. A real wearable processes video frames; this benchmark
-  does not. Performance on perceptual text proxies is not a guarantee
+  does not. Performance on text scene descriptions is not a guarantee
   of performance on actual video.
+- **Inter-annotator agreement is not measured.** Inter-annotator
+  agreement is when two or more people independently label the same
+  item and you measure how often they agree. It's the standard way to
+  confirm that labels reflect shared understanding rather than one
+  person's opinion. All 50 scenarios in this benchmark were authored
+  and reviewed by a single annotator using LLM-assisted drafting
+  under a fixed authoring rule set. Multi-rater validation is
+  acknowledged as future work.
 - **Proactive coaching.** The benchmark only scores responses to
   direct questions. A model that should have flagged a problem
   proactively but didn't is not penalized.
@@ -174,22 +200,63 @@ in the evaluation pipeline that fits your product.
 
 ## Glossary
 
-- `turn` — one user message plus the assistant's response.
-- `context shift` — a meaningful change between T1 and T2 in what the
-  user is showing, holding, doing, or referring to.
-- `current` — judge label for responses grounded in the current (T2)
-  context.
-- `prior` — judge label for responses grounded in the earlier (T1 or
-  `context_image`) context.
-- `clarify` — judge label for responses that ask the user to
+- **Reference resolution** — figuring out what a referring expression
+  like "this", "that", "it", or "earlier" points to. In multi-turn
+  dialog, the same word can point to different things in different
+  turns, so the model has to resolve which one. Standard term in
+  dialog systems and computational linguistics.
+- **Context tracking** — the casual shorthand we use for reference
+  resolution under cross-turn context shift. Used in MultiChallenge
+  and other multi-turn benchmarks. Same task, plain-language label.
+- **Turn** — one user message plus the assistant's response. Each
+  scenario has up to three turns: Turn 1 (initial question), Turn 2
+  (follow-up after the situation has changed), and an optional Turn 3
+  (a clarifying repair line, fired only when the model gets Turn 2
+  wrong).
+- **Shift type** — project-specific label for the kind of context
+  change between Turn 1 and Turn 2. The benchmark covers eight:
+  object swap, object state change, sequential task step, location,
+  attention shift, absent referent, screen content, and
+  pre-conversation recall. Stored in the data files as `cue_type`.
+  Not a standardized ML benchmark term — closest standard alternative
+  would be "scenario category."
+- **Context shift** — a meaningful change between Turn 1 and Turn 2
+  in what the user is showing, holding, doing, or referring to.
+- **`current`** — judge label for responses grounded in the current
+  (Turn 2) context.
+- **`prior`** — judge label for responses grounded in an earlier
+  context (Turn 1, or `context_image` for pre-conversation recall
+  scenarios).
+- **`clarify`** — judge label for responses that ask the user to
   disambiguate.
-- `abstain` — judge label for responses that decline or claim the
+- **`abstain`** — judge label for responses that decline or claim the
   model cannot answer.
-- `prompt conditions` — the three prompt setups used:
-  `baseline`, `condition_a`, `condition_b`.
-- `default comparison condition` — the condition used for the headline
-  number. Always `baseline`.
-- `balanced accuracy` — the mean of per-class accuracy across the two
-  scored classes (`current` and `prior`).
-- `simulated repair rate` — the fraction of Turn 2 misses that pass
-  on Turn 3 after the repair anchor.
+- **Prompt conditions** — the three prompt setups used: `baseline`,
+  `condition_a`, `condition_b`.
+- **Default comparison condition** — the condition used for the
+  headline number. Always `baseline`.
+- **Balanced accuracy** — the mean of per-class accuracy across the
+  two scored classes (`current` and `prior`).
+- **Repair** — a conversational repair is a follow-up message that
+  fixes a misunderstanding. The benchmark fires a Turn 3 repair when
+  the model gets Turn 2 wrong; the model gets one chance to recover.
+- **Repair rate** — fraction of Turn 2 misses where the model gives
+  the right answer after the Turn 3 repair line. Descriptive metric
+  name; not a fixed term across benchmarks. Adjacent terms in the
+  literature: "recovery rate," "correction success rate."
+- **Self-preference bias** — the tendency of a model used as judge to
+  rate outputs from its own family more favorably than outputs from
+  other families. Established term in LLM-as-judge literature
+  (JudgeBench, MT-Bench). Mitigated by using a different model family
+  as judge.
+- **Inter-annotator agreement (IAA)** — when two or more people
+  independently label the same item and you measure how often they
+  agree. Standard practice in ML datasets to confirm labels reflect
+  shared understanding rather than one person's opinion. Common
+  metrics: Cohen's kappa (two raters), Fleiss' kappa (three or more),
+  or simple percent agreement.
+- **Scene description** — what a vision system would say about a
+  camera frame: shape, material, color, motion, position. In this
+  benchmark, scene descriptions follow an authoring rule: they
+  describe physical features without naming the object directly. The
+  model has to identify what's in frame from those features.

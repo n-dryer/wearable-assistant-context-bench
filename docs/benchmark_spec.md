@@ -7,6 +7,13 @@ of multimodal wearable assistants: when the user's situation changes
 between turns, does the model respond from the current situational
 evidence, or does it stay anchored to the prior context?
 
+In standard ML and dialog terminology, the task is **reference
+resolution under cross-turn context shift** — the model has to resolve
+the user's reference (their "this", "that", or "it") to the current
+camera frame instead of staying anchored to an earlier frame. We use
+**context tracking** as the casual shorthand throughout this document.
+Both terms point to the same task.
+
 A wearable assistant lives in a continuous stream. The user puts down
 one object and picks up another. The user moves from the workbench to
 the kitchen. The pan was empty a minute ago and now holds simmering
@@ -22,6 +29,25 @@ benchmark is unlikely to be viable as a wearable assistant. A model
 that passes still needs separate evaluation for everything this
 benchmark does not measure.
 
+## Related work
+
+This benchmark borrows two design moves from recent multimodal
+benchmarks. The semantic-leakage check (Check 5 in the validator) is
+adapted from MMStar (Chen et al., NeurIPS 2024), which proposed
+running questions through text-only models to filter items that don't
+actually require vision. The audio/camera channel separation is
+adapted from VLSBench (Hu et al., ACL 2025), which showed that text
+queries often leak the visual content of an image; we apply the same
+separation principle to context cues. The non-labeled scene
+description style follows Ego4D narrations (Grauman et al., CVPR
+2022).
+
+Compared to those benchmarks, this one is narrower (50 scenarios,
+single failure mode) and product-focused (model selection for a
+specific wearable assistant), where they are research benchmarks at
+scale. They establish methods; this is a working evaluation built
+around a specific product question.
+
 ## The three-channel design
 
 Every scenario uses three distinct channels. Each channel carries
@@ -34,13 +60,15 @@ different content and is visible to a different audience.
 | Ground truth | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
 
 The candidate model sees what a wearable would see: the user's spoken
-words, plus a perceptual description of the camera frame at each turn.
-The judge sees the same thing plus the ground-truth answer keys, which
-name the actual objects in frame. The candidate never sees the answer
-keys.
+words, plus a scene description of the camera frame at each turn.
+Scene descriptions are what a vision system would say about a camera
+frame — shape, material, color, motion, position — without naming the
+object directly. The judge sees the same thing plus the ground-truth
+answer keys, which name the actual objects in frame. The candidate
+never sees the answer keys.
 
 This separation is the point of the benchmark. The candidate has to
-infer from perceptual cues alone — shape, motion, material, position —
+infer from scene cues alone — shape, motion, material, position —
 which context the question refers to. The judge has the privileged
 information needed to score whether the candidate got it right.
 
@@ -53,13 +81,19 @@ Each scenario is a 3-turn conversation:
 
 1. **Turn 1** — Optional `context_image` injected first (only on
    `pre_conversation_recall` scenarios), then `turn_1_image` plus
-   `turn_1_user`. T1 establishes the starting state.
+   `turn_1_user`. Turn 1 establishes the starting state.
 2. **Turn 2** — `turn_2_image` plus `turn_2_user`. The image has
    changed. The user's question is natural and deictic; it does not
    announce the change.
 3. **Turn 3** — `turn_3_repair_anchor`. Fired only when the candidate
-   misses on T2. Names the intended frame explicitly. Used to compute
-   the simulated repair rate.
+   misses on Turn 2. Names the intended frame explicitly. Used to
+   compute the repair rate.
+
+**Repair rate.** When the model gets Turn 2 wrong, the user can
+clarify with a follow-up like "I mean the hammer I'm holding now, not
+the one from before." The repair rate is how often the model fixes
+its answer after this kind of correction. It measures how recoverable
+a Turn 2 miss is.
 
 Field reference is in [`schema.md`](schema.md).
 
@@ -74,7 +108,7 @@ The runner builds each user turn as:
 
 When `turn_N_image` is null, the camera block is omitted and only the
 user message is sent. When `context_image` is populated, it is injected
-as a `[Camera: ...]` block before T1, with no accompanying user
+as a `[Camera: ...]` block before Turn 1, with no accompanying user
 message — this represents what the wearable's camera saw before the
 user started speaking.
 
@@ -85,10 +119,11 @@ section.
 The implementation lives in `_build_message` and
 `_build_context_image_message` in `benchmark/v1/run.py`.
 
-## The 8 cue_type categories
+## The 8 shift-type categories
 
 Every scenario fits exactly one category. Categories describe the
-shape of the context shift between T1 and T2.
+shape of the context shift between Turn 1 and Turn 2. The shift type
+is stored as the `cue_type` field in the data files.
 
 | Category | Description |
 |---|---|
@@ -98,8 +133,8 @@ shape of the context shift between T1 and T2.
 | `location` | Whole scene changes; user moves to a different room or work area. |
 | `object_in_view` | Camera stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
 | `absent_referent` | The object the question is about is no longer in frame. |
-| `screen_content` | Both T1 and T2 are looking at a screen; the screen content has changed. |
-| `pre_conversation_recall` | Requires `context_image`; T2 asks about a state that existed before T1. |
+| `screen_content` | Both Turn 1 and Turn 2 are looking at a screen; the screen content has changed. |
+| `pre_conversation_recall` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
 
 ## Target context labels
 
@@ -108,8 +143,8 @@ grounding target for a well-functioning assistant. One of:
 
 | Value | Meaning |
 |---|---|
-| `current` | The correct answer refers to what the camera sees right now (T2 frame). |
-| `prior` | The correct answer refers to something from an earlier scene (T1 frame, or `context_image`). |
+| `current` | The correct answer refers to what the camera sees right now (Turn 2 frame). |
+| `prior` | The correct answer refers to something from an earlier scene (Turn 1 frame, or `context_image`). |
 | `clarify` | The question is ambiguous given the available context; the assistant should ask for clarification rather than guessing. |
 | `abstain` | The needed information is not present in the context; the assistant should decline rather than hallucinating. |
 
@@ -141,13 +176,13 @@ label.
 
 A second LLM acts as the judge. The judge sees:
 
-1. A short scenario description (cue type, target context, activity
+1. A short scenario description (shift type, target context, activity
    domain).
 2. The Turn 2 user message.
 3. The candidate's Turn 2 response.
 4. The four answer lists for the scenario.
 5. A **ground-truth context section** that names the objects in the
-   T1 and T2 frames in plain language.
+   Turn 1 and Turn 2 frames in plain language.
 
 The judge emits a JSON verdict naming one of the four labels and a
 one-sentence rationale. See `core/llm_judge.py` for the prompt and
@@ -167,17 +202,18 @@ The cross-family default reduces the chance that a candidate model
 appears to perform unusually well or unusually badly because the same
 model is judging itself.
 
-## Repair turn (T3)
+## Repair turn (Turn 3)
 
-When the candidate misses on T2, the runner appends the repair anchor
-as a follow-up user message. The repair anchor names the intended
-frame explicitly (for example, `"I mean the hammer I'm holding now,
-not the screwdriver from before"`). The model gets one more chance to
-respond. The judge labels the T3 response the same way it labeled T2.
+When the candidate misses on Turn 2, the runner appends the repair
+anchor as a follow-up user message. The repair anchor names the
+intended frame explicitly (for example, `"I mean the hammer I'm
+holding now, not the screwdriver from before"`). The model gets one
+more chance to respond. The judge labels the Turn 3 response the same
+way it labeled Turn 2.
 
-The simulated repair rate is the fraction of T2 misses that pass on
-T3. It is reported as a secondary product-facing metric and stands in
-for the cost of user correction. It is not part of the primary score.
+The repair rate is the fraction of Turn 2 misses that pass on Turn 3.
+It is reported as a secondary product-facing metric and stands in for
+the cost of user correction. It is not part of the primary score.
 
 ## Reproducibility
 

@@ -3,7 +3,7 @@ message: "If you reference the Wearable Assistant Context Benchmark, cite this f
 title: "Wearable Assistant Context Benchmark"
 version: "v1.0.0"
 date-released: "2026-04-25"
-abstract: "Context-tracking benchmark for multimodal wearable assistants. Tests whether a model uses current situational evidence visible in the camera frame, or stays anchored to prior context after a shift between turns. v1.0.0 uses a 50-scenario bank across 8 cue_type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees perceptual image descriptions and the LLM judge receives a separate ground-truth section."
+abstract: "Context-tracking benchmark for multimodal wearable assistants. Tests reference resolution under cross-turn context shift: whether a model uses current situational evidence visible in the camera frame, or stays anchored to prior context after a shift between turns. v1.0.0 uses a 50-scenario bank across 8 shift-type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees scene descriptions and the LLM judge receives a separate ground-truth section."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
@@ -16,6 +16,6 @@ keywords:
   - context shift
   - model selection
   - LLM-as-judge
-  - perceptual grounding
+  - scene description
   - egocentric assistant
 license: "MIT"

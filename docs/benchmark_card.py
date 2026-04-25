@@ -36,9 +36,9 @@ SUBTITLE = (
 
 HERO_BADGES = [
     "50 scenarios",
-    "8 cue-type categories",
+    "8 shift-type categories",
     "3 prompt conditions",
-    "balanced T2 accuracy",
+    "balanced Turn 2 accuracy",
 ]
 
 PRODUCT_PROBLEM_PARAGRAPHS = [
@@ -83,7 +83,7 @@ AUXILIARY_METRIC = {
     "title": "Auxiliary signal",
     "body": (
         "<code>clarify</code> and <code>abstain</code> per-class "
-        "accuracy, plus a simulated repair rate after Turn 2 misses."
+        "accuracy, plus a repair rate after Turn 2 misses."
     ),
 }
 
@@ -99,15 +99,17 @@ THREE_CHANNEL_BULLETS = [
         "Visible to candidate and judge."
     ),
     (
-        "<strong>Camera</strong> &mdash; perceptual image descriptions "
+        "<strong>Camera</strong> &mdash; scene descriptions "
         "(<code>turn_1_image</code>, <code>turn_2_image</code>) "
         "injected as <code>[Camera: &hellip;]</code> blocks on the "
         "user side. Shape, material, motion, position; no object "
-        "names. Visible to candidate and judge."
+        "names. The camera channel uses scene descriptions in text as "
+        "a proxy for real video frames. Visible to candidate and "
+        "judge."
     ),
     (
         "<strong>Ground truth</strong> &mdash; answer keys naming the "
-        "actual objects in T1 and T2. Visible to the judge only."
+        "actual objects in Turn 1 and Turn 2. Visible to the judge only."
     ),
 ]
 
@@ -123,7 +125,7 @@ CUE_TYPE_COUNTS = [
 ]
 
 SCENARIO_BANK_INTRO = (
-    "50 scenarios across 8 cue-type categories. The shape of the "
+    "50 scenarios across 8 shift-type categories. The shape of the "
     "shift is what the categories describe."
 )
 
@@ -153,8 +155,8 @@ HOW_TO_READ_BULLETS = [
         "under <code>baseline</code>."
     ),
     (
-        "The simulated repair rate stands in for user-correction "
-        "cost after a miss; it is not part of the primary number."
+        "The repair rate stands in for user-correction cost after a "
+        "miss; it is not part of the primary number."
     ),
 ]
 
@@ -171,9 +173,9 @@ NOT_MEASURED_BULLETS = [
         "scope."
     ),
     (
-        "<strong>Real video.</strong> The camera channel uses "
-        "perceptual text descriptions as a proxy. Performance here is "
-        "not a guarantee of performance on actual video frames."
+        "<strong>Real video.</strong> The camera channel uses scene "
+        "descriptions in text as a proxy. Performance here is not a "
+        "guarantee of performance on actual video frames."
     ),
     (
         "<strong>Proactive coaching.</strong> Only direct-question "

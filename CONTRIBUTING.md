@@ -78,7 +78,7 @@ Quick summary:
 - **Audio channel** (user speech): natural and deictic. No object
   names, no property descriptions, no shift announcements, no answer
   vocabulary.
-- **Camera channel** (image descriptions): perceptual properties
+- **Camera channel** (image descriptions): scene-level features
   only. No object names, no functional labels, no technique
   evaluation. Detailed enough that a fresh reader can identify the
   object with high confidence.

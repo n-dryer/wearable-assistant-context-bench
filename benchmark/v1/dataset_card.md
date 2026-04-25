@@ -11,8 +11,11 @@ or does it stay anchored to the prior context?
 Each scenario is a 3-turn conversation with a deliberate context
 shift between Turn 1 and Turn 2. The shift is visible only in the
 camera channel — the user does not announce it in speech. The model
-has to integrate perceptual image descriptions with deictic user
-speech to determine which context the question refers to.
+has to integrate scene descriptions with deictic user speech to
+determine which context the question refers to. Scene descriptions
+are what a vision system would say about a camera frame — shape,
+material, color, motion, position — without naming the object
+directly.
 
 This is not a coaching benchmark. It does not measure advice quality,
 domain expertise, or any aspect of the response other than which
@@ -50,7 +53,7 @@ section naming the actual objects in frame.
 | Total scenarios | 50 |
 | Distinct activity domains | 16 |
 
-### `cue_type` distribution
+### Shift-type distribution (`cue_type`)
 
 | Category | Count |
 |---|---|
@@ -92,16 +95,17 @@ measure domain expertise.
 
 The 50 scenarios were authored from scratch following the rules in
 [`docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
-Each scenario was written within one of the eight cue-type categories
-and validated against the six checks below before inclusion.
+Each scenario was written within one of the eight shift-type
+categories and validated against the six checks below before
+inclusion.
 
 The audio channel (user speech) uses natural deictic language without
 naming objects, describing visible properties, or announcing context
-shifts. The camera channel (image descriptions) describes perceptual
-properties — shape, material, color, motion, position — without
-object names or technique evaluation. The ground-truth channel
-(answer keys) is judge-only and uses object names, technique
-vocabulary, and state descriptors freely.
+shifts. The camera channel (image descriptions) describes scene-level
+features — shape, material, color, motion, position — without object
+names or technique evaluation. The ground-truth channel (answer keys)
+is judge-only and uses object names, technique vocabulary, and state
+descriptors freely.
 
 ## Validation
 
@@ -120,9 +124,10 @@ Every scenario passed six validation checks before being committed:
    each image description identifies its object with high confidence
    to a fresh reader.
 5. **Semantic-leakage isolation test** — LLM-driven check that the
-   T2 image plus T2 user speech alone (without T1 context) is not
-   sufficient to answer the question correctly. If a scenario passes
-   without T1 context, it is not actually testing context tracking.
+   Turn 2 image plus Turn 2 user speech alone (without Turn 1
+   context) is not sufficient to answer the question correctly. If a
+   scenario passes without Turn 1 context, it is not actually testing
+   context tracking.
 6. **Cross-scenario duplication check** — Programmatic textual and
    structural overlap scan to surface near-duplicates.
 
@@ -138,7 +143,7 @@ The benchmark is narrow on purpose. It does not measure:
   is correct, safe, or domain-appropriate.
 - **Multi-turn dynamics.** The conversation is 3 turns. Long
   conversations and branching dialogue are out of scope.
-- **Real video.** The camera channel uses perceptual text descriptions
+- **Real video.** The camera channel uses scene descriptions in text
   as a proxy. A real wearable processes video frames; this benchmark
   does not.
 - **Proactive coaching.** The benchmark only scores responses to
@@ -147,6 +152,14 @@ The benchmark is narrow on purpose. It does not measure:
   rather than deep.
 - **Latency, cost, audio perception, speaker attribution, addressee
   detection, long-horizon memory.** All out of scope.
+- **Inter-annotator agreement is not measured.** Inter-annotator
+  agreement is when two or more people independently label the same
+  item and you measure how often they agree. It's the standard way to
+  confirm that labels reflect shared understanding rather than one
+  person's opinion. All 50 scenarios in this benchmark were authored
+  and reviewed by a single annotator using LLM-assisted drafting
+  under a fixed authoring rule set. Multi-rater validation is
+  acknowledged as future work.
 
 Score deltas between models on the same release matter more than
 absolute values.

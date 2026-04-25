@@ -1,0 +1,3261 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Scenario Review Sheet</title>
+<style>
+    @page {
+        size: Letter portrait;
+        margin: 0.55in 0.55in 0.55in 0.55in;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+        color: #2b2118;
+        background: #fffaf4;
+        font-size: 11pt;
+        line-height: 1.45;
+    }
+
+    .cover {
+        page-break-after: always;
+        padding: 1.0in 0.4in 0.4in 0.4in;
+    }
+
+    .cover .kicker {
+        font-size: 9pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: #b14f31;
+        background: #f4dfd5;
+        display: inline-block;
+        padding: 4pt 10pt;
+        border-radius: 100pt;
+    }
+
+    .cover h1 {
+        font-size: 32pt;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        margin: 14pt 0 6pt 0;
+        color: #2b2118;
+    }
+
+    .cover .subtitle {
+        font-size: 12pt;
+        color: #5b4a3d;
+        max-width: 5in;
+        margin: 0 0 24pt 0;
+    }
+
+    .cover .summary {
+        background: #f0e8dd;
+        border-radius: 14pt;
+        padding: 18pt 22pt;
+        margin-bottom: 18pt;
+    }
+
+    .cover .summary h2 {
+        font-size: 9pt;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: #b14f31;
+        margin: 0 0 10pt 0;
+    }
+
+    .cover .summary table {
+        border-collapse: collapse;
+        font-size: 10.5pt;
+    }
+
+    .cover .summary td {
+        padding: 3pt 16pt 3pt 0;
+        vertical-align: top;
+    }
+
+    .cover .summary td.label {
+        color: #6b5a4d;
+        white-space: nowrap;
+    }
+
+    .cover .summary td.value {
+        font-weight: 600;
+    }
+
+    .cover .checklist {
+        font-size: 10.5pt;
+    }
+
+    .cover .checklist h2 {
+        font-size: 9pt;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: #b14f31;
+        margin: 0 0 10pt 0;
+    }
+
+    .cover .checklist ol {
+        padding-left: 18pt;
+        margin: 0;
+    }
+
+    .cover .checklist li {
+        margin-bottom: 7pt;
+    }
+
+    /* Scenario page layout */
+    .scenario {
+        page-break-after: always;
+        padding: 0;
+    }
+
+    .scenario:last-child {
+        page-break-after: auto;
+    }
+
+    .scenario-header {
+        border-bottom: 1.5pt solid #2b2118;
+        padding-bottom: 10pt;
+        margin-bottom: 14pt;
+    }
+
+    .scenario-id {
+        font-size: 28pt;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #2b2118;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .scenario-cue {
+        font-size: 12pt;
+        color: #5b4a3d;
+        margin: 4pt 0 0 0;
+    }
+
+    .badges {
+        margin-top: 10pt;
+        display: block;
+    }
+
+    .badge {
+        display: inline-block;
+        font-size: 8.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 3pt 9pt;
+        border-radius: 100pt;
+        margin-right: 6pt;
+        margin-bottom: 4pt;
+    }
+
+    .badge.target { /* color injected inline */ }
+    .badge.difficulty { background: #efe6d9; color: #5b4a3d; }
+    .badge.domain { background: #e8e1f0; color: #463760; }
+
+    .pre-conversation {
+        background: #fff4ea;
+        border-left: 3pt solid #b14f31;
+        padding: 10pt 14pt;
+        margin-bottom: 14pt;
+        border-radius: 0 8pt 8pt 0;
+    }
+
+    .pre-conversation .turn-label {
+        font-size: 8.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #b14f31;
+        font-weight: 700;
+        margin-bottom: 5pt;
+    }
+
+    .pre-conversation .camera-text {
+        font-size: 10.5pt;
+        line-height: 1.5;
+        color: #2b2118;
+    }
+
+    .turn-block {
+        margin-bottom: 14pt;
+    }
+
+    .turn-block .turn-label {
+        font-size: 8.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #6b5a4d;
+        font-weight: 700;
+        margin-bottom: 6pt;
+    }
+
+    .turn-block .turn-label .turn-num {
+        color: #b14f31;
+        margin-right: 5pt;
+    }
+
+    .channel-row {
+        display: table;
+        width: 100%;
+        margin-bottom: 6pt;
+    }
+
+    .channel {
+        background: #f0e8dd;
+        border-radius: 8pt;
+        padding: 9pt 13pt;
+        margin-bottom: 6pt;
+    }
+
+    .channel .channel-label {
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #6b5a4d;
+        font-weight: 700;
+        margin-bottom: 4pt;
+    }
+
+    .channel.camera {
+        background: #f0e8dd;
+    }
+
+    .channel.camera .channel-text {
+        font-size: 10.5pt;
+        line-height: 1.5;
+        color: #2b2118;
+    }
+
+    .channel.speech {
+        background: #fbf3e8;
+    }
+
+    .channel.speech .channel-text {
+        font-size: 12pt;
+        font-style: italic;
+        line-height: 1.45;
+        color: #1f1812;
+        font-weight: 500;
+    }
+
+    .channel.speech .channel-text::before { content: "\201C"; color: #b14f31; font-weight: 700; }
+    .channel.speech .channel-text::after { content: "\201D"; color: #b14f31; font-weight: 700; }
+
+    .repair-line {
+        background: #f4dfd5;
+        border-radius: 8pt;
+        padding: 8pt 13pt;
+        margin-bottom: 14pt;
+        font-size: 10pt;
+    }
+
+    .repair-line .repair-label {
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #b14f31;
+        font-weight: 700;
+        margin-bottom: 3pt;
+    }
+
+    .repair-line .repair-text {
+        font-style: italic;
+        color: #2b2118;
+    }
+
+    .judge-vocab {
+        font-size: 9pt;
+        color: #6b5a4d;
+        background: #faf5ee;
+        border-radius: 6pt;
+        padding: 8pt 11pt;
+        margin-bottom: 14pt;
+        line-height: 1.55;
+    }
+
+    .judge-vocab .vocab-label {
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.13em;
+        font-weight: 700;
+        color: #b14f31;
+        display: block;
+        margin-bottom: 3pt;
+    }
+
+    .judge-vocab .vocab-row {
+        margin-bottom: 4pt;
+    }
+
+    .judge-vocab .vocab-row strong {
+        color: #2b2118;
+    }
+
+    .review-area {
+        border-top: 1pt solid #2b2118;
+        padding-top: 12pt;
+        margin-top: 16pt;
+    }
+
+    .review-area .review-label {
+        font-size: 8.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #b14f31;
+        font-weight: 700;
+        margin-bottom: 8pt;
+    }
+
+    .checkboxes {
+        font-size: 11pt;
+        margin-bottom: 12pt;
+    }
+
+    .checkboxes .check {
+        display: inline-block;
+        margin-right: 18pt;
+    }
+
+    .checkboxes .box {
+        display: inline-block;
+        width: 14pt;
+        height: 14pt;
+        border: 1.5pt solid #2b2118;
+        border-radius: 3pt;
+        vertical-align: middle;
+        margin-right: 6pt;
+    }
+
+    .notes-area {
+        font-size: 9.5pt;
+        color: #6b5a4d;
+    }
+
+    .notes-area .notes-label {
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: #6b5a4d;
+        font-weight: 700;
+        margin-bottom: 5pt;
+    }
+
+    .notes-line {
+        border-bottom: 0.5pt solid #c9bdb0;
+        height: 14pt;
+        margin-bottom: 4pt;
+    }
+
+    .footer {
+        position: running(footer);
+    }
+
+    @page {
+        @bottom-center {
+            content: counter(page) " of " counter(pages);
+            font-size: 8pt;
+            color: #9c8c7d;
+            font-family: "Helvetica Neue", "Arial", sans-serif;
+        }
+    }
+    </style>
+</head><body>
+<section class="cover">
+<div class="kicker">Wearable Assistant Context Benchmark v1</div>
+<h1>Scenario Review Sheet</h1>
+<p class="subtitle">50 scenarios. One per page. Read all four channels (camera + user speech, Turn 1 and Turn 2), then mark <strong>Pass</strong>, <strong>Edit</strong>, or <strong>Replace</strong>. Add notes if needed.</p>
+<div class="summary">
+<h2>What's in this bank</h2>
+<table>
+<tr><td class="label">Total scenarios</td><td class="value">50</td></tr>
+<tr><td class="label">Correct frame to use</td><td class="value">abstain (2), clarify (3), current (33), prior (12)</td></tr>
+<tr><td class="label">Difficulty mix</td><td class="value">easy (15), hard (15), medium (20)</td></tr>
+<tr><td class="label">Shift types</td><td class="value">Object swap (in hand) (12); Object state change (8); Sequential task step (6); Location change (6); Attention shift (same scene) (5); Absent referent (5); Screen content change (4); Recall from before Turn 1 (4)</td></tr>
+</table>
+</div>
+<div class="checklist">
+<h2>Before you mark Pass, confirm</h2>
+<ol>
+<li><strong>Camera identifies the object.</strong> Read the Turn 1 and Turn 2 camera descriptions cold — without seeing the answer vocabulary. You should be able to identify what's in frame from the description alone. If you can't, the description is too vague.</li>
+<li><strong>The user speech sounds natural.</strong> Would a real person actually say that out loud to a wearable? No narration of what's visible. No announcement that something changed.</li>
+<li><strong>The shift is hidden in the camera.</strong> Turn 2 user speech does not give away that the context changed. The model has to notice the difference by integrating the camera and the question.</li>
+<li><strong>The shift fits the type.</strong> The shift type at the top of the page tells you what kind of shift this is supposed to be. Make sure the scenario actually does that.</li>
+<li><strong>Answer vocabulary is reasonable.</strong> The judge-only vocabulary at the bottom should cover the right things for both contexts (object name, technique, state). You don't need to memorize it — just sanity-check it makes sense.</li>
+<li><strong>Repair line is fair.</strong> If the model misses Turn 2, the repair line names the intended frame explicitly. Read it and confirm it gives a model a fair second shot.</li>
+</ol>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 01</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand loosely gripping a long cylindrical wooden shaft. Bowl-shaped wooden head at the end is dipped into a deep steel vessel of simmering red sauce on a gas burner. Steam rising.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I keep moving this around or let it sit?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand wrapped around a black molded handle attached to a long flat triangular blade with a sharpened edge. Blade is resting on a flat raised wooden slab next to a halved yellow onion. Knuckles tucked inward.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is my grip okay for this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the chef&#x27;s knife I&#x27;m holding now, not the wooden spoon I was stirring with.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> chef&#x27;s knife, knife, pinch grip, claw the onion, knuckles tucked, rocking motion, blade flat, sharpened edge, tucked fingers</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> wooden spoon, spoon, stir gently, scrape the bottom, fold the sauce, bowl-shaped head, simmering</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 02</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Electronics</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand pinching a slender red plastic rod tipped with a sharp exposed thin metal point. A coiled red wire trails from the back of the rod to a yellow handheld unit on the bench with a small LCD reading numbers. The metal point is touching one leg of a small black component on a green circuit board.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I touching the right spot here?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand holding a slim cylindrical tool by its rubberized blue grip. A thin metal shaft extends from the front, ending in a wedge-shaped tip glowing faint orange. A wisp of pale smoke rises from the tip. A coil of thin silver wire sits on the bench beside an open spool.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What temperature should this be at?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the soldering iron I just picked up, not the multimeter probe.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> soldering iron, iron, tin the tip, around 350 C, wedge tip, glowing tip, feed solder, tinned tip</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> multimeter, probe, test lead, continuity check, measure voltage, touch the lead, sharp tip on the leg</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 03</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Gloved right hand gripping a short wooden handle attached to a curved scoop-shaped metal blade caked with damp dark soil. Blade is part-buried in a raised garden bed beside a small green seedling.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How deep should I be going with this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Gloved right hand squeezing red rubber-coated handles that pivot around a central bolt. Two curved blades meet at a point — one thicker with a flat edge, the other thin and sharpened. Blades are open around a slim green stem about a quarter-inch thick on a rose bush.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Where exactly do I cut?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the pruning shears I&#x27;m holding now, not the trowel I was digging with.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> pruning shears, secateurs, bypass pruners, cut at a node, angled cut, above the bud, outward-facing bud, clean cut, blades open</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> trowel, scoop blade, dig a hole, loosen the soil, plant depth, root ball, buried blade</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 04</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Art Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand pinching a slim wooden shaft near the metal ferrule. Soft round bristle tuft loaded with thinned blue pigment, tip touching a stretched canvas with damp washes of color. A flat oval wooden surface with puddles of multiple paint colors visible to the side.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How much pressure should I be putting through this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand gripping a flat wooden handle. A flexible flat metal blade with a rounded diamond shape and beveled edge extends from the handle. Blade is loaded with a thick dollop of white pigment, hovering above the same flat oval wooden surface holding multiple paint colors.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What was I doing right with the one before?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the brush I was using a moment ago, before I picked this up.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> palette knife, painting knife, spread the paint, scrape, drag the edge, impasto, thick dollop, flat blade</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> brush, paintbrush, round brush, load the bristles, light pressure, soft pressure, let the tip glide, thinned wash, damp bristles</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 05</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand holding a yellow rectangular plastic case. A flexible silver ribbon with black markings extends from one end and stretches across a sheet of plywood, hooked at one corner. A thin yellow wooden stick with a graphite tip and a framing square sit on the wood beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this lined up right?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand pressing a long aluminum rectangular bar flat on top of a partially framed wall stud. Three small glass tubes are set into the bar, each containing a yellow-green liquid with a single bubble. Center tube bubble is sitting just left of two etched lines.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What does this tell me?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the level I&#x27;m holding now, not the tape measure I had before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> spirit level, bubble level, level, plumb, bubble between the lines, centered bubble, off plumb, vial reading, out of level</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> tape measure, measuring tape, hook the end, pull taut, read the mark, extended ribbon, metal blade extended</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 06</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand gripping a slim metal handle. A bulb of looped thin metal wires fans out from the handle, dipped into a glass bowl of pale yellow liquid with foamy peaks beginning to form on the surface.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How long until this is ready?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Two hands pressing down on a long smooth wooden cylinder with tapered ends. Cylinder is rolling across a flattened circle of pale dough on a floured marble countertop. Flour dusts the wood.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I pushing too hard?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the rolling pin I&#x27;m using now, not the whisk I had in the bowl.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> rolling pin, pin, even pressure, roll from the center outward, quarter turn, light pressure, smooth cylinder, floured surface</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> whisk, wire whisk, balloon whisk, soft peaks, stiff peaks, whip, fold air in, looped wires, foamy</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 07</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Sports</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand wrapped around a black overgrip on a long shaft. Oval frame at the top is strung with a tight white grid of nylon. Yellow fuzzy ball mid-air just past the strings. Green court surface and a low net visible behind.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I follow through more?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Both hands holding two short red foam handles. A thin black braided cord loops down from each handle, sweeping past the user&#x27;s feet on a rubber gym floor. The cord blurs at the bottom of its arc. Mirror on the wall behind.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What&#x27;s a good pace for this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the jump rope I&#x27;m using now, not the racket from earlier.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> jump rope, skipping rope, rope, land on the balls of the feet, wrist rotation, bounce step, 120 turns per minute, small jump, swinging cord</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> racket, tennis racket, follow-through, swing path, topspin, strung frame, contact point, racket face</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 08</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Automotive</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand pressing a stubby cylindrical chrome tool against the stem of a black rubber valve sticking out of a silver alloy rim wrapped in thick black rubber. A thin number-marked plastic stick has popped out the back end of the tool. Garage floor and a scissor-shaped lifting device with a screw drive visible.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this where it should be?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand gripping a long chrome handle with a knurled ring near the head. Square drive at the end is seated into a deep socket placed over a lug nut on the same alloy rim. A tick mark on the handle barrel sits beside printed numbers.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How tight do I need to go?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the torque wrench I&#x27;m using now, not the pressure gauge from before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> torque wrench, click-type wrench, spec torque, around 100 ft-lbs, star pattern, criss-cross pattern, wait for the click, set the value, knurled ring, lug nut</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> tire pressure gauge, gauge, pencil gauge, psi reading, press onto the valve stem, extended stick, pop-out scale, valve stem</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 09</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#f6e9cc;color:#9e6b1c;">Correct frame: clarify</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Music</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand pinching a small flat triangular piece of tortoiseshell-patterned plastic between thumb and index finger. Tip resting against a metal-wound string on a sunburst-finish wooden body. Other strings visible below.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I angling this right?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand half-closed in a fist obscuring most of what it holds. A thin shaft of dark wood pokes out the top of the fist between thumb and index, and a hint of soft pale fibers fans out below the pinky. Bottom of the hand is in shadow against the dark wood of the same instrument body. Could be a slim brush, could be a bow frog, could be a small wide-faced striking head — the bulk is hidden.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this the right one for what I&#x27;m doing?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“Sorry — can you ask me to show you what I&#x27;m holding before answering?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> pick, plectrum, guitar pick, downstroke, strum angle, edge of the pick, tortoiseshell, string contact</div>
+<div class="vocab-row"><strong>Vocabulary that signals a clarifying question:</strong> which one, do you mean, can you clarify, could you show, hard to tell, can you open your hand, what are you holding, rotate it, show me the object, not sure what you&#x27;re holding</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 10</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Household</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Both hands gripping a long blue painted wooden pole. Wide bristled head at the bottom is angled across a tile kitchen floor, pushing a small pile of dust and crumbs toward a corner.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I doing this in the right order?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand high on a long aluminum pole, left hand lower. At the bottom, a thick pad of damp blue twisted strands sits in a pool of soapy water on the same tile floor. A yellow bucket with a wringer attachment is two steps away.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How wet should this be?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the mop I have now, not the broom from before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> mop, string mop, wet mop, wring out, damp not soaking, figure-eight motion, wrung, twisted strands, soapy pad</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> broom, sweep, short strokes, push the pile, corner first, bristled head, dust pile</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 11</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Art Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand holding a slim hexagonal yellow-painted wooden shaft. Sharpened black tip touching a piece of cream-colored sketch paper, with light gray construction lines fanning out from a vanishing point.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I press harder for these lines?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand pinching a soft gray lump shaped like a flattened pyramid. Surface is smudged darker on the working face. Lump is pressed against the sketch paper, lifting away faint gray marks. Crumbs of darker material flake off where it touched.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How do I use this without messing up the page?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the kneaded eraser I&#x27;m holding, not the pencil.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> kneaded eraser, eraser, putty eraser, dab the marks, press and lift, shape it to a point, lift graphite, no rubbing, soft gray lump</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> pencil, graphite pencil, light pressure, construction lines, sharpened tip, vanishing point, hexagonal shaft</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 12</h2>
+<p class="scenario-cue">Object swap (in hand)</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Right hand tilting a large green plastic vessel by a curved top handle. A long narrow spout with a perforated rose at the end is angled over a tray of small herb seedlings. A steady wide shower of water falls onto the soil.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I giving these enough?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Right hand gripping a clear plastic bottle by a pistol-grip trigger. A short nozzle protrudes from the top, releasing a fine cone-shaped mist over the leaves of a tomato plant. Droplets clinging to the underside of the leaves.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What was the right amount with the one I had earlier?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the watering can from earlier, not what I have in my hand now.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> spray bottle, mister, fine mist, cone spray, even coverage, underside of the leaves, trigger spray, fine cone</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> watering can, can, soak the soil, water at the base, deep watering, until it drains, perforated rose, wide shower, rose head</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 13</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Tall stainless steel cylindrical vessel with a thin handle, sitting on a black glass cooktop. Clear liquid filling roughly two-thirds of the interior, surface flat and still. Faint wisps of vapor near the rim. A small red indicator light glows beside the burner.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How long should this take?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Tall stainless steel cylindrical vessel with a thin handle on the same black glass cooktop. Surface of the liquid churning with large bubbles breaking continuously across the entire surface. Dense steam rising in a thick column. Droplets visible on the inside of the rim.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Can I add the noodles yet?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean right now, looking at what&#x27;s happening in the vessel in front of me.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> pot, boiling, rolling boil, drop them in, add the pasta, go ahead, ready to cook, fully boiling, vigorous boil</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> kettle, heating up, not boiling yet, still warming, barely steaming, early stage, give it more time, below boiling</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 14</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Small black plastic tray with twelve square cells filled with dark brown soil. Surface of each cell smooth and undisturbed. A few cells show a faint mound where the soil has been pressed back. No green visible. Tray sitting under a clip-on grow light.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Did I plant these too deep?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same black plastic twelve-cell tray under the same clip-on grow light. Pale green stems roughly an inch tall rising out of most cells, each topped by two narrow oval leaves. A couple of cells show stems bent sideways and leaning toward the light source. Soil surface dimpled where stems emerged.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I move the lamp?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I&#x27;m asking about what I can see right now in the tray, with what&#x27;s coming up.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> seedlings, sprouts, cotyledons, leggy, lower the light, bring the lamp closer, stretching toward, thin pale stems, two seed leaves, germinated</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> seeds, freshly sown, haven&#x27;t sprouted, wait for germination, still buried, untouched soil, before emergence, no growth yet</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 15</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Art Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Rectangular wooden panel laid flat on a drop cloth. A glossy navy coating covers the surface, light reflecting off it in long sharp streaks. Small ridges from a foam applicator visible across the finish. A bead of liquid pooling at one edge.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Did I lay it on too thick?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same rectangular wooden panel on the same drop cloth. Surface now matte and uniform, with the foam-applicator ridges still faintly visible but no longer reflective. The pooled edge has flattened. A fingertip pressed lightly at one corner leaves no print.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Can I do another pass?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean as it is now, looking at how the surface feels at this point.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> paint, dry, tack-free, recoat, second coat, lightly sand, ready for another coat, cured enough, matte and set</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> wet paint, still wet, let it dry, leveling out, wait, drips, glossy and soft, not ready</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 16</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Long rectangular plank clamped to a workbench. Surface rough and fibrous with visible parallel kerf marks running across the grain. Small splinters lifted along one edge. Sawdust scattered in a fine layer along the length. A thin graphite line marked across the middle.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Where do I start with this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same rectangular plank on the same workbench. Surface now smooth and even, grain visible as long parallel lines, no kerf marks remaining. Edges crisp and free of splinters. A light haze of fine dust on the surface. Thin graphite line still faintly visible.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What grit was I starting from again?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean back at the beginning, before I did any of this — what grit did I start with?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> smooth, fine grit, 220, 180, finish sanding, ready for stain, polished surface, light final pass, tack cloth</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> board, lumber, rough, coarse grit, 60, 80, saw marks, splinters, knock down the rough, heavy stock removal, raw cut surface</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 17</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Household</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Short cylindrical white wax shape sitting in a clear glass holder on a wooden side table. Top surface flat and smooth, with a straight upright cotton string at the center, bright white and stiff. No flame. Surrounding wax pristine.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I trim this first?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same white cylindrical wax shape in the same clear glass holder on the same wooden side table. A small steady teardrop flame at the top of the cotton string, which is now blackened and curled at the tip. A shallow circular pool of clear melted wax surrounds the string, extending almost to the outer edge.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is it good to leave for now?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“Looking at it as it is right now, with what&#x27;s happening at the top, can I leave it?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> candle, lit, burning, full melt pool, let it keep burning, safe to leave a bit longer, even burn established, flame is steady, do not blow out yet</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> wick, trim the wick, before lighting, quarter inch, unlit, fresh wick, trim before you light, new candle</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 18</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Automotive</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Black rubber circular form filling the arched cutout of a parked sedan&#x27;s body, viewed from a low angle on asphalt. Sidewall fully rounded, tread blocks evenly spaced and lifted clear of the ground. A small brass valve stem with a black cap sticks out from the rim. Slight gap between the bottom of the rubber and the pavement is uniform on either side of the contact patch.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What pressure should I be running?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same black rubber circular form in the same arched body cutout, same low angle. Sidewall now visibly bulged outward at the bottom, with a noticeable curve where the rubber meets the pavement. Contact patch widened, tread blocks splayed. The brass valve stem is at an angle, cap missing. A faint hissing sound suggested by a thin trail of dust drifting near the valve.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What do I do here?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“Looking at the wheel right now, what should I actually do?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> tire, flat, low, underinflated, leak, do not drive on it, pull the valve core, spare, patch, plug, call roadside, bulging sidewall</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> psi, recommended pressure, door placard, 32 psi, 35 psi, properly inflated, check the placard, manufacturer spec, fully seated</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 19</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Rounded pale beige mass sitting in the bottom of a large oiled glass bowl on a kitchen counter. Surface smooth and taut, occupying about a third of the bowl&#x27;s interior. A clean tea towel draped over the top, partially pulled back. A faint smell of yeast suggested by a small bowl of flour beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How long does it usually need?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same large glass bowl on the same kitchen counter. The pale mass now fills the bowl nearly to the rim, surface domed and slightly cracked, with visible round air pockets pressing against the glass on the sides. Tea towel pushed up at the center. A finger indentation near the edge slowly springing back about halfway.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What was the original size on this when I started?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I&#x27;m asking about back at the start, before any of this happened — how much was there originally?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> doubled, fully proofed, ready to shape, punch down, second proof, well risen, domed top, poke test springs back halfway</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> dough, ball, before rising, third of the bowl, half the volume, starting size, after the first knead, initial mass, pre-proof volume, tight smooth ball</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 20</h2>
+<p class="scenario-cue">Object state change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Art Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Cylindrical gray-brown lump on a canvas-covered rotating disc, roughly the size of a fist. Surface glistening wet, with thumb impressions pressed into the top. A thin film of slip pooled at the base. A wire tool and a wooden rib resting on the surrounding splash basin beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I ready to start pulling this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same canvas-covered rotating disc, same wire tool and wooden rib beside the splash basin. The form now stands upright as a tall narrow vessel with even walls, no longer glossy but uniformly matte gray. Surface holds a fingerprint without smearing. A faint hairline visible at the rim. Slight cool sheen rather than wet shine.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Time to bring out the trimming tool?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I&#x27;m asking based on what it&#x27;s like to the touch right now, not how it was earlier.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> leather hard, ready to trim, trim the foot, matte surface, holds a fingerprint, stiffened up, good for trimming, no longer plastic, carve detail</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> clay, centered, wet clay, pull the walls, open it up, throw the form, plastic stage, still wet, soft and workable, wedged ball</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 21</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Rectangular pine board resting across two sawhorses. A rectangular block wrapped in gritty paper held in a hand, sliding lengthwise across the board&#x27;s surface in repeated passes. Fine pale powder collecting along the grain, the surface slightly hazy where the block has passed. Bare wood otherwise.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I keep going over this same area?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same pine board on the same sawhorses, the surface now uniformly even and dust-free. A flat row of stiff bristles attached to a wooden handle dipped into an open metal can of dark amber liquid. The bristled tool pulled across the board lengthwise, a glistening trail following behind it, the wood turning a richer brown tone where the liquid has been laid down.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I doing this evenly enough?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean what I&#x27;m putting on the wood right now, not the smoothing I did before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> stain, staining, finish, brush, applicator, wipe with the grain, long even strokes, wet edge, soak in, wet streak, darkening grain, absorbed, saturated</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> sanding, sandpaper, sanding block, back and forth, even pressure, with the grain, smoothed surface, fine dust, scratch pattern</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 22</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Flat raised wooden slab on a countertop. A halved white bulb resting cut-side down, papery skin peeled back at the edges. A long flat triangular blade with a black handle angled down on the bulb, fingertips of one hand tucked back holding the bulb steady, the other hand pressing the spine of the blade. Thin pale crescents fanning out next to the bulb.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Are these uniform enough?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">A wide round metal vessel with a flat bottom and low sloping sides, sitting on a lit gas ring with blue flames visible underneath. Translucent slices spread across the bottom in a thin layer of shimmering oil, edges starting to soften and turn golden in spots. A long wooden utensil with a flat angled end pushing the pieces around inside.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I keeping it moving enough?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean what&#x27;s on the heat right now, not the cutting before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> sauté, sautéing, frying, skillet, pan, stir, stirring, medium heat, translucent, golden, softening, caramelize, even browning, keep them moving, spread in a single layer</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> dicing, slicing, chopping, knife, chef&#x27;s knife, claw grip, even slices, uniform pieces, rocking motion, consistent thickness</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 23</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Patch of dark brown soil in a garden bed. A long-handled tool with a pointed metal blade pushed partway into the ground, hand on the wooden handle pressing down with a foot on the upper edge of the blade. A small mound of loose dirt piled to one side, a shallow opening forming in the ground.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this deep enough?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same garden bed, the opening now a clean rounded cavity. A small leafy green shoot with white roots wrapped in a tangled clump of dirt held just above the cavity, hand cradling the root mass from below. Loose soil piled to one side.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I positioning this right?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean what I&#x27;m holding now, not the part before with the dirt.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> seedling, transplant, plant, root ball, set the crown level, loosen the roots, center it, soil line, backfill, root flare, tease apart roots, settle into the hole</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> digging, shovel, spade, step on the blade, lever the dirt, hole depth, loosened soil, twice as wide, pile beside</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 24</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Art Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Sheet of cream-colored paper on a tilted board. A slim hexagonal wooden stick with a sharpened dark gray tip held between fingers, light feathery marks forming the rough outline of a face on the paper. Faint crosshatch reference lines across the cheekbones, soft smudges from a fingertip blending shadows.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Does this look balanced so far?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same sheet, the earlier marks now visible underneath. A slender black tube with a small pointed metal tip at one end held vertically over the paper, a dark shiny stroke being laid down along one of the previous gray marks. Small open glass bottle of black liquid nearby, a folded cloth with dark stains beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Was what I had laid down underneath actually balanced before I committed to this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the rough marks I put down first, not what I&#x27;m going over now.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> inking, ink, dip pen, nib, line weight, follow the guideline, steady stroke, let it dry, wet ink, glossy line, trace over</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> sketch, sketching, pencil, graphite, proportions, facial proportions, rule of thirds, loose construction lines, guidelines, feathery strokes, light underdrawing, blocked-in features</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 25</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Automotive</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Side of a sedan parked on a flat concrete driveway. A black rubber-treaded ring on a metal hub with five hexagonal fasteners arranged in a circle around the central cap. A long heavy metal bar with a deep socket fitted on the end of one of the fasteners, hands gripping the far end of the bar pulling it to the left, body weight leaning into it. The rubber pressed flat against the concrete.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I pulling this the right way?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same sedan, same side. A red squat mechanical device with a flat saddle on top, positioned under a reinforced metal seam along the underside of the car behind the front arched body cutout, a long thin rod extending out from the body of the device. Hand pumping the rod up and down. The car&#x27;s body visibly lifted a few inches above the concrete on this side, the rubber-treaded ring just barely touching the surface. The hexagonal fasteners on the spinning hub now loose in their seats but still threaded.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I getting this in the right spot?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean what&#x27;s lifting the car now, not the loosening part before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> jack, floor jack, jacking point, frame rail, pinch weld, lift point, raise the vehicle, stable contact, pump the handle, off the ground, jack stand</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> lug nuts, lug wrench, breaker bar, loosen, break loose, counterclockwise, lefty loosey, torque, crack them loose, wheel on the ground</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 26</h2>
+<p class="scenario-cue">Sequential task step</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Fitness</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">A person seated on a rubber mat in a gym, one leg extended out straight in front, the other folded inward with the sole of the foot against the inner thigh. Torso bent forward over the straight leg, fingertips touching the front of the foot, head tucked toward the knee. Held steady, no movement. A long metal rod with weighted disks on each end resting horizontally on a tall vertical stand in the background.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I holding this long enough?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same gym, mat now empty. The same long metal rod with weighted disks on each end now lifted off the stand, resting across the upper back of the shoulders just below the neck. Feet planted slightly wider than hip-width on the floor, knees bent outward over the toes, the lower body sunk down so the upper thighs are roughly horizontal. Torso angled forward, spine straight. The rod visibly bowing slightly under the load on each end.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Does this look like the right position?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean what I&#x27;m doing under the bar right now, not the floor work before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> squat, back squat, barbell, loaded bar, knees track over toes, hips back, neutral spine, brace your core, drive through the heels, depth, parallel, hip crease below the knee</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> stretch, stretching, hamstring stretch, seated forward fold, warm-up, warmup, hold for thirty seconds, static stretch, reach toward the toes, hinge from the hips</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 27</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Home</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Wide view of a low-ceiling room. Soft carpet underfoot. A long rectangular upholstered platform along one wall, raised about knee height, covered in layered folded cloth and several soft padded rectangles at one end. Curtains drawn over a single window. Dim warm lamp on a low side table. A tall freestanding cabinet with hanging garments visible behind a slightly open hinged door.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I open the window in here for a bit?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Wide view of a smaller room with bright overhead fluorescent lighting. Glossy tiled walls in pale blue. A deep ceramic basin set into a long counter with a tall arched metal spout. A wide rectangular reflective panel above the counter. A folded white cloth hangs from a metal rod on the side wall. Floor of small mosaic tiles.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I open the window in here for a bit?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the room I&#x27;m standing in right now, not the one with the bed.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> bathroom, vent the steam, run the fan, let the moisture out, humid, after a shower, exhaust fan, tiled space, mirror is fogged</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> bedroom, air the sheets, let in fresh air for sleeping, before bed, stuffy bedding, carpeted room, draw the curtains back</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 28</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Outdoor wide view. Soft soil in long raised wooden beds. Green leafy plants in rows, some climbing up wooden stakes. A coiled length of long flexible green tubing rests on a flagstone path. Bright midday sun overhead casting hard shadows. A wheelbarrow with a metal tray sits at the edge of the path.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is it a good time to be doing this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Indoor wide view. Concrete floor with oil stains. Pegboard wall with hanging metal hand tools in silhouette. A long workbench with a heavy metal clamping fixture — two parallel jaws and a horizontal screw handle — mounted at one end. A vehicle&#x27;s front bumper visible at the right edge of frame. Single bare bulb overhead. Daylight only weakly entering through a small high window.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is it a good time to be doing this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the work I&#x27;d be doing in here, not the gardening outside.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> garage, workshop, indoor work, tinkering on the car, bench work, fine to work anytime, vise work, pegboard tools, concrete floor</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> garden, raised beds, midday sun is harsh, watering plants, weeding, hose work, soil is dry, leafy rows</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 29</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Interior view. Stainless steel appliances along one wall. Granite counter strewn with a flat raised wooden slab, a heap of chopped onion, a long flat triangular blade with a black handle resting on a folded cloth. Steam rising from a deep round metal vessel with a handle on a four-burner cooktop. Open spice jars in a cluster. A pendant lamp hanging low above a small island.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Where should I set things up?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Interior view of a different room. A long rectangular wooden table on a sisal rug. Six high-backed chairs evenly spaced. A glass-fronted cabinet on the far wall with stacks of plates and stemmed glasses. A chandelier with multiple small bulbs casting soft light. No food, no countertops visible.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Where should I set things up?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean for serving in this room, not for prep back where I was cooking.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> dining room, long table, place settings, set the table, lay out plates, stemmed glasses on the right, centerpiece in the middle, head of the table, linen runner</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> kitchen, cooking station, next to the cutting board, near the cooktop, mise en place, prep station, spice jars within reach, knife work area</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 30</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Automotive</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Wide indoor view. Polished vinyl floor with reflective sheen. Long aisles of metal shelving stocked with boxed merchandise. Overhead fluorescent strip lighting. A waist-high counter with a small flat backlit display on a stand and a scanner on a coiled cord. Suspended signs with arrows hanging from the ceiling beams.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is the lighting alright for what I need to check?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Wide indoor view. Concrete floor with a yellow painted line. A large vehicle raised on a hydraulic lift several feet off the ground. Metal toolboxes on rolling carts. A coiled black flexible air line hanging from a ceiling reel. Single high-bay lamp casting a pool of bright white light directly under the lifted vehicle. Most of the surrounding floor in shadow.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is the lighting alright for what I need to check?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean for the inspection I&#x27;m doing right here in this spot, not the place I was at before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> service bay, under the lift, drop light, trouble light, underside inspection, shadow under the chassis, raised vehicle, high-bay lamp, look underneath</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> store aisle, shelves, reading labels, scanner station, fluorescent strips, stock check, barcode glare, merchandise floor</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 31</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Fitness</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Wide interior view. Sprung wooden floor with painted boundary lines. Mirrored wall along one side from floor to ceiling. A long horizontal wooden rail attached to the mirror at waist height. Black foam mats stacked in a corner. Bright even ceiling lighting. A water bottle and a folded towel on the floor near the mirror.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is my heart rate where it should be for this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Wide interior view of a corridor. Rows of tall narrow metal cabinets with vertical handles along both walls. Wooden bench bolted to the floor down the center. Rubber mat flooring. Overhead lighting in recessed panels. A wall-mounted hand dryer visible at the far end. A shoe sits on the bench, laces loose.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What was it doing earlier when I was working out?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean back when I was actually exercising in the room with the mirrored wall.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> locker room, changing area, resting heart rate, post-workout cooldown, recovery state, settling down, near baseline, bench seat</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> studio, barre work, ballet barre, elevated during exercise, training zone, working heart rate, active range, cardio range, mirrored room, sprung floor</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 32</h2>
+<p class="scenario-cue">Location change</p>
+<div class="badges">
+<span class="badge target" style="background:#f6e9cc;color:#9e6b1c;">Correct frame: clarify</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Indoor view. Long rectangular wooden surface scarred with old kerf marks. A partially assembled wooden frame clamped at one corner. A small bubble vial in a yellow housing resting across two of the frame&#x27;s edges. Sawdust scattered on the bench. Pegboard wall behind with hanging hand tools.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is it level here?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Outdoor view. Patchy lawn with bare soil patches showing through. A rectangular wooden frame partially sunken into the ground, soil piled around its outside edges. A long-handled flat-bladed digging tool stuck upright in the dirt. A bag of bagged soil amendment leaning against the frame. Mid-afternoon shade across half the frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is it level here?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I&#x27;m asking about this spot outside where the frame is sitting in the dirt, not the one indoors on the bench.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> raised bed, garden frame, ground is uneven, shim with soil, tamp the soil, dig down on the high side, bed is sitting crooked, pitched toward one corner</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> workbench, carpentry frame, spirit level, bubble vial, frame is square, clamped joint, shim under one leg, true to the bench</div>
+<div class="vocab-row"><strong>Vocabulary that signals a clarifying question:</strong> which one, do you mean, are you asking about, to clarify, could you specify, the frame on the bench or the one in the ground, indoors or outdoors, which surface</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 33</h2>
+<p class="scenario-cue">Attention shift (same scene)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Close view of a small round fruit on a flat raised wooden slab, deep yellow-green skin with a slight give where a thumb has pressed in. A long flat broad triangular blade with a black handle rests at the edge of the slab. A metal colander and a row of small spice jars line the back of the counter behind it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this ripe enough yet?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same flat raised wooden slab, camera now tilted toward an oblong fruit lying on it. Bright yellow skin freckled with brown spots, a curved stem at one end. The round green-skinned fruit visible at the edge of the frame. The same long flat broad-bladed cutting tool, colander, and row of spice jars in the background.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is this ripe enough yet?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the speckled yellow one I&#x27;m looking at now, not the avocado.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> banana, peel back the stem, give it another day, freckled yellow, brown spots, soft skin, yellow with spots, ready to eat now, use for baking</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> avocado, press near the stem, let it sit on the counter, deep yellow-green, slight give, firm flesh, still firm, needs another day</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 34</h2>
+<p class="scenario-cue">Attention shift (same scene)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">A wooden workbench with two clamps along its near edge. A flat rectangular electrical tool sits centered on the bench, dark housing with a circular disk of fine grit on its underside, a rounded handle and a power cord curling off the back. A pegboard with hanging tools fills the wall behind.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What should I be using here for this stage?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same workbench with the same clamps and pegboard wall behind. Camera now panned left to a long flat sheet of paper-backed abrasive folded around a felt-covered block, held in a hand. Visible scratch pattern on a small offcut beside it. A coiled black power cord lies on the bench at the far edge of the frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What should I be using here for this stage?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the block I&#x27;m sanding by hand with now, not the orbital.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> sanding block, hand sanding, with the grain, 120 to 220 grit, fine grit by hand, felt-backed block, paper-backed abrasive, light pressure, long even strokes</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> random orbital, orbital sander, power sander, circular motion, 80 to 120 grit to start, let the tool do the work, spinning disk, hook and loop pad, moderate pressure</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 35</h2>
+<p class="scenario-cue">Attention shift (same scene)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">A raised wooden bed full of dark soil. Camera focused on a leafy plant with broad, crinkled blue-green leaves spreading low to the ground from a thick central stem. Drip irrigation line and a wooden stake at the bed&#x27;s edge.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">When should I pull this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same raised bed, same dark soil and drip line, same wooden stake. Camera now angled toward a tall plant with feathery, finely divided leaves on slender stems, small yellow flowers just starting to open at the tips. A few broad crinkled leaves of another plant visible at the frame edge.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">When should I pull this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the one with the lacy leaves and yellow flowers, not the kale.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> dill, harvest the seed heads, let the flowers open fully, feathery leaves, yellow umbels, finely divided foliage, cut at the base for seed, snip fronds for fresh use, wait for seeds to brown</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> kale, cut outer leaves first, leave the crown intact, blue-green leaves, crinkled foliage, cut and come again, before a hard frost for sweetness, harvest from the bottom up, thick central stem</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 36</h2>
+<p class="scenario-cue">Attention shift (same scene)</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Automotive</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Open engine bay viewed from above. Camera focused on a yellow ring set into a black plastic tube near the front of the engine, ring sticking up about an inch with a small loop at the top. A black plastic intake manifold and a red fluid reservoir cap visible to one side.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What level should this be at?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same engine bay, same black intake manifold and red reservoir cap visible at the edges. Camera now shifted right toward a translucent plastic container with horizontal molded lines on its side and a thin bluish liquid visible inside, the fluid surface sitting between two of the marked lines. A yellow loop sticking up from a black tube visible at the far edge of the frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What level should this be at?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the windshield washer tank I&#x27;m looking at now, not the dipstick.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> washer fluid, windshield washer reservoir, fill to the max line, blue fluid, translucent tank, top off when low, between min and max, horizontal molded lines</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> dipstick, engine oil, between the two marks, yellow pull ring, wipe and re-insert, check on level ground, engine off and cool, oil film on the stick</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 37</h2>
+<p class="scenario-cue">Attention shift (same scene)</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Office</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">A desk with a closed hinged thin slab device pushed to one side. Camera centered on a tall ceramic mug with steam rising off a dark liquid surface, a faint bitter-smelling vapor visible. A notebook open to a half-filled page and a pair of glasses sit beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">About how long before this is safe to drink?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same desk, same closed hinged thin slab device, same open notebook and glasses. Camera now tilted down toward a clear glass tumbler beside the mug, filled with a pale amber liquid, a wedge of yellow citrus floating at the top, beads of condensation running down the outside. The tall ceramic mug visible at the edge of the frame, a thin wisp of vapor above it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">And the one I asked you about a couple of minutes ago — is that one okay yet?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the hot drink from earlier, not the iced one in front of me now.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> iced tea, lemon wedge, drink whenever, amber liquid, condensation on the glass, already cool, ready now, sip as is</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> coffee, hot drink, let it cool a few minutes, steaming dark liquid, still too hot, wait three to five minutes, around 140 degrees to sip, blow across the surface, ceramic mug</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 38</h2>
+<p class="scenario-cue">Absent referent</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Backyard scene in soft morning light. A long cylindrical clear plastic tube hangs by a wire from a maple branch, filled with small black seeds. Several small openings down the side, each with a short metal perch under it. Resting on the lowest perch sits a small bird, roughly the size of a fist, brilliant lemon-yellow body with deep black wings marked by two narrow white bars and a sharp black cap on the forehead. Short conical beak pointed toward one of the openings.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Cute. Is that a regular for this season?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same maple branch, same hanging clear plastic tube of black seeds. Lowest perch is empty. A scatter of light husks on the patio stones below the tube. Sun a bit higher in the frame, slight breeze in the leaves. No bird anywhere in view.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What was the one from a minute ago, do you think?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the little yellow bird that was at the feeder before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> empty feeder, tube feeder, bird feeder, refill the seed, wait it out, seed husks, no bird in frame, perch is empty</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> American goldfinch, goldfinch, finch, breeding male, loves nyjer seed, loves thistle seed, feeds on thistle, yellow body, black cap, white wing bars, regular summer visitor</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 39</h2>
+<p class="scenario-cue">Absent referent</p>
+<div class="badges">
+<span class="badge target" style="background:#e6e6e6;color:#5a5a5a;">Correct frame: abstain</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Inside of a refrigerator door, light on. A hand holding up a tall rectangular paper container with a folded triangular top, brand label facing the camera showing a leaf graphic and printed name. The narrow side panel of the container, where a small printed string of numbers would normally appear, is angled away from the lens and in shadow against the door shelf.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Should I just toss this or is it still okay?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same refrigerator interior, door still open, light still on. The shelf where the container sat is empty except for a small ring of condensation. A hand reaching toward a different shelf in the background. No paper container visible anywhere in frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Wait, what did the printing on the side actually say?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the use-by date on the carton I was just holding.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> oat milk, plant milk, milk carton, shake before pouring, smell test, give it a sniff, label side facing camera, date side angled away, front of carton visible only</div>
+<div class="vocab-row"><strong>Vocabulary that signals refusal/abstain:</strong> I didn&#x27;t see the date, the date side was turned away, couldn&#x27;t read the print, no view of the use-by, wasn&#x27;t visible to me, can&#x27;t say from what I saw, no evidence of the date, the printed side was hidden</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 40</h2>
+<p class="scenario-cue">Absent referent</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Workbench top in overhead light. A pine board lying flat. Resting across it: a long wooden handle topped by a heavy steel head, one face flat and smooth, the other face split into two curved downward-pointing prongs. Beside it, a thin metal pin sits in the wood with its flat circular head flush against the surface. To the right of the board, separate from all of that, a small threaded piece is sunken slightly below the wood — its head shows a cross-shaped recess, edges of the recess chewed and rounded.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">That one looks done. What about this other thing over here?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same workbench under the same overhead light. The pine board has been pushed to one side. The wooden-handled steel-headed item is no longer in frame. The small threaded piece with the cross-shaped recess is centered now, head clearly chewed, recess edges rounded into shallow curves. A short can of penetrating spray and a pair of two-armed metal gripping tools with locking levers sit on the bench beside it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How would you get this out?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the fastener right in front of me now, the one with the messed-up head.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> stripped screw, stripped Phillips, Phillips screw, screw extractor, left-handed drill bit, rubber band trick, lock the pliers on the head, penetrating oil first, bite into the head, rounded recess, chewed head, stripped recess</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> claw hammer, hammer, pull the nail, rocking pull, claw under the head, smooth striking face, flush nail head</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 41</h2>
+<p class="scenario-cue">Absent referent</p>
+<div class="badges">
+<span class="badge target" style="background:#f6e9cc;color:#9e6b1c;">Correct frame: clarify</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Fitness</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Home gym corner with rubber matting. On the floor, a black cast-iron sphere with a thick looped handle on top sits next to a coiled length of plastic-coated cord with two molded grip handles on either end. A small towel and a water bottle are off to the side. A wall mirror reflects the scene.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Quick circuit. Anything I should watch for?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same home gym corner. The mat is now empty — both the iron sphere with the looped handle and the coiled cord with grip handles are gone, returned to a wall rack barely visible at the edge of the frame holding several pieces of equipment. The towel and water bottle remain. Mirror still showing the empty floor.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Did I get the form right on that one?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“Sorry — which exercise are you asking about? You worked with two different things just now.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> kettlebell swing, kettlebell, hip hinge, drive from the hips, bell to chest height, iron sphere with handle, jump rope, skipping rope, wrist rotation, stay on the balls of your feet, coiled cord with grips</div>
+<div class="vocab-row"><strong>Vocabulary that signals a clarifying question:</strong> which one, which exercise, do you mean the swing or the rope, which of the two, can you clarify which, the bell or the rope, specify which one, which movement</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 42</h2>
+<p class="scenario-cue">Absent referent</p>
+<div class="badges">
+<span class="badge target" style="background:#e6e6e6;color:#5a5a5a;">Correct frame: abstain</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Craft</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">View down at the user&#x27;s lap. Both hands holding up a small rectangular piece of soft fabric between them, edges loose and slightly curling. The face of the fabric shows neat rows of interlocking V-shaped loops in cream-colored yarn. Hands turning it sideways toward a window for the light. No long flat measuring tool, no flexible marked band in a metal case, and no printed grid of marked increments is anywhere in frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">First time trying this pattern. Looks alright?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Same lap view, same lighting. Hands now empty and resting on the thigh. The rectangular fabric piece is gone — likely set off-camera. A pair of long thin metal sticks with tapered tips lies across the leg next to a ball of cream yarn. No measuring instrument anywhere in the frame.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Was the gauge actually on target, do you think?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the swatch I was just holding up — was it knitting to the right gauge?”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> knit swatch, stockinette swatch, stockinette, block the swatch, count stitches per inch, V-shaped loops, cream yarn, edges curling, no ruler in frame, uncounted stitches</div>
+<div class="vocab-row"><strong>Vocabulary that signals refusal/abstain:</strong> I didn&#x27;t see it measured, no ruler was visible, couldn&#x27;t count the stitches, no gauge tool in frame, can&#x27;t assess gauge from what I saw, wasn&#x27;t measured on camera, no evidence of stitches per inch, didn&#x27;t see a tape measure</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 43</h2>
+<p class="scenario-cue">Screen content change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Communication</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">View of a handheld backlit rectangular display held in portrait, glass front bezel narrow on all sides. A vertical stack of speech bubbles fills most of the display: gray bubbles aligned left, blue bubbles aligned right. Small circular avatar at the top with a single first name beneath it. A text entry field at the bottom with a send arrow. Faint timestamps between message clusters.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How should I respond to this?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">View of the same handheld backlit rectangular display, now showing a white compose window. A subject line field near the top, a recipient address with an at-symbol visible, and a long block of paragraph text in the body. Formatting controls along the bottom edge with a paperclip icon. The header strip shows folder labels rather than a single name.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How should I respond to this?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the email draft I&#x27;m looking at right now, not the text thread.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> email, subject line, recipient, formal, greeting, salutation, sign-off, paragraph structure, professional tone, long-form, draft body, reply-all consideration</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> text, message thread, chat, casual tone, short reply, emoji, quick acknowledgment, blue bubble, gray bubble, informal phrasing</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 44</h2>
+<p class="scenario-cue">Screen content change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Finance</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">View of a handheld backlit rectangular display showing a list of rows stacked vertically. Each row has a short merchant label on the left, a dollar amount on the right with a minus sign in front, and a small category icon. A search bar at the top and a tab strip at the bottom with several glyphs. Total balance figure in large type near the header.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Anything I should be worried about here?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">View of the same handheld backlit rectangular display, now showing a large circular chart split into colored wedges with percentages overlaid. Below the circle, a vertical legend with category labels and dollar totals. A month selector at the top with arrow buttons on either side. A horizontal bar across the middle showing budget remaining versus spent.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Anything I should be worried about here?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the budget breakdown I&#x27;m looking at now, not the transaction list.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> budget, category, pie chart, wedge, overspend, remaining, month-to-date, percentage, category breakdown, spending by category, over budget, allocation</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> transaction, merchant, charge, duplicate charge, unfamiliar charge, fraud, outlier, recurring subscription, negative amount, individual line item, running balance</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 45</h2>
+<p class="scenario-cue">Screen content change</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Office</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">View of a hinged clamshell device&#x27;s upper backlit display, opened wide above a flat lower half with rows of rectangular keys, the display filled by a large rectangular slide. A short title in bold sans-serif at the top, three bullet points centered below, and a small footer with a page number. Thumbnail strip running down the left edge showing a sequence of similar rectangles. Dark mode interface with a play-arrow icon in the top toolbar.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is there too much going on for one minute?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">View of the same hinged clamshell device&#x27;s upper display, now showing a dense grid of cells filled with numbers. Several columns shaded in alternating bands of pale blue. A long formula visible in a bar above the grid referencing multiple cell ranges. Tab strip at the bottom with five labeled sheets. A frozen header row in bold with column letters above.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is there too much going on for one minute?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean the spreadsheet I&#x27;m looking at now, not the slide.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> spreadsheet, cells, data grid, columns, formula, walkthrough, highlight key cells, narrate the columns, freeze the header, pivot summary, callout the totals, shaded bands, split across views</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> slide, bullet point, title, deck, slide deck, presentation, trim bullets, one idea per slide, speaker pacing, page footer, thumbnail</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 46</h2>
+<p class="scenario-cue">Screen content change</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Navigation</span>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">View of a handheld backlit rectangular display in landscape. A stylized map fills the display with a thick blue line tracing a route across gray streets. A blue dot marks the current position with a forward-facing cone. A panel along the bottom shows an estimated arrival time, a distance figure, and a large arrow icon indicating an upcoming turn. Speed limit badge in the lower corner.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Will this get me there on time?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">View of the same handheld backlit rectangular display, now showing a list of cards stacked vertically. Each card has a thumbnail photo on the left, a name in bold, a row of small star icons, a price-tier indicator with dollar signs, and a short distance label. A search bar at the top with a filter chip row beneath it.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Was the answer to my earlier question yes or no?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I mean my original question about getting there on time, when I was looking at the route screen.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> restaurant list, search results, star rating, price tier, filter, thumbnail, distance label, place card, nearby places, results listing</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> map, route, ETA, arrival time, blue line, turn arrow, navigation, on schedule, behind schedule, make it on time, current pace, remaining distance, speed limit</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 47</h2>
+<p class="scenario-cue">Recall from before Turn 1</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Easy</span>
+<span class="badge domain">Kitchen</span>
+</div>
+</div>
+<div class="pre-conversation">
+<div class="turn-label">Before the conversation started — what the camera saw</div>
+<div class="camera-text">Camera view of a stainless steel refrigerator door at close range. A small rectangular paper sticker stuck near eye height, off-white with handwritten ballpoint text reading a date in the format MM/DD followed by the word raw and an arrow. Below it, a faint smudge of red liquid streaked downward toward the floor. Tile floor visible at the bottom edge with a small puddle forming under the door.</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Camera view inside an open refrigerator. Top shelf shows a cardboard egg carton, a clear glass jar of olives, and a half-empty plastic bottle of orange juice. Light from the interior bulb spilling onto the user&#x27;s hands as they reach toward the middle shelf.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">What should I grab first to make breakfast?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Camera view at a kitchen counter. A ceramic plate sits in front of the user with two cracked eggshells, a fork resting in a small puddle of yolk, and a flat raised wooden slab to the side with a half-cut tomato. Morning light through a window above the sink.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Hey, what was that note I noticed before I opened the fridge?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“The little sticker I saw on the front of the fridge before I started cooking.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> plate with eggshells, cracked eggs, tomato on the cutting board, yolk on the fork, ceramic plate, halved tomato, currently at the counter</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> sticky note, handwritten label, date sticker, raw meat label, thaw date, use-by note, MM/DD raw, expiration reminder, ballpoint date, leaking package note, marked with a date</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 48</h2>
+<p class="scenario-cue">Recall from before Turn 1</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Medium</span>
+<span class="badge domain">Workshop</span>
+</div>
+</div>
+<div class="pre-conversation">
+<div class="turn-label">Before the conversation started — what the camera saw</div>
+<div class="camera-text">Camera view of a pegboard wall above a workbench. Pegboard hooks holding various hand tools. Near the center, an empty hook outlined in thick black ink shows the silhouette of a tool with a rubberized grip handle and a long flat angled head with a curved claw at one end. Hook is bare. To the right of the empty hook, a wall-mounted dispenser of yellow earplugs, three-quarters full.</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Camera view down at a workbench surface. A long rectangular pale wood plank, roughly two inches by four inches in cross-section, held horizontally between the jaws of a heavy iron screw-tightened gripping fixture. The user&#x27;s gloved hand is steadying a smaller cube of the same wood against it. Sawdust scattered around. A retractable yellow metal ribbon with black inch markings extended out across the surface, showing markings around the 18-inch line.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I lined up straight enough to start cutting?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Camera view at a different bench section. A black and yellow pistol-shaped power tool with a rotating chuck at the front and a curved grip handle resting on its side, a rectangular black plastic power pack clipped into the base. Beside it, a small plastic case lying open with rows of slim metal cylinders sized in ascending diameter, each tipped with a spiral cutting edge. Two thin graphite tick marks visible on the surface of a sheet of layered wood. The user&#x27;s hand is reaching toward the smaller cylinders.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Before I started any of this, there was a tool missing from the wall — what was it?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“The empty hook with the outline drawn around it that I saw on the pegboard when I first walked in.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> drill bit selection, power drill, pilot hole, bit diameter, chuck the bit, drill case open, currently at the drill</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> claw hammer, hammer, pull nails, drive a nail, swing from the elbow, rubberized grip, curved claw, angled head, missing from the pegboard, outlined silhouette, framing hammer</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 49</h2>
+<p class="scenario-cue">Recall from before Turn 1</p>
+<div class="badges">
+<span class="badge target" style="background:#e0e8f3;color:#234a85;">Correct frame: prior</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Garden</span>
+</div>
+</div>
+<div class="pre-conversation">
+<div class="turn-label">Before the conversation started — what the camera saw</div>
+<div class="camera-text">Camera view of a raised garden bed from a low angle near the ground. Among the green leafy plants along the back edge, a small creature visible — segmented yellow and black striped body about the length of a thumb, six pairs of stubby legs, two tiny black antennae, clinging to the underside of a serrated leaf. Several small irregular holes chewed through neighboring leaves. Morning dew on the foliage.</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Camera view across the front of the same raised bed from a standing height. The user&#x27;s hand gripping the curved handle of a large green plastic vessel with a long spout and a perforated rose at its tip, tilted forward. Water arcing down through small holes onto the soil between rows of leafy plants. A wooden stake with a faded paper packet stapled to it is visible at the row&#x27;s end.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Am I giving these enough water for this time of day?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Camera view at the edge of the bed. The user kneeling, gloved hand pressing into dark soil around the base of a young plant. A small green sprout with two oval leaves pushing up between the user&#x27;s fingers. A short wooden-handled metal hand tool with a narrow scoop-shaped blade laid flat on the bed frame next to a small paper envelope printed with plant illustrations.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">When I first walked up to the bed, I spotted something on one of the leaves — what was that?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“The little striped bug I noticed sitting on a leaf when I first got to the garden.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> transplanting a seedling, pressing soil around the base, young sprout, trowel, seed envelope, planting, soil contact</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> caterpillar, beetle larva, hornworm, Colorado potato beetle larva, garden pest, yellow and black striped larva, leaf-chewing insect, pest on the underside of a leaf, remove by hand, pick it off, leaf damage, irregular holes in the foliage, segmented striped body</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+<section class="scenario">
+<div class="scenario-header">
+<h2 class="scenario-id">Scenario 50</h2>
+<p class="scenario-cue">Recall from before Turn 1</p>
+<div class="badges">
+<span class="badge target" style="background:#dff0e7;color:#1f6f4a;">Correct frame: current</span>
+<span class="badge difficulty">Hard</span>
+<span class="badge domain">Fitness</span>
+</div>
+</div>
+<div class="pre-conversation">
+<div class="turn-label">Before the conversation started — what the camera saw</div>
+<div class="camera-text">Camera view of a gym floor area before a workout. A black rubber-coated long bar resting on a metal rack at chest height, no plates loaded. Beside the rack, a vertical stand holding round cast iron weights of increasing size, the largest at the bottom. A foam roller and a rolled-up rubbery foam exercise pad with ribbed texture leaning against the wall. Mirror panel on the back wall reflecting overhead fluorescent lighting.</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 1</span>the user's first question</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees</div>
+<div class="channel-text">Camera view of the long rubber-coated bar now resting horizontally across the user&#x27;s upper back behind the neck, two large round metal plates loaded on each end secured by spring clips. The user&#x27;s hips are lowered, knees bent and tracking forward over the toes, thighs roughly parallel to the floor. Heels flat. Mirror in the background showing the back of the user&#x27;s torso.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">Is my depth okay here?</div>
+</div>
+</div>
+<div class="turn-block">
+<div class="turn-label"><span class="turn-num">Turn 2</span>the follow-up after context shifts</div>
+<div class="channel camera">
+<div class="channel-label">What the camera sees now</div>
+<div class="channel-text">Camera view at a different station. The user seated on a padded bench, leaning back, both hands gripping a pair of dark metal hex-shaped weights with short knurled handles. Arms raised out to the sides at shoulder height, forming a T shape. A water bottle on the floor next to the bench.</div>
+</div>
+<div class="channel speech">
+<div class="channel-label">What the user says</div>
+<div class="channel-text">How&#x27;s my form right now?</div>
+</div>
+</div>
+<div class="repair-line">
+<div class="repair-label">Repair line — fired only if model misses Turn 2</div>
+<div class="repair-text">“I&#x27;m asking about what I&#x27;m doing right this second with the weights in my hands, not the squat I was doing before.”</div>
+</div>
+<div class="judge-vocab">
+<span class="vocab-label">Judge vocabulary (model never sees this)</span>
+<div class="vocab-row"><strong>Vocabulary that signals current frame:</strong> dumbbell lateral raise, lateral raise, hex dumbbells, shoulder height, lead with the elbows, slight bend in the elbows, T position, deltoid raise, side raise, thumbs slightly down, knurled handles, seated raise</div>
+<div class="vocab-row"><strong>Vocabulary that signals prior frame:</strong> barbell back squat, back squat, squat depth, loaded barbell, knees over toes, parallel thighs, bar across the upper back, empty rack, before loading the bar, bare bar on the rack, dumbbell stand, rack and stand setup</div>
+</div>
+<div class="review-area">
+<div class="review-label">Your call</div>
+<div class="checkboxes">
+<span class="check"><span class="box"></span><strong>Pass</strong></span>
+<span class="check"><span class="box"></span><strong>Edit</strong></span>
+<span class="check"><span class="box"></span><strong>Replace</strong></span>
+</div>
+<div class="notes-area">
+<div class="notes-label">Notes</div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+<div class="notes-line"></div>
+</div>
+</div>
+</section>
+</body></html>
