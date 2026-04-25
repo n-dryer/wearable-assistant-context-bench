@@ -174,6 +174,9 @@ class GeminiAdapter:
             model=config.model_id,
             contents=contents,
             config=gen_config,
+            # 90-second hard timeout; prevents indefinite hangs on Gemini API
+            # stalls that can occur under rate-limiting or transient server issues.
+            http_options={"timeout": 90},
         )
 
         text = _extract_text(response)
