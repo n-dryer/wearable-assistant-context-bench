@@ -113,7 +113,7 @@ def test_project_interventions_json_loads_three_conditions() -> None:
 
 
 def test_project_interventions_prompts_match_expected_text() -> None:
-    """The JSON file is the canonical intervention source for v1."""
+    """The JSON file is the intervention source for v1."""
     conditions = load_interventions(PROJECT_INTERVENTIONS)
     by_name = {c.name: c.system_prompt for c in conditions}
 

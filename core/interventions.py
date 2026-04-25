@@ -1,9 +1,9 @@
 """Prompt condition loading for benchmark v1.
 
 The benchmark stores its three prompt conditions in
-``benchmark/v1/interventions.json`` for compatibility with the frozen
-v1 file layout. This module provides the preferred prompt-condition
-API while retaining intervention-based aliases for older callers.
+``benchmark/v1/interventions.json``. This module provides the preferred
+prompt-condition API while retaining intervention-based aliases for
+older callers.
 """
 
 from __future__ import annotations

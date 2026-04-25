@@ -1,16 +1,16 @@
-"""Aggregation and Markdown rendering for canonical v1 benchmark results.
+"""Aggregation and Markdown rendering for benchmark results.
 
 The runner produces one result dict per trial. This module rolls
 those up into a findings report for the `Wearable Assistant Context
-Benchmark` v1 benchmark:
+Benchmark` v1:
 
 1. **Benchmark summary.** Headline primary score (balanced Turn 2
    accuracy under the default comparison condition), per-class
    accuracy, and a per-condition sensitivity row.
 2. **Per-class pass rate by condition.** A 4-row internal grid for
    visibility. `current` and `prior` are the primary classes.
-   `clarify` and `abstain` are auxiliary diagnostic classes in the
-   canonical release and are not included in the primary score.
+   `clarify` and `abstain` are auxiliary diagnostic classes and are
+   not included in the primary score.
 3. **Simulated repair rate per condition.**
 4. **Code-judge disagreement count per scenario.**
 5. **Scenario-by-condition matrix.**
@@ -42,14 +42,13 @@ POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
 SCORED_POLICIES: tuple[str, ...] = ("current", "prior")
 CONDITIONS_ORDER: tuple[str, ...] = ("baseline", "condition_a", "condition_b")
 AUXILIARY_POLICY_NOTE: str = (
-    "auxiliary in canonical v1; not included in the primary current/prior score"
+    "auxiliary; not included in the primary current/prior score"
 )
 
 BENCHMARK_NAME: str = "Wearable Assistant Context Benchmark"
 BENCHMARK_VERSION: str = "v1"
 BENCHMARK_LABEL: str = (
-    "canonical v1 benchmark for cross-turn reference resolution under "
-    "context change"
+    "context-tracking benchmark for multimodal wearable assistants"
 )
 DEFAULT_RANKING_CONDITION: str = "baseline"
 

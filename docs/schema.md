@@ -97,8 +97,8 @@ rules.
 
 ## Removed fields
 
-The following fields existed in v1 and are no longer part of the
-schema:
+The following fields existed in earlier scenario formats and are no
+longer part of the schema:
 
 - `text_proxy_degraded` — replaced by the camera channel; no longer
   meaningful
@@ -111,4 +111,4 @@ schema:
   redundant
 - `ambiguity_marker` — implicit in deictic user speech, not separately
   tagged
-- `variant` — paired-contrast versions are not used in v2
+- `variant` — paired-contrast versions are not used

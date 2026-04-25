@@ -29,11 +29,11 @@ call. Every candidate needs to be tested on the same scenarios, with
 the same prompt conditions, the same judge rules, and a saved run
 record.
 
-## What v2 measures
+## What this benchmark measures
 
-v2 measures **context tracking**. It tests whether a model uses the
-current situational evidence visible in the camera frame, or stays
-anchored to prior context after a shift.
+This benchmark measures **context tracking**. It tests whether a
+model uses the current situational evidence visible in the camera
+frame, or stays anchored to prior context after a shift.
 
 The bank is **50 scenarios across 8 cue_type categories**: object in
 hand, object state, sequential task, location, object in view, absent
@@ -47,7 +47,7 @@ The judge labels each Turn 2 response with one of `current`, `prior`,
 `clarify`, or `abstain`. The primary score is balanced accuracy across
 `current` and `prior` under the `baseline` prompt condition.
 
-## What v2 does NOT measure
+## What this benchmark does NOT measure
 
 This is a context-tracking benchmark. It is not a coaching benchmark.
 It does not directly evaluate:
@@ -89,8 +89,8 @@ rate.
 
 ## Repository layout
 
-- [`benchmark/v1`](benchmark/v1) — frozen scenario bank, runner, and
-  run outputs
+- [`benchmark/v1`](benchmark/v1) — scenario bank, runner, and run
+  outputs
 - [`core`](core) — model adapters, judge logic, scoring, report
   generation
 - [`docs/benchmark_spec.md`](docs/benchmark_spec.md) — full benchmark
@@ -192,15 +192,14 @@ For interpretation guidance, see
 
 ## Results
 
-Baseline run pending. Once Step 7 of the v2 rebuild completes, the
-canonical baseline run will land under
-`benchmark/v1/runs/v2-baseline/` and this section will be filled in
-with the actual figures.
+Baseline run pending. Once Step 7 of the rebuild completes, the
+baseline run will land under `benchmark/v1/runs/baseline/` and this
+section will be filled in with the actual figures.
 
 ## Contributing
 
 Edits that change scenario text, answer keys, prompt text, or scoring
-semantics are out of scope once the `v2.0.0` release tag is created.
+semantics are out of scope once the `v1.0.0` release tag is created.
 Bug fixes, new model adapters, doc improvements, and reproducibility
 improvements are welcome at any time. See
 [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full policy.

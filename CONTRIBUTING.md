@@ -10,9 +10,10 @@ purpose. Contributions that fit that scope are welcome. Contributions
 that broaden the benchmark into general assistant evaluation, coaching
 quality, or domain expertise are not.
 
-## Frozen-set policy
+## Release policy
 
-Once the `v2.0.0` release tag is created, the following are frozen:
+Once the `v1.0.0` release tag is created, the following stay stable
+across patch releases so cross-model comparisons remain valid:
 
 - `benchmark/v1/scenarios.json` — scenario text
 - `benchmark/v1/expected_answers.json` — answer keys
@@ -24,7 +25,7 @@ Once the `v2.0.0` release tag is created, the following are frozen:
 
 Edits that change scenario meaning, answer-key vocabulary, prompt
 text, or scoring semantics are out of scope after the tag. Those
-changes would alter benchmark comparability and require a new
+changes would alter benchmark comparability and would require a new
 benchmark release rather than an in-place edit.
 
 ## What is welcome at any time
@@ -86,8 +87,8 @@ Quick summary:
   cover three vocabulary categories: object name, technique vocabulary,
   state descriptors.
 
-After the `v2.0.0` tag, new scenarios are not accepted into the
-canonical bank. Authoring rules remain published as a contributor
+After the `v1.0.0` tag, new scenarios are not accepted into the
+v1 scenario bank. Authoring rules remain published as a contributor
 reference and as documentation for future benchmark releases.
 
 ## Validation

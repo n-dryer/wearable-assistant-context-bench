@@ -1,8 +1,9 @@
-"""Schema checks for benchmark/v1/scenarios.json (v2 schema).
+"""Schema checks for benchmark/v1/scenarios.json.
 
 These tests treat the benchmark JSON files as the only active source of
-truth for scenario configuration. They enforce v2 field requirements,
-enum constraints, and the answer-set contract from `docs/schema.md`.
+truth for scenario configuration. They enforce required field
+requirements, enum constraints, and the answer-set contract from
+`docs/schema.md`.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios.json"
 EXPECTED_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers.json"
 
 
-REQUIRED_V2_FIELDS = {
+REQUIRED_FIELDS = {
     "scenario_id",
     "target_context",
     "cue_type",
@@ -73,9 +74,9 @@ def test_scenarios_json_is_non_empty_list(scenarios: list[dict]) -> None:
     assert len(scenarios) > 0
 
 
-def test_every_scenario_has_required_v2_fields(scenarios: list[dict]) -> None:
+def test_every_scenario_has_required_fields(scenarios: list[dict]) -> None:
     for entry in scenarios:
-        missing = REQUIRED_V2_FIELDS - entry.keys()
+        missing = REQUIRED_FIELDS - entry.keys()
         assert not missing, (
             f"scenario {entry.get('scenario_id')!r} missing fields: {missing}"
         )
@@ -126,7 +127,7 @@ def test_cognitive_loads_in_allowed_set(scenarios: list[dict]) -> None:
         )
 
 
-def test_required_v2_string_fields_are_non_empty(scenarios: list[dict]) -> None:
+def test_required_string_fields_are_non_empty(scenarios: list[dict]) -> None:
     """Required string fields (excluding nullable context_image) must be non-empty strings."""
     for entry in scenarios:
         sid = entry["scenario_id"]
@@ -241,7 +242,7 @@ def test_abstain_target_has_abstain_indicators(
         )
 
 
-def test_canonical_v1_composition_includes_all_four_contexts(
+def test_v1_composition_includes_all_four_contexts(
     scenarios: list[dict],
 ) -> None:
     counts: dict[str, int] = {}
@@ -249,12 +250,12 @@ def test_canonical_v1_composition_includes_all_four_contexts(
         counts[entry["target_context"]] = counts.get(entry["target_context"], 0) + 1
     for context in ALLOWED_TARGET_CONTEXTS:
         assert counts.get(context, 0) > 0, (
-            f"expected canonical bank to include {context!r} scenarios, got {counts}"
+            f"expected scenario bank to include {context!r} scenarios, got {counts}"
         )
 
 
 def test_no_removed_v1_fields_present(scenarios: list[dict]) -> None:
-    """v2 removed several v1 fields. They must not reappear."""
+    """The rebuild removed several earlier-design fields. They must not reappear."""
     removed_fields = {
         "surface",
         "authoring_basis",
@@ -268,5 +269,5 @@ def test_no_removed_v1_fields_present(scenarios: list[dict]) -> None:
         sid = entry["scenario_id"]
         present = removed_fields & entry.keys()
         assert not present, (
-            f"{sid}: removed v1 fields reappeared: {sorted(present)}"
+            f"{sid}: removed earlier-design fields reappeared: {sorted(present)}"
         )

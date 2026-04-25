@@ -157,7 +157,7 @@ Use this benchmark when:
   multimodal assistant product
 - You need to verify that a new model release has not regressed on
   context tracking
-- You want comparable numbers across models on a frozen scenario set
+- You want comparable numbers across models on the same scenario set
 
 Run separate evaluation for:
 
@@ -185,7 +185,7 @@ in the evaluation pipeline that fits your product.
   disambiguate.
 - `abstain` — judge label for responses that decline or claim the
   model cannot answer.
-- `prompt conditions` — the three prompt setups used in v2:
+- `prompt conditions` — the three prompt setups used:
   `baseline`, `condition_a`, `condition_b`.
 - `default comparison condition` — the condition used for the headline
   number. Always `baseline`.

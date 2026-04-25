@@ -89,7 +89,7 @@ def test_check_6_duplication_passes(scenarios) -> None:
 
 def test_validator_main_returns_zero(monkeypatch, capsys) -> None:
     """Smoke-test the CLI entry point: `main()` must exit 0 against the
-    canonical bank and print a success line."""
+    scenario bank and print a success line."""
     monkeypatch.setattr(sys, "argv", ["validate_scenarios.py"])
     # validate_scenarios.SCENARIOS_PATH and ANSWERS_PATH are module-level
     # constants relative to the repo root; the script is run from the repo

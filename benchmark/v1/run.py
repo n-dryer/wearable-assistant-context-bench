@@ -1,8 +1,7 @@
-"""Runner for the canonical v1 Wearable Assistant Context Benchmark.
+"""Runner for the Wearable Assistant Context Benchmark v1.
 
-This runner implements the benchmark task over the canonical v1
-scenario set, with a configurable trial count per cell, as a 2-turn
-conversation.
+This runner implements the benchmark task over the v1 scenario set,
+with a configurable trial count per cell, as a 2-turn conversation.
 On Turn 2 failure it fires a templated Turn 3 "I mean, ..." repair
 anchor and labels the Turn 3 response. Per-trial transcripts are
 written as JSONL. Findings are rendered via `core.report`, including
@@ -66,12 +65,12 @@ CONFIG: dict[str, Any] = {
 
 @dataclass
 class Scenario:
-    """One v2 scenario.
+    """One scenario.
 
     JSON schema (scenarios.json is a list of these):
         scenario_id: str
         target_context: str   # current | prior | clarify | abstain
-        cue_type: str         # one of the 8 v2 cue_type values
+        cue_type: str         # one of the 8 cue_type values
         activity_domain: str
         cognitive_load: str
         difficulty_tier: str  # easy | medium | hard
@@ -232,7 +231,7 @@ def _build_manifest(
 
     manifest: dict[str, Any] = {
         "benchmark_version": BENCHMARK_VERSION,
-        "schema_version": "v2",
+        "schema_revision": 2,
         "camera_injection": True,
         "scenarios_sha256": _sha_or_warn(SCENARIOS_PATH, "scenarios_sha256"),
         "expected_answers_sha256": _sha_or_warn(

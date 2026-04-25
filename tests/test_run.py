@@ -2,7 +2,7 @@
 
 Stubs the candidate adapter and judge so the loop runs without
 network. Confirms per-trial result shape, JSONL transcript output,
-CLI flag parsing, --output-dir routing for findings, the v2
+CLI flag parsing, --output-dir routing for findings, the
 [Camera:] injection format, and judge ground-truth-context wiring.
 """
 
@@ -200,8 +200,8 @@ def test_config_overrides_from_args_full() -> None:
     }
 
 
-def test_manifest_records_v2_schema_fields(tmp_path: Path) -> None:
-    """The reproducibility manifest must record schema_version=v2 and
+def test_manifest_records_schema_fields(tmp_path: Path) -> None:
+    """The reproducibility manifest must record schema_revision=2 and
     camera_injection=true for every run."""
     adapter = _StubAdapter()
     judge = _StubJudge()
@@ -218,5 +218,5 @@ def test_manifest_records_v2_schema_fields(tmp_path: Path) -> None:
     match = _re.search(r"```json\n(.*?)\n```", findings_body, _re.DOTALL)
     assert match is not None, "manifest JSON block missing from findings.md"
     payload = json.loads(match.group(1))
-    assert payload["schema_version"] == "v2"
+    assert payload["schema_revision"] == 2
     assert payload["camera_injection"] is True

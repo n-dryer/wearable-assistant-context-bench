@@ -1,9 +1,10 @@
 """Repo text checks for public terminology and archival boundaries.
 
-The v2 docs rewrite lands in Step 6 of the rebuild. Tests here that rely
-on Step 6 wording are marked with `pytest.skip("v2 docs land in step 6
-commit; will pass after")` so the suite stays green between steps. Each
-skipped test must be re-enabled (skip removed) once Step 6 commits.
+The docs rewrite lands in Step 6 of the rebuild. Tests here that rely
+on Step 6 wording are marked with `pytest.skip("docs framing rewrite
+lands in step 6 commit; will pass after")` so the suite stays green
+between steps. Each skipped test must be re-enabled (skip removed)
+once Step 6 commits.
 
 Re-enable: when Step 6 lands, remove the `pytest.skip(...)` lines
 flagged with `# STEP-6 SKIP` below.
@@ -34,9 +35,9 @@ def _read(path: str) -> str:
 
 
 def test_public_docs_avoid_legacy_reference_state_language() -> None:
-    """Legacy v1-design terms must not appear in public docs.
+    """Legacy pre-rebuild design terms must not appear in public docs.
 
-    These terms predate the v2 rebuild and have no place in the new
+    These terms predate the rebuild and have no place in the new
     framing. The check is timeless: even after Step 6 lands, these
     forbidden terms stay forbidden.
     """
@@ -59,16 +60,16 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
             assert term not in lowered, f"{path} still contains {term!r}"
 
 
-def test_public_docs_use_canonical_v1_framing() -> None:
-    """Until Step 6 rewrites docs to v2 framing, this test is parked.
+def test_public_docs_use_v1_framing() -> None:
+    """Until Step 6 rewrites docs to the new framing, this test is parked.
 
-    The canonical v1 phrase `cross-turn reference resolution under
-    context change` is on its way out. Step 6 replaces it with v2 wording
-    (context tracking under in-stream shifts). Re-enable this test, with
-    its required-phrase set updated, after Step 6 commits.
+    The earlier phrase `cross-turn reference resolution under context
+    change` is on its way out. Step 6 replaces it with the new wording
+    (context tracking under in-stream shifts). Re-enable this test,
+    with its required-phrase set updated, after Step 6 commits.
     """
     pytest.skip(
-        "v2 docs land in step 6 commit; will pass after"
+        "docs framing rewrite lands in step 6 commit; will pass after"
     )  # STEP-6 SKIP
 
 
@@ -77,14 +78,14 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
     enforces is in flux. Skip and re-enable after Step 6.
     """
     pytest.skip(
-        "v2 docs land in step 6 commit; will pass after"
+        "docs framing rewrite lands in step 6 commit; will pass after"
     )  # STEP-6 SKIP
 
 
-def test_public_docs_do_not_present_benchmark_v2_as_active_surface() -> None:
+def test_public_docs_do_not_present_alternate_path_as_active_surface() -> None:
     """The repo's directory layout keeps `benchmark/v1/` as the active
-    track even though the schema is v2. Public docs must not advertise
-    `benchmark/v2/` as an active path.
+    track. Public docs must not advertise `benchmark/v2/` as an active
+    path.
     """
     for path in PUBLIC_PATHS:
         lowered = _read(path).lower()

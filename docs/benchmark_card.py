@@ -1,4 +1,4 @@
-"""Render the Wearable Assistant Context Benchmark v2 card.
+"""Render the Wearable Assistant Context Benchmark v1 card.
 
 The card content is defined in a single Python data structure below.
 This script rebuilds ``docs/benchmark_card.html`` from that data and
@@ -23,7 +23,7 @@ from textwrap import dedent
 # Card content
 # ---------------------------------------------------------------------------
 
-KICKER = "v2 &middot; frozen scenario bank"
+KICKER = "v1 &middot; scenario bank"
 
 TITLE = "Wearable Assistant Context Benchmark"
 
@@ -47,7 +47,7 @@ PRODUCT_PROBLEM_PARAGRAPHS = [
         "at, holding, or referring to after they move, switch objects, "
         "or otherwise change context."
     ),
-    "Canonical examples:",
+    "Examples:",
 ]
 
 PRODUCT_PROBLEM_BULLETS = [
@@ -63,11 +63,11 @@ PRODUCT_PROBLEM_BULLETS = [
     ),
 ]
 
-WHAT_V2_MEASURES_PARAGRAPH = (
-    "v2 measures context tracking. Each scenario is a 3-turn "
-    "conversation with a deliberate context shift between Turn 1 and "
-    "Turn 2. The shift is visible only in the camera channel; the "
-    "user does not announce it."
+WHAT_MEASURED_PARAGRAPH = (
+    "This benchmark measures context tracking. Each scenario is a "
+    "3-turn conversation with a deliberate context shift between "
+    "Turn 1 and Turn 2. The shift is visible only in the camera "
+    "channel; the user does not announce it."
 )
 
 PRIMARY_SCORE_METRIC = {
@@ -209,9 +209,9 @@ REPO_LINKS = [
 RESULTS_METRIC = {
     "title": "Baseline run pending",
     "body": (
-        "The canonical baseline run will land under "
-        "<code>benchmark/v1/runs/v2-baseline/</code> after Step 7 "
-        "of the v2 rebuild completes. The README results section "
+        "The baseline run will land under "
+        "<code>benchmark/v1/runs/baseline/</code> after Step 7 "
+        "of the rebuild completes. The README results section "
         "will be updated with actual figures at the same time."
     ),
 }
@@ -517,8 +517,8 @@ def render_html() -> str:
         </section>
 
         <section class="section">
-          <h2>What v2 measures</h2>
-          <p>{WHAT_V2_MEASURES_PARAGRAPH}</p>
+          <h2>What this benchmark measures</h2>
+          <p>{WHAT_MEASURED_PARAGRAPH}</p>
 {_metric(PRIMARY_SCORE_METRIC)}
 {_metric(AUXILIARY_METRIC)}
         </section>
@@ -543,7 +543,7 @@ def render_html() -> str:
         </section>
 
         <section class="section">
-          <h2>What v2 does NOT measure</h2>
+          <h2>What this benchmark does NOT measure</h2>
 {_bullets(NOT_MEASURED_BULLETS)}
         </section>
 

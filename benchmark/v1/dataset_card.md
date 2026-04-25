@@ -1,4 +1,4 @@
-# Dataset Card: Wearable Assistant Context Benchmark v2
+# Dataset Card: Wearable Assistant Context Benchmark v1
 
 ## Dataset description
 
@@ -90,7 +90,7 @@ measure domain expertise.
 
 ## Data creation
 
-The 50 scenarios were written from scratch in Step 3 of the v2
+The 50 scenarios were written from scratch in Step 3 of the
 rebuild, following the authoring rules in
 [`docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
 Eight category-specific generation passes produced the bank in

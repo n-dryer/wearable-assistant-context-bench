@@ -1,5 +1,5 @@
 """
-Validate the scenario bank against the v2 authoring rules.
+Validate the scenario bank against the authoring rules.
 
 Runs four programmatic checks (Checks 1, 2, 3, 6 from the rebuild plan).
 The semantic checks (Check 4: human identification, Check 5: semantic leakage)
@@ -177,18 +177,18 @@ def check_3_schema_validation(scenarios, answers):
                 "check": "schema",
                 "detail": "pre_conversation_recall scenarios must have context_image populated",
             })
-        # turn_1_image and turn_2_image must be populated for v2
+        # turn_1_image and turn_2_image must be populated
         if not sc.get("turn_1_image"):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
-                "detail": "turn_1_image must be non-null in v2",
+                "detail": "turn_1_image must be non-null",
             })
         if not sc.get("turn_2_image"):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
-                "detail": "turn_2_image must be non-null in v2",
+                "detail": "turn_2_image must be non-null",
             })
         # Answers entry must exist
         ea = answers.get(sid)

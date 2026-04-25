@@ -1,4 +1,4 @@
-"""Tests for the v2 [Camera:] injection format used by the runner.
+"""Tests for the [Camera:] injection format used by the runner.
 
 These tests exercise the message-construction helpers in benchmark.v1.run
 directly. They confirm:

@@ -213,7 +213,7 @@ a {
   <div class="page">
     <article class="card">
       <section class="hero">
-        <div class="kicker">v2 &middot; frozen scenario bank</div>
+        <div class="kicker">v1 &middot; scenario bank</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
           A model-selection benchmark for whether a multimodal assistant updates to <strong>current context</strong> instead of staying anchored to <strong>prior context</strong> after the user's situation changes between turns.
@@ -230,7 +230,7 @@ a {
         <section class="section left">
           <h2>Product problem</h2>
           <p>Users should not have to keep restating what they are looking at, holding, or referring to after they move, switch objects, or otherwise change context.</p>
-          <p>Canonical examples:</p>
+          <p>Examples:</p>
           <ul>
             <li>Bedroom to kitchen. The user asks about a wall, walks into the kitchen, and asks about it again. The assistant should answer about the kitchen wall, not the bedroom wall.</li>
             <li>Hammer to screwdriver. The user asks about a hammer, swaps to a screwdriver, then asks "how do I use this?" The assistant should answer about the screwdriver.</li>
@@ -238,8 +238,8 @@ a {
         </section>
 
         <section class="section">
-          <h2>What v2 measures</h2>
-          <p>v2 measures context tracking. Each scenario is a 3-turn conversation with a deliberate context shift between Turn 1 and Turn 2. The shift is visible only in the camera channel; the user does not announce it.</p>
+          <h2>What this benchmark measures</h2>
+          <p>This benchmark measures context tracking. Each scenario is a 3-turn conversation with a deliberate context shift between Turn 1 and Turn 2. The shift is visible only in the camera channel; the user does not announce it.</p>
           <div class="metric">
             <strong>Primary score</strong>
             Balanced Turn 2 accuracy across the <code>current</code> and <code>prior</code> classes under the <code>baseline</code> prompt condition.
@@ -289,7 +289,7 @@ a {
         </section>
 
         <section class="section">
-          <h2>What v2 does NOT measure</h2>
+          <h2>What this benchmark does NOT measure</h2>
           <ul>
             <li><strong>Advice quality.</strong> The judge does not check whether the response is correct, safe, or domain-appropriate. A confidently wrong answer can pass if it picks the right context.</li>
             <li><strong>Multi-turn dynamics.</strong> The conversation is 3 turns. Long conversations and branching dialogue are out of scope.</li>
@@ -315,7 +315,7 @@ a {
           <h2>Results</h2>
           <div class="metric">
             <strong>Baseline run pending</strong>
-            The canonical baseline run will land under <code>benchmark/v1/runs/v2-baseline/</code> after Step 7 of the v2 rebuild completes. The README results section will be updated with actual figures at the same time.
+            The baseline run will land under <code>benchmark/v1/runs/baseline/</code> after Step 7 of the rebuild completes. The README results section will be updated with actual figures at the same time.
           </div>
         </section>
       </div>

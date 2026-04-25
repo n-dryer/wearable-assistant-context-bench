@@ -178,7 +178,7 @@ def test_judge_label_round_trips_through_stub_adapter() -> None:
     assert "ABSTAIN INDICATORS" in payload
 
 
-def test_build_judge_defaults_to_family_canonical_model() -> None:
+def test_build_judge_defaults_to_family_default_model() -> None:
     judge = build_judge(family="claude", adapter=_StubAdapter("x"))
     assert judge.model_id == JUDGE_MODEL_ID_CLAUDE
     judge = build_judge(family="gemini", adapter=_StubAdapter("x"))

@@ -185,8 +185,8 @@ Each run emits a manifest recorded in the findings output. The
 manifest fields include:
 
 - `benchmark_version` — the runner code version (`v1`)
-- `schema_version` — the scenario schema version (`v2`)
-- `camera_injection` — boolean; always `true` in v2
+- `schema_revision` — internal scenario data-format counter (integer)
+- `camera_injection` — boolean; always `true`
 - `scenarios_sha256` — hash of `benchmark/v1/scenarios.json`
 - `expected_answers_sha256` — hash of
   `benchmark/v1/expected_answers.json`
