@@ -12,8 +12,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-# `CHANGELOG.md` was removed in Step 1 of the rebuild. The remaining public
-# surface for terminology checks:
+# Public surface checked by these terminology tests:
 PUBLIC_PATHS = (
     "README.md",
     "docs/benchmark_spec.md",

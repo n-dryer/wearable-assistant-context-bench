@@ -153,7 +153,7 @@ Condition sensitivity (balanced Turn 2 accuracy):
   "scenarios_sha256": "f7d2f97501f77b82b342156c6e6ee0b2330d73a1fe0850dd9b7848d86cf413d9",
   "expected_answers_sha256": "d08c03bd0b3a82cca98a7c9ba5cd4d03062bdb2de1ac4dee79c06e356fb93cc9",
   "interventions_sha256": "374ca5837b4ca75cfa2f6b2fd65769c23ccefcf04697b29af19e109a7f6bebe9",
-  "judge_prompt_version": "v1.1.0",
+  "judge_prompt_version": "v1.0.0",
   "candidate_model": "openrouter/google/gemini-2.5-flash-lite",
   "judge_model": "openrouter/google/gemini-2.5-flash-lite",
   "judge_family": "gemini",

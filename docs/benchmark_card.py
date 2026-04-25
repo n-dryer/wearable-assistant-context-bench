@@ -207,12 +207,17 @@ REPO_LINKS = [
 ]
 
 RESULTS_METRIC = {
-    "title": "Baseline run pending",
+    "title": "Baseline: 98.5%",
     "body": (
-        "The baseline run will land under "
-        "<code>benchmark/v1/runs/baseline/</code> after Step 7 "
-        "of the rebuild completes. The README results section "
-        "will be updated with actual figures at the same time."
+        "Primary score (balanced Turn 2 accuracy under "
+        "<code>baseline</code>): <strong>98.5%</strong>. "
+        "<code>current</code>: 97.0% (64/66). "
+        "<code>prior</code>: 100.0% (24/24). "
+        "Candidate and judge: <code>gemini-2.5-flash-lite</code> via "
+        "OpenRouter. Two trials per (scenario, condition) cell. "
+        "Condition sensitivity: baseline 98.5%, condition_a 90.2%, "
+        "condition_b 100.0%. Full transcripts and findings under "
+        "<code>benchmark/v1/runs/baseline/</code>."
     ),
 }
 

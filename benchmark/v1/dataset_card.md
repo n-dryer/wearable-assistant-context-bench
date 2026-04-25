@@ -26,8 +26,8 @@ English.
 ## Intended use
 
 Model selection for multimodal wearable assistants. Specifically,
-comparing candidate models on cross-turn context tracking under
-situational change.
+comparing candidate models on context tracking under situational
+change between turns.
 
 ## Data fields
 
@@ -90,11 +90,10 @@ measure domain expertise.
 
 ## Data creation
 
-The 50 scenarios were written from scratch in Step 3 of the
-rebuild, following the authoring rules in
+The 50 scenarios were authored from scratch following the rules in
 [`docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
-Eight category-specific generation passes produced the bank in
-parallel, and a validation pass applied the six checks below.
+Each scenario was written within one of the eight cue-type categories
+and validated against the six checks below before inclusion.
 
 The audio channel (user speech) uses natural deictic language without
 naming objects, describing visible properties, or announcing context
