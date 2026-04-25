@@ -13,11 +13,13 @@ dist/
 .vscode/
 .idea/
 benchmark/v1/runs/*
-!benchmark/v1/runs/v1-baseline/
-!benchmark/v1/runs/v1.0.0-gemini-v3/
+!benchmark/v1/runs/v2-baseline/
 EXECUTION_PLAN.md
+REBUILD_PLAN.md
 AGENTS.md
 CLAUDE.md
+output/
+results/
 
 # Claude Code / sibling worktrees (local-only)
 .claude/
