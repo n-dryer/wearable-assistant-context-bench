@@ -75,6 +75,10 @@ def _gemini_types() -> Any:
 class GeminiAdapter:
     """Thin wrapper around `google.genai` for candidate queries."""
 
+    # Per-call timeout in seconds. Prevents indefinite API hangs under
+    # rate-limiting or transient Gemini server stalls.
+    _REQUEST_TIMEOUT_SECONDS = 90
+
     def __init__(
         self,
         client: Any | None = None,
@@ -89,9 +93,15 @@ class GeminiAdapter:
     def client(self) -> Any:
         if self._client is None:
             from google import genai
+            from google.genai import types as gtypes
 
             api_key = _resolve_api_key()
-            self._client = genai.Client(api_key=api_key) if api_key else genai.Client()
+            http_opts = gtypes.HttpOptions(timeout=self._REQUEST_TIMEOUT_SECONDS)
+            self._client = (
+                genai.Client(api_key=api_key, http_options=http_opts)
+                if api_key
+                else genai.Client(http_options=http_opts)
+            )
         return self._client
 
     def _cache_key(
@@ -174,9 +184,6 @@ class GeminiAdapter:
             model=config.model_id,
             contents=contents,
             config=gen_config,
-            # 90-second hard timeout; prevents indefinite hangs on Gemini API
-            # stalls that can occur under rate-limiting or transient server issues.
-            http_options={"timeout": 90},
         )
 
         text = _extract_text(response)
