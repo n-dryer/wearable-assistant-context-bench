@@ -1,0 +1,1342 @@
+{
+  "sc-01": {
+    "current_answers": [
+      "chef's knife",
+      "knife",
+      "pinch grip",
+      "claw the onion",
+      "knuckles tucked",
+      "rocking motion",
+      "blade flat",
+      "sharpened edge",
+      "tucked fingers"
+    ],
+    "prior_answers": [
+      "wooden spoon",
+      "spoon",
+      "stir gently",
+      "scrape the bottom",
+      "fold the sauce",
+      "bowl-shaped head",
+      "simmering"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-02": {
+    "current_answers": [
+      "soldering iron",
+      "iron",
+      "tin the tip",
+      "around 350 C",
+      "wedge tip",
+      "glowing tip",
+      "feed solder",
+      "tinned tip"
+    ],
+    "prior_answers": [
+      "multimeter",
+      "probe",
+      "test lead",
+      "continuity check",
+      "measure voltage",
+      "touch the lead",
+      "sharp tip on the leg"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-03": {
+    "current_answers": [
+      "pruning shears",
+      "secateurs",
+      "bypass pruners",
+      "cut at a node",
+      "angled cut",
+      "above the bud",
+      "outward-facing bud",
+      "clean cut",
+      "blades open"
+    ],
+    "prior_answers": [
+      "trowel",
+      "scoop blade",
+      "dig a hole",
+      "loosen the soil",
+      "plant depth",
+      "root ball",
+      "buried blade"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-04": {
+    "current_answers": [
+      "palette knife",
+      "painting knife",
+      "spread the paint",
+      "scrape",
+      "drag the edge",
+      "impasto",
+      "thick dollop",
+      "flat blade"
+    ],
+    "prior_answers": [
+      "brush",
+      "paintbrush",
+      "round brush",
+      "load the bristles",
+      "light pressure",
+      "soft pressure",
+      "let the tip glide",
+      "thinned wash",
+      "damp bristles"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-05": {
+    "current_answers": [
+      "spirit level",
+      "bubble level",
+      "level",
+      "plumb",
+      "bubble between the lines",
+      "centered bubble",
+      "off plumb",
+      "vial reading",
+      "out of level"
+    ],
+    "prior_answers": [
+      "tape measure",
+      "measuring tape",
+      "hook the end",
+      "pull taut",
+      "read the mark",
+      "extended ribbon",
+      "metal blade extended"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-06": {
+    "current_answers": [
+      "rolling pin",
+      "pin",
+      "even pressure",
+      "roll from the center outward",
+      "quarter turn",
+      "light pressure",
+      "smooth cylinder",
+      "floured surface"
+    ],
+    "prior_answers": [
+      "whisk",
+      "wire whisk",
+      "balloon whisk",
+      "soft peaks",
+      "stiff peaks",
+      "whip",
+      "fold air in",
+      "looped wires",
+      "foamy"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-07": {
+    "current_answers": [
+      "jump rope",
+      "skipping rope",
+      "rope",
+      "land on the balls of the feet",
+      "wrist rotation",
+      "bounce step",
+      "120 turns per minute",
+      "small jump",
+      "swinging cord"
+    ],
+    "prior_answers": [
+      "racket",
+      "tennis racket",
+      "follow-through",
+      "swing path",
+      "topspin",
+      "strung frame",
+      "contact point",
+      "racket face"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-08": {
+    "current_answers": [
+      "torque wrench",
+      "click-type wrench",
+      "spec torque",
+      "around 100 ft-lbs",
+      "star pattern",
+      "criss-cross pattern",
+      "wait for the click",
+      "set the value",
+      "knurled ring",
+      "lug nut"
+    ],
+    "prior_answers": [
+      "tire pressure gauge",
+      "gauge",
+      "pencil gauge",
+      "psi reading",
+      "press onto the valve stem",
+      "extended stick",
+      "pop-out scale",
+      "valve stem"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-09": {
+    "current_answers": [],
+    "prior_answers": [
+      "pick",
+      "plectrum",
+      "guitar pick",
+      "downstroke",
+      "strum angle",
+      "edge of the pick",
+      "tortoiseshell",
+      "string contact"
+    ],
+    "clarify_indicators": [
+      "which one",
+      "do you mean",
+      "can you clarify",
+      "could you show",
+      "hard to tell",
+      "can you open your hand",
+      "what are you holding",
+      "rotate it",
+      "show me the object",
+      "not sure what you're holding"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-10": {
+    "current_answers": [
+      "mop",
+      "string mop",
+      "wet mop",
+      "wring out",
+      "damp not soaking",
+      "figure-eight motion",
+      "wrung",
+      "twisted strands",
+      "soapy pad"
+    ],
+    "prior_answers": [
+      "broom",
+      "sweep",
+      "short strokes",
+      "push the pile",
+      "corner first",
+      "bristled head",
+      "dust pile"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-11": {
+    "current_answers": [
+      "kneaded eraser",
+      "eraser",
+      "putty eraser",
+      "dab the marks",
+      "press and lift",
+      "shape it to a point",
+      "lift graphite",
+      "no rubbing",
+      "soft gray lump"
+    ],
+    "prior_answers": [
+      "pencil",
+      "graphite pencil",
+      "light pressure",
+      "construction lines",
+      "sharpened tip",
+      "vanishing point",
+      "hexagonal shaft"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-12": {
+    "current_answers": [
+      "spray bottle",
+      "mister",
+      "fine mist",
+      "cone spray",
+      "even coverage",
+      "underside of the leaves",
+      "trigger spray",
+      "fine cone"
+    ],
+    "prior_answers": [
+      "watering can",
+      "can",
+      "soak the soil",
+      "water at the base",
+      "deep watering",
+      "until it drains",
+      "perforated rose",
+      "wide shower",
+      "rose head"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-13": {
+    "current_answers": [
+      "pot",
+      "boiling",
+      "rolling boil",
+      "drop them in",
+      "add the pasta",
+      "go ahead",
+      "ready to cook",
+      "fully boiling",
+      "vigorous boil"
+    ],
+    "prior_answers": [
+      "kettle",
+      "heating up",
+      "not boiling yet",
+      "still warming",
+      "barely steaming",
+      "early stage",
+      "give it more time",
+      "below boiling"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-14": {
+    "current_answers": [
+      "seedlings",
+      "sprouts",
+      "cotyledons",
+      "leggy",
+      "lower the light",
+      "bring the lamp closer",
+      "stretching toward",
+      "thin pale stems",
+      "two seed leaves",
+      "germinated"
+    ],
+    "prior_answers": [
+      "seeds",
+      "freshly sown",
+      "haven't sprouted",
+      "wait for germination",
+      "still buried",
+      "untouched soil",
+      "before emergence",
+      "no growth yet"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-15": {
+    "current_answers": [
+      "paint",
+      "dry",
+      "tack-free",
+      "recoat",
+      "second coat",
+      "lightly sand",
+      "ready for another coat",
+      "cured enough",
+      "matte and set"
+    ],
+    "prior_answers": [
+      "wet paint",
+      "still wet",
+      "let it dry",
+      "leveling out",
+      "wait",
+      "drips",
+      "glossy and soft",
+      "not ready"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-16": {
+    "current_answers": [
+      "smooth",
+      "fine grit",
+      "220",
+      "180",
+      "finish sanding",
+      "ready for stain",
+      "polished surface",
+      "light final pass",
+      "tack cloth"
+    ],
+    "prior_answers": [
+      "board",
+      "lumber",
+      "rough",
+      "coarse grit",
+      "60",
+      "80",
+      "saw marks",
+      "splinters",
+      "knock down the rough",
+      "heavy stock removal",
+      "raw cut surface"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-17": {
+    "current_answers": [
+      "candle",
+      "lit",
+      "burning",
+      "full melt pool",
+      "let it keep burning",
+      "safe to leave a bit longer",
+      "even burn established",
+      "flame is steady",
+      "do not blow out yet"
+    ],
+    "prior_answers": [
+      "wick",
+      "trim the wick",
+      "before lighting",
+      "quarter inch",
+      "unlit",
+      "fresh wick",
+      "trim before you light",
+      "new candle"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-18": {
+    "current_answers": [
+      "tire",
+      "flat",
+      "low",
+      "underinflated",
+      "leak",
+      "do not drive on it",
+      "pull the valve core",
+      "spare",
+      "patch",
+      "plug",
+      "call roadside",
+      "bulging sidewall"
+    ],
+    "prior_answers": [
+      "psi",
+      "recommended pressure",
+      "door placard",
+      "32 psi",
+      "35 psi",
+      "properly inflated",
+      "check the placard",
+      "manufacturer spec",
+      "fully seated"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-19": {
+    "current_answers": [
+      "doubled",
+      "fully proofed",
+      "ready to shape",
+      "punch down",
+      "second proof",
+      "well risen",
+      "domed top",
+      "poke test springs back halfway"
+    ],
+    "prior_answers": [
+      "dough",
+      "ball",
+      "before rising",
+      "third of the bowl",
+      "half the volume",
+      "starting size",
+      "after the first knead",
+      "initial mass",
+      "pre-proof volume",
+      "tight smooth ball"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-20": {
+    "current_answers": [
+      "leather hard",
+      "ready to trim",
+      "trim the foot",
+      "matte surface",
+      "holds a fingerprint",
+      "stiffened up",
+      "good for trimming",
+      "no longer plastic",
+      "carve detail"
+    ],
+    "prior_answers": [
+      "clay",
+      "centered",
+      "wet clay",
+      "pull the walls",
+      "open it up",
+      "throw the form",
+      "plastic stage",
+      "still wet",
+      "soft and workable",
+      "wedged ball"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-21": {
+    "current_answers": [
+      "stain",
+      "staining",
+      "finish",
+      "brush",
+      "applicator",
+      "wipe with the grain",
+      "long even strokes",
+      "wet edge",
+      "soak in",
+      "wet streak",
+      "darkening grain",
+      "absorbed",
+      "saturated"
+    ],
+    "prior_answers": [
+      "sanding",
+      "sandpaper",
+      "sanding block",
+      "back and forth",
+      "even pressure",
+      "with the grain",
+      "smoothed surface",
+      "fine dust",
+      "scratch pattern"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-22": {
+    "current_answers": [
+      "sauté",
+      "sautéing",
+      "frying",
+      "skillet",
+      "pan",
+      "stir",
+      "stirring",
+      "medium heat",
+      "translucent",
+      "golden",
+      "softening",
+      "caramelize",
+      "even browning",
+      "keep them moving",
+      "spread in a single layer"
+    ],
+    "prior_answers": [
+      "dicing",
+      "slicing",
+      "chopping",
+      "knife",
+      "chef's knife",
+      "claw grip",
+      "even slices",
+      "uniform pieces",
+      "rocking motion",
+      "consistent thickness"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-23": {
+    "current_answers": [
+      "seedling",
+      "transplant",
+      "plant",
+      "root ball",
+      "set the crown level",
+      "loosen the roots",
+      "center it",
+      "soil line",
+      "backfill",
+      "root flare",
+      "tease apart roots",
+      "settle into the hole"
+    ],
+    "prior_answers": [
+      "digging",
+      "shovel",
+      "spade",
+      "step on the blade",
+      "lever the dirt",
+      "hole depth",
+      "loosened soil",
+      "twice as wide",
+      "pile beside"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-24": {
+    "current_answers": [
+      "inking",
+      "ink",
+      "dip pen",
+      "nib",
+      "line weight",
+      "follow the guideline",
+      "steady stroke",
+      "let it dry",
+      "wet ink",
+      "glossy line",
+      "trace over"
+    ],
+    "prior_answers": [
+      "sketch",
+      "sketching",
+      "pencil",
+      "graphite",
+      "proportions",
+      "facial proportions",
+      "rule of thirds",
+      "loose construction lines",
+      "guidelines",
+      "feathery strokes",
+      "light underdrawing",
+      "blocked-in features"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-25": {
+    "current_answers": [
+      "jack",
+      "floor jack",
+      "jacking point",
+      "frame rail",
+      "pinch weld",
+      "lift point",
+      "raise the vehicle",
+      "stable contact",
+      "pump the handle",
+      "off the ground",
+      "jack stand"
+    ],
+    "prior_answers": [
+      "lug nuts",
+      "lug wrench",
+      "breaker bar",
+      "loosen",
+      "break loose",
+      "counterclockwise",
+      "lefty loosey",
+      "torque",
+      "crack them loose",
+      "wheel on the ground"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-26": {
+    "current_answers": [
+      "squat",
+      "back squat",
+      "barbell",
+      "loaded bar",
+      "knees track over toes",
+      "hips back",
+      "neutral spine",
+      "brace your core",
+      "drive through the heels",
+      "depth",
+      "parallel",
+      "hip crease below the knee"
+    ],
+    "prior_answers": [
+      "stretch",
+      "stretching",
+      "hamstring stretch",
+      "seated forward fold",
+      "warm-up",
+      "warmup",
+      "hold for thirty seconds",
+      "static stretch",
+      "reach toward the toes",
+      "hinge from the hips"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-27": {
+    "current_answers": [
+      "bathroom",
+      "vent the steam",
+      "run the fan",
+      "let the moisture out",
+      "humid",
+      "after a shower",
+      "exhaust fan",
+      "tiled space",
+      "mirror is fogged"
+    ],
+    "prior_answers": [
+      "bedroom",
+      "air the sheets",
+      "let in fresh air for sleeping",
+      "before bed",
+      "stuffy bedding",
+      "carpeted room",
+      "draw the curtains back"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-28": {
+    "current_answers": [
+      "garage",
+      "workshop",
+      "indoor work",
+      "tinkering on the car",
+      "bench work",
+      "fine to work anytime",
+      "vise work",
+      "pegboard tools",
+      "concrete floor"
+    ],
+    "prior_answers": [
+      "garden",
+      "raised beds",
+      "midday sun is harsh",
+      "watering plants",
+      "weeding",
+      "hose work",
+      "soil is dry",
+      "leafy rows"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-29": {
+    "current_answers": [
+      "dining room",
+      "long table",
+      "place settings",
+      "set the table",
+      "lay out plates",
+      "stemmed glasses on the right",
+      "centerpiece in the middle",
+      "head of the table",
+      "linen runner"
+    ],
+    "prior_answers": [
+      "kitchen",
+      "cooking station",
+      "next to the cutting board",
+      "near the cooktop",
+      "mise en place",
+      "prep station",
+      "spice jars within reach",
+      "knife work area"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-30": {
+    "current_answers": [
+      "service bay",
+      "under the lift",
+      "drop light",
+      "trouble light",
+      "underside inspection",
+      "shadow under the chassis",
+      "raised vehicle",
+      "high-bay lamp",
+      "look underneath"
+    ],
+    "prior_answers": [
+      "store aisle",
+      "shelves",
+      "reading labels",
+      "scanner station",
+      "fluorescent strips",
+      "stock check",
+      "barcode glare",
+      "merchandise floor"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-31": {
+    "current_answers": [
+      "locker room",
+      "changing area",
+      "resting heart rate",
+      "post-workout cooldown",
+      "recovery state",
+      "settling down",
+      "near baseline",
+      "bench seat"
+    ],
+    "prior_answers": [
+      "studio",
+      "barre work",
+      "ballet barre",
+      "elevated during exercise",
+      "training zone",
+      "working heart rate",
+      "active range",
+      "cardio range",
+      "mirrored room",
+      "sprung floor"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-32": {
+    "current_answers": [
+      "raised bed",
+      "garden frame",
+      "ground is uneven",
+      "shim with soil",
+      "tamp the soil",
+      "dig down on the high side",
+      "bed is sitting crooked",
+      "pitched toward one corner"
+    ],
+    "prior_answers": [
+      "workbench",
+      "carpentry frame",
+      "spirit level",
+      "bubble vial",
+      "frame is square",
+      "clamped joint",
+      "shim under one leg",
+      "true to the bench"
+    ],
+    "clarify_indicators": [
+      "which one",
+      "do you mean",
+      "are you asking about",
+      "to clarify",
+      "could you specify",
+      "the frame on the bench or the one in the ground",
+      "indoors or outdoors",
+      "which surface"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-33": {
+    "current_answers": [
+      "banana",
+      "peel back the stem",
+      "give it another day",
+      "freckled yellow",
+      "brown spots",
+      "soft skin",
+      "yellow with spots",
+      "ready to eat now",
+      "use for baking"
+    ],
+    "prior_answers": [
+      "avocado",
+      "press near the stem",
+      "let it sit on the counter",
+      "deep yellow-green",
+      "slight give",
+      "firm flesh",
+      "still firm",
+      "needs another day"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-34": {
+    "current_answers": [
+      "sanding block",
+      "hand sanding",
+      "with the grain",
+      "120 to 220 grit",
+      "fine grit by hand",
+      "felt-backed block",
+      "paper-backed abrasive",
+      "light pressure",
+      "long even strokes"
+    ],
+    "prior_answers": [
+      "random orbital",
+      "orbital sander",
+      "power sander",
+      "circular motion",
+      "80 to 120 grit to start",
+      "let the tool do the work",
+      "spinning disk",
+      "hook and loop pad",
+      "moderate pressure"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-35": {
+    "current_answers": [
+      "dill",
+      "harvest the seed heads",
+      "let the flowers open fully",
+      "feathery leaves",
+      "yellow umbels",
+      "finely divided foliage",
+      "cut at the base for seed",
+      "snip fronds for fresh use",
+      "wait for seeds to brown"
+    ],
+    "prior_answers": [
+      "kale",
+      "cut outer leaves first",
+      "leave the crown intact",
+      "blue-green leaves",
+      "crinkled foliage",
+      "cut and come again",
+      "before a hard frost for sweetness",
+      "harvest from the bottom up",
+      "thick central stem"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-36": {
+    "current_answers": [
+      "washer fluid",
+      "windshield washer reservoir",
+      "fill to the max line",
+      "blue fluid",
+      "translucent tank",
+      "top off when low",
+      "between min and max",
+      "horizontal molded lines"
+    ],
+    "prior_answers": [
+      "dipstick",
+      "engine oil",
+      "between the two marks",
+      "yellow pull ring",
+      "wipe and re-insert",
+      "check on level ground",
+      "engine off and cool",
+      "oil film on the stick"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-37": {
+    "current_answers": [
+      "iced tea",
+      "lemon wedge",
+      "drink whenever",
+      "amber liquid",
+      "condensation on the glass",
+      "already cool",
+      "ready now",
+      "sip as is"
+    ],
+    "prior_answers": [
+      "coffee",
+      "hot drink",
+      "let it cool a few minutes",
+      "steaming dark liquid",
+      "still too hot",
+      "wait three to five minutes",
+      "around 140 degrees to sip",
+      "blow across the surface",
+      "ceramic mug"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-38": {
+    "current_answers": [
+      "empty feeder",
+      "tube feeder",
+      "bird feeder",
+      "refill the seed",
+      "wait it out",
+      "seed husks",
+      "no bird in frame",
+      "perch is empty"
+    ],
+    "prior_answers": [
+      "American goldfinch",
+      "goldfinch",
+      "finch",
+      "breeding male",
+      "loves nyjer seed",
+      "loves thistle seed",
+      "feeds on thistle",
+      "yellow body",
+      "black cap",
+      "white wing bars",
+      "regular summer visitor"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-39": {
+    "current_answers": [],
+    "prior_answers": [
+      "oat milk",
+      "plant milk",
+      "milk carton",
+      "shake before pouring",
+      "smell test",
+      "give it a sniff",
+      "label side facing camera",
+      "date side angled away",
+      "front of carton visible only"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I didn't see the date",
+      "the date side was turned away",
+      "couldn't read the print",
+      "no view of the use-by",
+      "wasn't visible to me",
+      "can't say from what I saw",
+      "no evidence of the date",
+      "the printed side was hidden"
+    ]
+  },
+  "sc-40": {
+    "current_answers": [
+      "stripped screw",
+      "stripped Phillips",
+      "Phillips screw",
+      "screw extractor",
+      "left-handed drill bit",
+      "rubber band trick",
+      "lock the pliers on the head",
+      "penetrating oil first",
+      "bite into the head",
+      "rounded recess",
+      "chewed head",
+      "stripped recess"
+    ],
+    "prior_answers": [
+      "claw hammer",
+      "hammer",
+      "pull the nail",
+      "rocking pull",
+      "claw under the head",
+      "smooth striking face",
+      "flush nail head"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-41": {
+    "current_answers": [],
+    "prior_answers": [
+      "kettlebell swing",
+      "kettlebell",
+      "hip hinge",
+      "drive from the hips",
+      "bell to chest height",
+      "iron sphere with handle",
+      "jump rope",
+      "skipping rope",
+      "wrist rotation",
+      "stay on the balls of your feet",
+      "coiled cord with grips"
+    ],
+    "clarify_indicators": [
+      "which one",
+      "which exercise",
+      "do you mean the swing or the rope",
+      "which of the two",
+      "can you clarify which",
+      "the bell or the rope",
+      "specify which one",
+      "which movement"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-42": {
+    "current_answers": [],
+    "prior_answers": [
+      "knit swatch",
+      "stockinette swatch",
+      "stockinette",
+      "block the swatch",
+      "count stitches per inch",
+      "V-shaped loops",
+      "cream yarn",
+      "edges curling",
+      "no ruler in frame",
+      "uncounted stitches"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "I didn't see it measured",
+      "no ruler was visible",
+      "couldn't count the stitches",
+      "no gauge tool in frame",
+      "can't assess gauge from what I saw",
+      "wasn't measured on camera",
+      "no evidence of stitches per inch",
+      "didn't see a tape measure"
+    ]
+  },
+  "sc-43": {
+    "current_answers": [
+      "email",
+      "subject line",
+      "recipient",
+      "formal",
+      "greeting",
+      "salutation",
+      "sign-off",
+      "paragraph structure",
+      "professional tone",
+      "long-form",
+      "draft body",
+      "reply-all consideration"
+    ],
+    "prior_answers": [
+      "text",
+      "message thread",
+      "chat",
+      "casual tone",
+      "short reply",
+      "emoji",
+      "quick acknowledgment",
+      "blue bubble",
+      "gray bubble",
+      "informal phrasing"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-44": {
+    "current_answers": [
+      "budget",
+      "category",
+      "pie chart",
+      "wedge",
+      "overspend",
+      "remaining",
+      "month-to-date",
+      "percentage",
+      "category breakdown",
+      "spending by category",
+      "over budget",
+      "allocation"
+    ],
+    "prior_answers": [
+      "transaction",
+      "merchant",
+      "charge",
+      "duplicate charge",
+      "unfamiliar charge",
+      "fraud",
+      "outlier",
+      "recurring subscription",
+      "negative amount",
+      "individual line item",
+      "running balance"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-45": {
+    "current_answers": [
+      "spreadsheet",
+      "cells",
+      "data grid",
+      "columns",
+      "formula",
+      "walkthrough",
+      "highlight key cells",
+      "narrate the columns",
+      "freeze the header",
+      "pivot summary",
+      "callout the totals",
+      "shaded bands",
+      "split across views"
+    ],
+    "prior_answers": [
+      "slide",
+      "bullet point",
+      "title",
+      "deck",
+      "slide deck",
+      "presentation",
+      "trim bullets",
+      "one idea per slide",
+      "speaker pacing",
+      "page footer",
+      "thumbnail"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-46": {
+    "current_answers": [
+      "restaurant list",
+      "search results",
+      "star rating",
+      "price tier",
+      "filter",
+      "thumbnail",
+      "distance label",
+      "place card",
+      "nearby places",
+      "results listing"
+    ],
+    "prior_answers": [
+      "map",
+      "route",
+      "ETA",
+      "arrival time",
+      "blue line",
+      "turn arrow",
+      "navigation",
+      "on schedule",
+      "behind schedule",
+      "make it on time",
+      "current pace",
+      "remaining distance",
+      "speed limit"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-47": {
+    "current_answers": [
+      "plate with eggshells",
+      "cracked eggs",
+      "tomato on the cutting board",
+      "yolk on the fork",
+      "ceramic plate",
+      "halved tomato",
+      "currently at the counter"
+    ],
+    "prior_answers": [
+      "sticky note",
+      "handwritten label",
+      "date sticker",
+      "raw meat label",
+      "thaw date",
+      "use-by note",
+      "MM/DD raw",
+      "expiration reminder",
+      "ballpoint date",
+      "leaking package note",
+      "marked with a date"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-48": {
+    "current_answers": [
+      "drill bit selection",
+      "power drill",
+      "pilot hole",
+      "bit diameter",
+      "chuck the bit",
+      "drill case open",
+      "currently at the drill"
+    ],
+    "prior_answers": [
+      "claw hammer",
+      "hammer",
+      "pull nails",
+      "drive a nail",
+      "swing from the elbow",
+      "rubberized grip",
+      "curved claw",
+      "angled head",
+      "missing from the pegboard",
+      "outlined silhouette",
+      "framing hammer"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-49": {
+    "current_answers": [
+      "transplanting a seedling",
+      "pressing soil around the base",
+      "young sprout",
+      "trowel",
+      "seed envelope",
+      "planting",
+      "soil contact"
+    ],
+    "prior_answers": [
+      "caterpillar",
+      "beetle larva",
+      "hornworm",
+      "Colorado potato beetle larva",
+      "garden pest",
+      "yellow and black striped larva",
+      "leaf-chewing insect",
+      "pest on the underside of a leaf",
+      "remove by hand",
+      "pick it off",
+      "leaf damage",
+      "irregular holes in the foliage",
+      "segmented striped body"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-50": {
+    "current_answers": [
+      "dumbbell lateral raise",
+      "lateral raise",
+      "hex dumbbells",
+      "shoulder height",
+      "lead with the elbows",
+      "slight bend in the elbows",
+      "T position",
+      "deltoid raise",
+      "side raise",
+      "thumbs slightly down",
+      "knurled handles",
+      "seated raise"
+    ],
+    "prior_answers": [
+      "barbell back squat",
+      "back squat",
+      "squat depth",
+      "loaded barbell",
+      "knees over toes",
+      "parallel thighs",
+      "bar across the upper back",
+      "empty rack",
+      "before loading the bar",
+      "bare bar on the rack",
+      "dumbbell stand",
+      "rack and stand setup"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  }
+}
