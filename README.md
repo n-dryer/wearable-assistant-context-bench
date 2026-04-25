@@ -199,32 +199,37 @@ On this benchmark, score deltas matter more than absolute values.
 
 ## Results
 
-Canonical v1 ships with a checked-in example run under
-`benchmark/v1/runs/v1-baseline/`.
+The v1.0.0 baseline run is at `benchmark/v1/runs/v1.0.0-gemini-v3/`.
 
-The current sample is a **baseline-only** cross-family run captured on
-the pre-consolidation 121-scenario candidate bank using:
+Run details:
 
-- candidate: `openrouter/anthropic/claude-3.5-haiku`
-- judge: `openrouter/openai/gpt-4.1-mini`
+- candidate: `gemini-2.5-flash-lite`
+- judge: `gemini-2.5-flash-lite` (heuristic prose fallback active)
 - scored condition: `baseline`
 - trials: `1`
+- scenarios: **74 of 101** (sc-89+ stalled on Gemini API SSL timeouts; see findings.md)
 
-That sample run produced:
+Results under `baseline` condition:
 
-- primary score: **80.3%**
-- `current` accuracy: **68.6%**
-- `prior` accuracy: **91.9%**
-- simulated repair rate: **71.4%**
+- **primary score: 61.7%** (mean of current + prior accuracy)
+- `current` accuracy: **50.0%** (21/42)
+- `prior` accuracy: **73.3%** (11/15)
+- `clarify` accuracy: **88.9%** (8/9) — auxiliary, not in primary score
+- `abstain` accuracy: **100.0%** (8/8) — auxiliary, not in primary score
 
-These numbers predate the 2026-04-22 consolidation that produced the
-current 101-scenario bank, so they are indicative rather than
-authoritative. A fresh baseline will be captured against the
-consolidated bank at the next tagged release.
+Condition sensitivity (balanced Turn 2 accuracy):
 
-The manifest in that directory is the source of truth for the exact
-candidate model, judge model, default comparison condition, trial
-count, and git commit used for the sample report.
+| Condition | Score |
+|-----------|-------|
+| `baseline` | 61.7% |
+| `condition_a` | 78.6% |
+| `condition_b` | 78.8% |
+
+Primary score uses only `current` and `prior` categories (macro average).
+`clarify` and `abstain` are diagnostic; they do not enter the headline number.
+
+Full findings and per-scenario transcripts are in
+`benchmark/v1/runs/v1.0.0-gemini-v3/findings.md`.
 
 Future published runs should land under
 `benchmark/v1/runs/<run-label>/`.
