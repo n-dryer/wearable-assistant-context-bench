@@ -13,7 +13,7 @@ dist/
 .vscode/
 .idea/
 benchmark/v1/runs/*
-!benchmark/v1/runs/v2-baseline/
+!benchmark/v1/runs/baseline/
 EXECUTION_PLAN.md
 REBUILD_PLAN.md
 AGENTS.md

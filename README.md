@@ -192,9 +192,47 @@ For interpretation guidance, see
 
 ## Results
 
-Baseline run pending. Once Step 7 of the rebuild completes, the
-baseline run will land under `benchmark/v1/runs/baseline/` and this
-section will be filled in with the actual figures.
+The v1 baseline run is at `benchmark/v1/runs/baseline/`.
+
+Run details:
+
+- candidate: `openrouter/google/gemini-2.5-flash-lite`
+- judge: `openrouter/google/gemini-2.5-flash-lite`
+- scored condition: `baseline`
+- trials: `2` per (scenario, condition) cell
+- scenarios: 50 / 50
+
+Results under `baseline` condition:
+
+- **primary score: 98.5%** (balanced Turn 2 accuracy across `current` and `prior`)
+- `current` accuracy: **97.0%** (64/66)
+- `prior` accuracy: **100.0%** (24/24)
+- `clarify` accuracy: **100.0%** (6/6) — auxiliary, not in primary score
+- `abstain` accuracy: **100.0%** (4/4) — auxiliary, not in primary score
+
+Condition sensitivity (balanced Turn 2 accuracy):
+
+| Condition | Score |
+|-----------|-------|
+| `baseline` | 98.5% |
+| `condition_a` | 90.2% |
+| `condition_b` | 100.0% |
+
+Simulated repair rate by condition:
+
+| Condition | Repair rate (repaired / failures) |
+|-----------|-----------------------------------|
+| `baseline` | 100.0% (2 / 2) |
+| `condition_a` | 66.7% (4 / 6) |
+| `condition_b` | 0.0% (0 / 2) |
+
+Primary score uses only `current` and `prior` categories (macro
+average). `clarify` and `abstain` are diagnostic; they do not enter
+the headline number.
+
+Full findings and per-trial transcripts are in
+`benchmark/v1/runs/baseline/findings.md` and
+`benchmark/v1/runs/baseline/transcripts.jsonl`.
 
 ## Contributing
 

@@ -1,20 +1,14 @@
 """Repo text checks for public terminology and archival boundaries.
 
-The docs rewrite lands in Step 6 of the rebuild. Tests here that rely
-on Step 6 wording are marked with `pytest.skip("docs framing rewrite
-lands in step 6 commit; will pass after")` so the suite stays green
-between steps. Each skipped test must be re-enabled (skip removed)
-once Step 6 commits.
-
-Re-enable: when Step 6 lands, remove the `pytest.skip(...)` lines
-flagged with `# STEP-6 SKIP` below.
+These tests guard the v1 framing across public-facing docs. They
+enforce both forbidden vocabulary (legacy pre-rebuild design terms)
+and required vocabulary (the wearable, camera-channel, four-label
+framing the v1 release commits to).
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-
-import pytest
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -61,25 +55,87 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
 
 
 def test_public_docs_use_v1_framing() -> None:
-    """Until Step 6 rewrites docs to the new framing, this test is parked.
+    """The four main framing docs must carry the v1 framing language:
+    the wearable use case, the camera channel with perceptual
+    descriptions, and the four judge labels (`current`, `prior`,
+    `clarify`, `abstain`).
 
-    The earlier phrase `cross-turn reference resolution under context
-    change` is on its way out. Step 6 replaces it with the new wording
-    (context tracking under in-stream shifts). Re-enable this test,
-    with its required-phrase set updated, after Step 6 commits.
+    This is a positive check — if a future edit reverts to a different
+    framing (drops the camera channel, drops the four-label vocabulary,
+    drops the wearable framing), this test fails.
     """
-    pytest.skip(
-        "docs framing rewrite lands in step 6 commit; will pass after"
-    )  # STEP-6 SKIP
+    required = (
+        "wearable",
+        "camera",
+        "perceptual",
+        "current",
+        "prior",
+        "clarify",
+        "abstain",
+    )
+    framing_docs = (
+        "README.md",
+        "docs/benchmark_spec.md",
+        "docs/benchmark_notes.md",
+        "docs/benchmark_card.html",
+    )
+    for path in framing_docs:
+        lowered = _read(path).lower()
+        for phrase in required:
+            assert phrase in lowered, f"{path} is missing required phrase {phrase!r}"
 
 
 def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
-    """Until Step 6 rewrites docs, the exact phrase set this test
-    enforces is in flux. Skip and re-enable after Step 6.
+    """Public docs must state two things plainly:
+
+    1. The product purpose — this is a model-selection benchmark for a
+       wearable assistant. Tested via per-file required phrases below.
+    2. The proxy scope — the camera channel uses perceptual text
+       descriptions as a stand-in for real video, and real video is
+       explicitly outside what the benchmark measures.
+
+    Per-file phrase sets are used because the docs split these two
+    topics across different surfaces (README and card lead with
+    purpose; notes and spec carry the proxy/non-goal language).
     """
-    pytest.skip(
-        "docs framing rewrite lands in step 6 commit; will pass after"
-    )  # STEP-6 SKIP
+    purpose_and_proxy = {
+        "README.md": (
+            "wearable",
+            "model-selection",
+            "context tracking",
+            "perceptual",
+            "as a proxy",
+            "real video",
+        ),
+        "docs/benchmark_spec.md": (
+            "wearable",
+            "perceptual",
+            "real video",
+            "does not measure",
+        ),
+        "docs/benchmark_notes.md": (
+            "wearable",
+            "context tracking",
+            "perceptual text",
+            "as a proxy",
+            "real video",
+            "does not measure",
+        ),
+        "docs/benchmark_card.html": (
+            "wearable",
+            "model-selection",
+            "context tracking",
+            "perceptual",
+            "as a proxy",
+            "real video",
+        ),
+    }
+    for path, phrases in purpose_and_proxy.items():
+        lowered = _read(path).lower()
+        for phrase in phrases:
+            assert phrase in lowered, (
+                f"{path} is missing required phrase {phrase!r}"
+            )
 
 
 def test_public_docs_do_not_present_alternate_path_as_active_surface() -> None:
