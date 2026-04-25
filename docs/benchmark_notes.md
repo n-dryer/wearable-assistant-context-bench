@@ -136,11 +136,11 @@ deltas under approximately 3 percentage points with caution until
 variance is bounded. Multi-seed variance estimation is acknowledged
 as future work.
 
-## Limitations
+## What this benchmark does not measure
 
 The benchmark is narrow on purpose. It tests one specific failure
 mode — context tracking under situational change — and nothing else.
-Specifically, it does not measure:
+The following are out of scope by design:
 
 - **Advice quality.** The judge does not check whether the response
   is correct, safe, or domain-appropriate. A confidently wrong answer
@@ -149,18 +149,6 @@ Specifically, it does not measure:
 - **Multi-turn dynamics.** The conversation is 3 turns. Long
   conversations, branching dialogue, or extended back-and-forth are
   out of scope.
-- **Real video.** The camera channel uses scene descriptions in text
-  as a proxy. A real wearable processes video frames; this benchmark
-  does not. Performance on text scene descriptions is not a guarantee
-  of performance on actual video.
-- **Inter-annotator agreement is not measured.** Inter-annotator
-  agreement is when two or more people independently label the same
-  item and you measure how often they agree. It's the standard way to
-  confirm that labels reflect shared understanding rather than one
-  person's opinion. All 50 scenarios in this benchmark were authored
-  and reviewed by a single annotator using LLM-assisted drafting
-  under a fixed authoring rule set. Multi-rater validation is
-  acknowledged as future work.
 - **Proactive coaching.** The benchmark only scores responses to
   direct questions. A model that should have flagged a problem
   proactively but didn't is not penalized.
@@ -174,6 +162,63 @@ Score deltas between models on the same release matter more than
 absolute values. The number itself is meaningful only relative to
 other runs on the same scenario bank with the same judge prompt
 version.
+
+## Known v1 limitations and future work
+
+These are real limitations of the v1 release that affect how the
+results should be interpreted. They are not "out of scope" — the
+benchmark could measure them but does not yet. Future versions are
+expected to address them.
+
+- **Repair-line style is named, not deictic.** The Turn 3 repair line
+  explicitly names both the right and the wrong objects (for example,
+  *"I mean the soldering iron I just picked up, not the multimeter
+  probe"*). This measures floor recoverability — given a maximally
+  specific user correction, can the model recover? It is not a model
+  of realistic user correction behavior, where users typically start
+  with deictic emphasis (*"no, this — what I'm holding now"*) and only
+  escalate to explicit naming after the deictic attempt fails. Future
+  versions may add deictic-only repair lines for visible-referent
+  scenarios to better isolate camera-channel attentiveness from
+  word-matching recovery.
+- **Real video is approximated by scene descriptions in text.** The
+  camera channel uses scene descriptions ("Hand wrapped around a
+  long wooden handle. Heavy metal head at the top...") as a proxy
+  for what a real wearable's vision system would produce from a
+  camera frame. Performance on text scene descriptions is not a
+  guarantee of performance on actual video. Validation against held
+  out video footage is acknowledged as future work.
+- **Inter-annotator agreement is not measured.** Inter-annotator
+  agreement is when two or more people independently label the same
+  item and you measure how often they agree. It's the standard way to
+  confirm that labels reflect shared understanding rather than one
+  person's opinion. All 50 scenarios were authored and reviewed by a
+  single annotator using LLM-assisted drafting under a fixed
+  authoring rule set. Multi-rater validation is acknowledged as
+  future work.
+- **The v1 baseline run uses same-family judging.** The committed
+  baseline at `benchmark/v1/runs/baseline/` runs Gemini as both the
+  candidate model and the judge. Same-family judging can introduce
+  self-preference bias, where a model rates outputs from its own
+  family more favorably than outputs from other families. A
+  cross-family judge run (for example, Gemini candidate with a Claude
+  judge) is the recommended next baseline and is acknowledged as
+  future work.
+- **The v1 baseline tests only one candidate model.** The benchmark's
+  stated purpose is model selection. With only one candidate run, no
+  comparative claim can be made yet. Multi-model comparison across
+  several candidates is acknowledged as future work.
+- **Camera-channel ablation has not been performed.** The benchmark
+  asserts that the camera channel matters, but the design has not
+  been tested by running the same scenarios with the camera blocks
+  stripped to quantify how much the channel contributes to the
+  primary score. A controlled ablation comparing with-camera vs.
+  without-camera runs is acknowledged as future work.
+- **No formal variance estimation.** Each cell runs with
+  `--trials 2`. Multi-seed reruns to formally bound score noise have
+  not been performed. As a rough guide, treat score deltas under
+  approximately 3 percentage points on this 50-scenario bank with
+  caution until variance is measured.
 
 ## When to use this benchmark vs. when to do separate evaluation
 

@@ -135,34 +135,61 @@ Checks 1, 2, 3, and 6 are run on every PR via
 `scripts/validate_scenarios.py`. Checks 4 and 5 are run during
 authoring.
 
-## Limitations
+## What this benchmark does not measure
 
-The benchmark is narrow on purpose. It does not measure:
+The benchmark is narrow on purpose. The following are out of scope by
+design:
 
 - **Advice quality.** The judge does not check whether the response
   is correct, safe, or domain-appropriate.
 - **Multi-turn dynamics.** The conversation is 3 turns. Long
   conversations and branching dialogue are out of scope.
-- **Real video.** The camera channel uses scene descriptions in text
-  as a proxy. A real wearable processes video frames; this benchmark
-  does not.
 - **Proactive coaching.** The benchmark only scores responses to
   direct questions.
 - **Domain knowledge depth.** Coverage spans 16 domains but is broad
   rather than deep.
 - **Latency, cost, audio perception, speaker attribution, addressee
   detection, long-horizon memory.** All out of scope.
-- **Inter-annotator agreement is not measured.** Inter-annotator
+
+## Known v1 limitations and future work
+
+These are real limitations of the v1 release that affect how the
+results should be interpreted. Future versions are expected to
+address them.
+
+- **Repair-line style is named, not deictic.** The Turn 3 repair line
+  explicitly names both the right and the wrong objects. This
+  measures floor recoverability, not realistic user correction
+  behavior. Future versions may add deictic-only repair lines.
+- **Real video is approximated by scene descriptions in text.** The
+  camera channel uses text scene descriptions as a stand-in for
+  actual video frames. Validation against held-out video footage is
+  future work.
+- **Inter-annotator agreement is not measured.** All 50 scenarios
+  were authored and reviewed by a single annotator using LLM-assisted
+  drafting under a fixed authoring rule set. Inter-annotator
   agreement is when two or more people independently label the same
-  item and you measure how often they agree. It's the standard way to
+  item and you measure how often they agree; it's the standard way to
   confirm that labels reflect shared understanding rather than one
-  person's opinion. All 50 scenarios in this benchmark were authored
-  and reviewed by a single annotator using LLM-assisted drafting
-  under a fixed authoring rule set. Multi-rater validation is
-  acknowledged as future work.
+  person's opinion. Multi-rater validation is future work.
+- **The v1 baseline run uses same-family judging.** The committed
+  baseline runs Gemini as both candidate and judge. Same-family
+  judging can introduce self-preference bias. A cross-family judge
+  run is recommended as the next baseline.
+- **Single-candidate baseline.** Only one candidate model has been
+  run. Multi-model comparison is future work.
+- **No camera-channel ablation.** The contribution of the camera
+  channel to the primary score has not been quantified by running a
+  controlled with-camera vs. without-camera comparison.
+- **No formal variance estimation.** Multi-seed reruns to bound score
+  noise have not been performed. Treat score deltas under
+  approximately 3 percentage points with caution.
 
 Score deltas between models on the same release matter more than
 absolute values.
+
+For full discussion of these limitations, see
+[`docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
 
 ## License
 

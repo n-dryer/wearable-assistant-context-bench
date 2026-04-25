@@ -238,6 +238,15 @@ Full findings and per-trial transcripts are in
 `benchmark/v1/runs/baseline/findings.md` and
 `benchmark/v1/runs/baseline/transcripts.jsonl`.
 
+**How to read the v1 baseline:** the committed run uses Gemini as
+both candidate and judge, which can introduce self-preference bias,
+and is the only candidate model tested so far. The number is best
+read as a sanity check that the pipeline works end-to-end, not as a
+final claim about model performance. Cross-family judging,
+multi-model comparison, and other v1 limitations are documented in
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md) under "Known v1
+limitations and future work."
+
 ## Contributing
 
 Edits that change scenario text, answer keys, prompt text, or scoring
