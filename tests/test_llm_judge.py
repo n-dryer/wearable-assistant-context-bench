@@ -59,9 +59,25 @@ def test_parse_verdict_rejects_missing_json() -> None:
         parse_verdict("no JSON object here")
 
 
-def test_parse_verdict_rejects_malformed_json() -> None:
-    with pytest.raises(ValueError):
-        parse_verdict('{"selected_policy": "prior", "rationale": }')
+def test_parse_verdict_falls_back_on_malformed_json() -> None:
+    """Malformed JSON inside a {...} block falls back to heuristic
+    label scanning so the runner doesn't abort on a flaky judge response.
+    The label word `prior` in the raw text drives the fallback policy."""
+    verdict = parse_verdict('{"selected_policy": "prior", "rationale": }')
+    assert verdict.selected_policy == "prior"
+    assert "fallback" in verdict.rationale.lower()
+
+
+def test_parse_verdict_falls_back_to_abstain_when_malformed_json_lacks_label_word() -> None:
+    """Malformed JSON inside a {...} block with no label words anywhere
+    falls back to abstain so the runner doesn't abort.
+
+    The regex only matches when the block contains the literal
+    `"selected_policy"`, so we include that key in the raw input but
+    leave the value malformed."""
+    verdict = parse_verdict('{"selected_policy": , "rationale": }')
+    assert verdict.selected_policy == "abstain"
+    assert "fallback" in verdict.rationale.lower()
 
 
 def test_parse_verdict_takes_last_object_when_multiple_present() -> None:

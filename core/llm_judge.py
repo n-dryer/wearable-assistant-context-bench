@@ -517,8 +517,21 @@ def parse_verdict(raw: str) -> JudgeVerdict:
 
     try:
         payload: dict[str, Any] = json.loads(matches[-1].group(0))
-    except json.JSONDecodeError as err:
-        raise ValueError(f"Judge verdict JSON not parseable: {raw!r}") from err
+    except json.JSONDecodeError:
+        # Malformed JSON (e.g. a stray escape that breaks string parsing).
+        # Fall back to scanning for a label word in the raw text so the
+        # runner does not abort. Score will be at the mercy of the
+        # heuristic for this cell.
+        label = _heuristic_label(raw)
+        if label is None:
+            return JudgeVerdict(
+                selected_policy="abstain",
+                rationale="(malformed-json fallback — no label word found)",
+            )
+        return JudgeVerdict(
+            selected_policy=label,
+            rationale="(malformed-json heuristic fallback)",
+        )
 
     selected_policy = payload.get("selected_policy")
     if not isinstance(selected_policy, str) or selected_policy not in ALLOWED_POLICIES:
