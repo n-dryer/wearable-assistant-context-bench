@@ -2,8 +2,8 @@
 
 Stubs the candidate adapter and judge so the loop runs without
 network. Confirms per-trial result shape, JSONL transcript output,
-CLI flag parsing, --output-dir routing for findings, and that the
-written findings file contains the reproducibility manifest.
+CLI flag parsing, --output-dir routing for findings, the v2
+[Camera:] injection format, and judge ground-truth-context wiring.
 """
 
 from __future__ import annotations
@@ -46,8 +46,15 @@ class _StubJudge:
         prior_answers: list[str],
         clarify_indicators: list[str],
         abstain_indicators: list[str],
+        ground_truth_context: str | None = None,
     ) -> Any:
-        self.calls.append({"response": response, "turn_2_user": turn_2_user})
+        self.calls.append(
+            {
+                "response": response,
+                "turn_2_user": turn_2_user,
+                "ground_truth_context": ground_truth_context,
+            }
+        )
         from core.llm_judge import JudgeVerdict
 
         return JudgeVerdict(selected_policy="current", rationale="stub")
@@ -191,3 +198,25 @@ def test_config_overrides_from_args_full() -> None:
         "trials_per_cell": 1,
         "output_dir": "out/",
     }
+
+
+def test_manifest_records_v2_schema_fields(tmp_path: Path) -> None:
+    """The reproducibility manifest must record schema_version=v2 and
+    camera_injection=true for every run."""
+    adapter = _StubAdapter()
+    judge = _StubJudge()
+    output_dir = tmp_path / "manifest_run"
+    run_module.run(
+        adapter=adapter,  # type: ignore[arg-type]
+        judge=judge,  # type: ignore[arg-type]
+        config={"output_dir": str(output_dir)},
+    )
+    findings_body = (output_dir / "findings.md").read_text(encoding="utf-8")
+    # Manifest JSON block lives between ```json fences.
+    import re as _re
+
+    match = _re.search(r"```json\n(.*?)\n```", findings_body, _re.DOTALL)
+    assert match is not None, "manifest JSON block missing from findings.md"
+    payload = json.loads(match.group(1))
+    assert payload["schema_version"] == "v2"
+    assert payload["camera_injection"] is True

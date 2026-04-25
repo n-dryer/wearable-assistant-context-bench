@@ -1,20 +1,21 @@
 cff-version: 1.2.0
 message: "If you reference the Wearable Assistant Context Benchmark, cite this file."
 title: "Wearable Assistant Context Benchmark"
-version: "v1.0.0"
-date-released: "2026-04-24"
-abstract: "Product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant. Built from real user feedback and product testing to support a practical model-selection decision. v1.0.0 uses a frozen 101-scenario bank and represents spoken user queries through transcript proxies."
+version: "v2.0.0"
+date-released: "2026-04-25"
+abstract: "Context-tracking benchmark for multimodal wearable assistants. Tests whether a model uses current situational evidence visible in the camera frame, or stays anchored to prior context after a shift between turns. v2.0.0 uses a frozen 50-scenario bank across 8 cue_type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees perceptual image descriptions and the LLM judge receives a separate ground-truth section."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
 repository-code: "https://github.com/n-dryer/wearable-assistant-context-bench"
 url: "https://github.com/n-dryer/wearable-assistant-context-bench"
 keywords:
-  - product benchmark
+  - context tracking
   - wearable multimodal assistant
   - reference resolution
-  - context change
-  - model selection
   - context shift
+  - model selection
   - LLM-as-judge
+  - perceptual grounding
+  - egocentric assistant
 license: "MIT"

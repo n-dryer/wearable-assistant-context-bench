@@ -1,151 +1,195 @@
 # Benchmark Notes
 
-This document adds practical context for reading and using the
-benchmark. For the benchmark contract and runtime rules, see
-[benchmark_spec.md](benchmark_spec.md).
+This document covers how to read benchmark results, what the numbers
+mean, and what the benchmark does not tell you. For the benchmark
+contract, see [`benchmark_spec.md`](benchmark_spec.md).
 
-## Background and use context
+## How to read the primary score
 
-The Wearable Assistant Context Benchmark is a **product benchmark**. It
-was built to help choose the model that best infers what a user is
-referring to during live wearable assistant interactions.
+The primary score is **balanced accuracy across `current` and `prior`
+on Turn 2 under the `baseline` prompt condition**.
 
-This benchmark is pre-release; the first public release will be tagged `v1` alongside the accompanying benchmark results. In its pre-release form, v1 measures **cross-turn reference resolution under context change**.
+The headline number is the average of two per-class accuracies:
 
-That means the benchmark focuses on a recurring product problem:
+```text
+primary_score = mean(
+    current_accuracy,    # correct labels among target_context = current scenarios
+    prior_accuracy,      # correct labels among target_context = prior scenarios
+)
+```
 
-- the user changes rooms, objects, screens, or scene state
-- the user asks a follow-up question that is natural but ambiguous
-- the assistant answers about the wrong thing unless it updates its
-  reference correctly
+This is the right number to compare two candidate models on the same
+benchmark release. Score deltas between models on the same release
+matter more than absolute values. Read the absolute number as a rough
+indicator; read the delta as the actual signal.
 
-This framing is narrow on purpose. The benchmark is optimized for
-model-selection usefulness on a real product problem, not for being a
-research-style omnibus benchmark of everything a multimodal assistant
-can do.
+`condition_a` and `condition_b` produce their own balanced accuracy
+numbers but should not replace `baseline` as the ranking reference.
+They tell you something about prompt sensitivity, not raw context
+tracking.
 
-## How to read the score
+## Per-class accuracy
 
-The primary score is for like-for-like comparison on the same benchmark
-release. It is most useful when comparing candidate models under the
-same prompt condition, with the same trial count, on the same frozen
-v1 set.
+The findings output reports accuracy per scored class, not just the
+balanced mean. Read each one separately:
 
-On this benchmark, score deltas matter more than absolute values.
+- **`current` accuracy** — fraction of `target_context = current`
+  scenarios where the judge labeled the response `current`. A model
+  with high `current` accuracy responds well when the question is
+  about what's in the camera right now.
+- **`prior` accuracy** — fraction of `target_context = prior`
+  scenarios where the judge labeled the response `prior`. A model with
+  high `prior` accuracy correctly answers about an earlier state when
+  the user asks about it.
+- **`clarify` accuracy** — fraction of `target_context = clarify`
+  scenarios where the judge labeled the response `clarify`. Auxiliary;
+  not in the primary score.
+- **`abstain` accuracy** — fraction of `target_context = abstain`
+  scenarios where the judge labeled the response `abstain`. Auxiliary;
+  not in the primary score.
 
-Balanced accuracy is used because the primary score is based on the two
-scored classes, `current` and `prior`, and those classes are not evenly
-represented in the public scenario bank. Averaging the two class
-accuracies keeps one class from dominating the headline score.
+Auxiliary classes are reported because `clarify` and `abstain` failures
+have different product implications than `current`/`prior` failures —
+a model that hallucinates rather than abstaining is a different
+problem than a model that picks the wrong frame.
 
-The three prompt conditions serve different roles:
+The bank is dominated by `current` (33 scenarios) and `prior` (12).
+With only 3 `clarify` and 2 `abstain` scenarios, those per-class
+numbers are too noisy to be ranking-grade on their own.
 
-- `baseline` is the default comparison condition.
-- `condition_a` checks whether a direct instruction to pick the right
-  context changes the result.
-- `condition_b` checks whether making the model name its chosen context
-  changes the result.
+## Strong on current, weak on prior (and vice versa)
 
-Simulated repair rate is a secondary metric. It stands in for likely
-user correction cost after a wrong follow-up answer and is not part of
-the ranking.
+A model that scores well on `current` but badly on `prior` defaults
+to whatever it sees most recently. That is the most common failure
+mode of a non-context-aware assistant: it responds to whatever frame
+is in front of it, ignoring the user's reference to an earlier state.
 
-## Why v1 is intentionally narrow
+A model that scores well on `prior` but badly on `current` is unusual.
+Most often this means the model is confused about what to attend to
+and is over-anchoring on T1 even when T2 is the right frame.
 
-Canonical v1 does not try to measure every kind of multimodal inference
-failure. It focuses on one problem that shows up often in real use and
-can be scored consistently enough to support model choice.
+A balanced model handles both. The headline score is balanced for
+exactly this reason — to reward models that handle both, not just one.
 
-That tradeoff is deliberate:
+## Condition sensitivity
 
-- product usefulness first
-- broad benchmark coverage second
+`baseline`, `condition_a`, and `condition_b` use different system
+prompts:
 
-This is not a claim that cross-turn reference resolution under context
-change is the only important assistant capability. It is a claim that
-this is an important enough product problem to deserve its own repeatable
-benchmark.
+- `baseline` — minimal system prompt. The model is told it is helping
+  a user with an ongoing project, nothing more.
+- `condition_a` — direct policy-selection instruction. Tells the model
+  the visual context may shift between turns and asks it to decide
+  which frame each question refers to before answering.
+- `condition_b` — pre-answer scaffold. Requires the model to identify
+  the relevant context (`current` or `prior`) on the first line of its
+  response, then answer.
 
-## Transcript-proxy scope
+Reading the deltas between conditions tells you about prompt
+sensitivity:
 
-Spoken user questions already count as part of the cue set in this
-benchmark, but canonical v1 represents them through transcript proxies
-rather than raw audio.
+- A model that improves a lot from `baseline` to `condition_a`
+  responds well to explicit direction. It is capable of context
+  tracking when reminded.
+- A model that improves further from `condition_a` to `condition_b`
+  benefits from forced structure. The scaffold is doing real work.
+- A model that does not improve much across conditions either already
+  handles context tracking on its own, or its underlying weakness is
+  not addressable by prompting.
 
-So the benchmark already tests interpretation of spoken user queries,
-but it does **not** yet directly test:
+`condition_a` and `condition_b` are diagnostics, not headline scores.
 
-- raw acoustic grounding
-- speaker attribution
-- ambient audio cues
+## Simulated repair rate
 
-That distinction matters when interpreting results.
+When the candidate misses on Turn 2, the runner appends Turn 3 — a
+repair anchor that names the intended frame explicitly (`"I mean the
+hammer I'm holding now, not the screwdriver from before"`). The judge
+labels the T3 response, and the simulated repair rate is the fraction
+of T2 misses that pass on T3.
 
-## Scenario origins
+This number stands in for the cost of user correction. A high repair
+rate means the model recovers gracefully when the user clarifies. A
+low repair rate means even an explicit repair does not get the model
+back on track.
 
-The scenario bank was built from a mix of:
+What it does not measure: real user behavior, real correction
+patterns, or the linguistic variety of how users actually repair
+context misses. The repair anchor is templated and explicit. It tells
+you whether the model can be corrected, not whether real users would
+phrase their corrections that way.
 
-- real user feedback from wearable assistant use
-- direct product testing of wearable and multimodal assistants
-- generalized patterns derived from repeated failures
-- a smaller number of theoretical coverage cases
+## Limitations
 
-The pre-release bank is one consolidated 101-scenario set.
-The goal was not to maximize scenario count for its own sake. The goal
-was to capture the recurring shapes of this product problem in a frozen
-set that can support fair candidate comparison.
+The benchmark is narrow on purpose. It tests one specific failure
+mode — context tracking under situational change — and nothing else.
+Specifically, it does not measure:
 
-## Related benchmarks and overlap
+- **Advice quality.** The judge does not check whether the response
+  is correct, safe, or domain-appropriate. A confidently wrong answer
+  can pass if it picks the right context. A perfectly safe answer can
+  fail if it picks the wrong one.
+- **Multi-turn dynamics.** The conversation is 3 turns. Long
+  conversations, branching dialogue, or extended back-and-forth are
+  out of scope.
+- **Real video.** The camera channel uses perceptual text descriptions
+  as a proxy. A real wearable processes video frames; this benchmark
+  does not. Performance on perceptual text proxies is not a guarantee
+  of performance on actual video.
+- **Proactive coaching.** The benchmark only scores responses to
+  direct questions. A model that should have flagged a problem
+  proactively but didn't is not penalized.
+- **Domain knowledge depth.** Scenarios span 16 activity domains
+  (kitchen, workshop, garden, etc.). Coverage is broad but shallow.
+  Specialized expertise in any one domain is not measured.
+- **Latency, cost, audio perception, speaker attribution, addressee
+  detection, long-horizon memory.** All out of scope.
 
-This benchmark sits near several adjacent benchmark families:
+Score deltas between models on the same release matter more than
+absolute values. The number itself is meaningful only relative to
+other runs on the same scenario bank with the same judge prompt
+version.
 
-- multimodal assistant evaluation
-- wearable or egocentric multimodal evaluation
-- streaming multimodal understanding
-- reference-resolution under changing context
+## When to use this benchmark vs. when to do separate evaluation
 
-Some adjacent public efforts include
-[OpenEQA](https://open-eqa.github.io/),
-[StreamingBench](https://streamingbench.github.io/),
-[WearVQA](https://arxiv.org/abs/2511.22154), and
-[TeleEgo](https://arxiv.org/abs/2510.23981).
+Use this benchmark when:
 
-This benchmark differs from those efforts in a few ways:
+- You are choosing between candidate models for a wearable or
+  multimodal assistant product
+- You need to verify that a new model release has not regressed on
+  context tracking
+- You want comparable numbers across models on a frozen scenario set
 
-- it is narrower
-- it is more directly tied to a live assistant product problem
-- it is explicitly framed as a model-selection tool
-- it uses transcript-proxy scenarios rather than a broader raw
-  multimodal evaluation stack
+Run separate evaluation for:
 
-That narrower scope is a feature, not a defect, for the intended use.
+- Domain advice quality (cooking, fitness, music, etc.)
+- Real-video performance (run a vision benchmark or your own video
+  evaluation)
+- Long-horizon memory across sessions
+- Latency and cost characteristics in your serving environment
+- User-facing UX quality
+- Audio perception, speaker attribution, addressee detection
 
-## Freeze and versioning
-
-Canonical v1 is frozen so models can be compared on the same release.
-Scenario text, expected answers, prompt text, scoring semantics, and
-the default comparison condition should stay fixed inside the release.
-
-Documentation clarifications, adapter additions, and implementation
-cleanup that do not change benchmark meaning are fine. Changes that
-would alter benchmark comparability should be treated as a new release
-decision.
+A model selected with this benchmark still needs to clear those bars
+in the evaluation pipeline that fits your product.
 
 ## Glossary
 
-- `turn`: one part of the conversation.
-- `context change`: a meaningful change in what the user is showing,
-  holding, looking at, or referring to between turns.
-- `current`: scoring label for answers grounded in the current context.
-- `prior`: scoring label for answers grounded in the earlier context.
-- `clarify`: scoring label for answers that ask the user to disambiguate.
-- `abstain`: scoring label for answers that decline or claim the model
-  cannot answer.
-- `prompt conditions`: the three prompt setups used in v1:
-  `baseline`, `condition_a`, and `condition_b`.
-- `default comparison condition`: the condition used for the main model
-  comparison. In v1, this is `baseline`.
-- `balanced accuracy`: the mean of accuracy on the `current` and
-  `prior` scored classes.
-- `simulated repair rate`: a secondary metric that stands in for likely
-  user correction cost after a wrong answer.
+- `turn` — one user message plus the assistant's response.
+- `context shift` — a meaningful change between T1 and T2 in what the
+  user is showing, holding, doing, or referring to.
+- `current` — judge label for responses grounded in the current (T2)
+  context.
+- `prior` — judge label for responses grounded in the earlier (T1 or
+  `context_image`) context.
+- `clarify` — judge label for responses that ask the user to
+  disambiguate.
+- `abstain` — judge label for responses that decline or claim the
+  model cannot answer.
+- `prompt conditions` — the three prompt setups used in v2:
+  `baseline`, `condition_a`, `condition_b`.
+- `default comparison condition` — the condition used for the headline
+  number. Always `baseline`.
+- `balanced accuracy` — the mean of per-class accuracy across the two
+  scored classes (`current` and `prior`).
+- `simulated repair rate` — the fraction of Turn 2 misses that pass
+  on Turn 3 after the repair anchor.

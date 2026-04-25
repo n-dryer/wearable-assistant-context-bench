@@ -4,7 +4,8 @@
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**A product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant.**
+A benchmark for measuring whether multimodal assistants update to
+current context instead of staying anchored to prior context.
 
 ## Why this exists
 
@@ -22,99 +23,86 @@ The product problem is simple:
 
 Users should not have to keep restating what they are looking at,
 holding, or referring to. The assistant should infer the right
-reference from the situational cues already present in the interaction.
+reference from the situational cues already present in the
+interaction. One-off examples are not enough to make a model-selection
+call. Every candidate needs to be tested on the same scenarios, with
+the same prompt conditions, the same judge rules, and a saved run
+record.
 
-This benchmark exists because one-off examples are not enough to make
-that model-selection call. Every candidate needs to be tested on the
-same scenarios, with the same prompt conditions, the same judge rules,
-and a saved run record.
+## What v2 measures
 
-## What v1 currently measures
+v2 measures **context tracking**. It tests whether a model uses the
+current situational evidence visible in the camera frame, or stays
+anchored to prior context after a shift.
 
-This benchmark is pre-release. The first public release will be tagged
-`v1` alongside the accompanying benchmark results. In its current
-pre-release form, v1 measures **cross-turn reference resolution under
-context change**.
+The bank is **50 scenarios across 8 cue_type categories**: object in
+hand, object state, sequential task, location, object in view, absent
+referent, screen content, and pre-conversation recall. Each scenario
+is a 3-turn conversation with perceptual image descriptions injected
+on the user side as `[Camera: ...]` blocks. The model has to integrate
+those camera blocks with the deictic user speech to figure out what
+context the question refers to.
 
-In plain language, it checks whether the assistant answers about the
-right thing after the user's context changes, instead of forcing the
-user to restate what they mean.
+The judge labels each Turn 2 response with one of `current`, `prior`,
+`clarify`, or `abstain`. The primary score is balanced accuracy across
+`current` and `prior` under the `baseline` prompt condition.
 
-The benchmark was built from real user feedback and product testing on
-wearable multimodal assistants, then expanded into a frozen scenario
-bank for repeatable model comparison.
+## What v2 does NOT measure
 
-The current scenario bank covers reference changes such as:
+This is a context-tracking benchmark. It is not a coaching benchmark.
+It does not directly evaluate:
 
-- moving from one room to another
-- swapping the object in hand
-- switching to a new object in view
-- switching screens
-- asking about an earlier state after time passes
-- recalling something that left the frame
-- recalling a detail after an object is put away
+- Whether the coaching advice is correct, safe, or domain-appropriate
+- Multi-turn conversation dynamics beyond a 3-turn structure
+- Performance on real video frames (the camera channel uses
+  perceptual text descriptions as a proxy)
+- Proactive coaching — noticing without being asked
+- Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
+- Latency, cost, audio perception, speaker attribution, or long-horizon
+  memory across sessions
 
-Although the benchmark was developed around a wearable multimodal
-assistant, it can also apply to related assistant devices on or near
-the user if they support live multimodal interaction.
-
-See [docs/benchmark_spec.md](docs/benchmark_spec.md) for the benchmark
-contract, [docs/benchmark_notes.md](docs/benchmark_notes.md) for
-interpretation guidance, [docs/benchmark_card.html](docs/benchmark_card.html)
-for the one-page summary, and [docs/decisions.md](docs/decisions.md)
-for the scoping rationale behind the pre-release bank.
-
-## What canonical v1 includes
-
-- **101 frozen scenarios** in `benchmark/v1/scenarios.json`
-- **3 prompt conditions**: `baseline`, `condition_a`, `condition_b`
-- **2 trials per (scenario, condition) cell** by default
-- **4 judge labels**: `current`, `prior`, `clarify`, `abstain`
-- **Balanced Turn 2 accuracy** over `current` and `prior` as the
-  primary ranking metric
-- **Per-class pass rates** for all four labels as supporting context
-- **Simulated repair rate** as a secondary product-facing metric
-- **Cross-family judging by default** through `--judge-family auto`
-- **Reproducibility manifest** emitted with each run
-
-## What canonical v1 does not yet measure directly
-
-- raw acoustic grounding from audio signals
-- speaker attribution
-- ambient audio cues
-- addressee detection
-- long-horizon memory across sessions
-- overall assistant quality, latency, cost, or UX quality
-
-Spoken user questions are already part of the cue set in v1, but they
-are represented through transcript proxies rather than raw audio.
+A model that fails this benchmark is unlikely to be viable as a
+wearable assistant. A model that passes still needs separate
+evaluation for everything in this list.
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    T1["Turn 1<br/>sets the reference"] --> Shift["Context change"]
-    Shift --> T2["Turn 2<br/>ambiguous follow-up"]
+    Ctx["[Camera: t0 frame]<br/>(optional context_image)"] --> T1["Turn 1<br/>[Camera: t1 frame]<br/>+ user speech"]
+    T1 --> Shift["Context shift<br/>(visible only in camera)"]
+    Shift --> T2["Turn 2<br/>[Camera: t2 frame]<br/>+ deictic user speech"]
     T2 --> Cand["Candidate model"]
-    Cand --> Judge["LLM judge<br/>different family by default"]
+    Cand --> Judge["LLM judge<br/>(different family by default)<br/>+ ground truth"]
     Judge --> Label{"Judge label"}
-    Label -->|current or prior| Score["Primary score<br/>balanced Turn 2 accuracy"]
-    Label -->|clarify or abstain| Aux["Auxiliary diagnostic rows"]
+    Label -->|current or prior| Score["Primary score<br/>balanced T2 accuracy"]
+    Label -->|clarify or abstain| Aux["Auxiliary diagnostics"]
 ```
 
-Each scenario runs across three prompt conditions and two trials per
-cell at temperature 0. Turn 2 is the scored turn. Turn 3 fires only
-after a Turn 2 miss and feeds the simulated repair-rate metric.
+The candidate sees the audio channel (user speech) and the camera
+channel (perceptual descriptions). The judge also receives a
+ground-truth section that names the actual objects in T1 and T2 — the
+candidate never sees that. Each scenario runs across three prompt
+conditions (`baseline`, `condition_a`, `condition_b`) at temperature 0.
+Turn 3 fires only after a Turn 2 miss and feeds the simulated repair
+rate.
 
 ## Repository layout
 
-- [benchmark/v1](benchmark/v1): canonical v1 inputs, runner, and run outputs
-- [core](core): adapters, judge logic, scoring, report generation
-- [docs/benchmark_spec.md](docs/benchmark_spec.md): benchmark definition
-- [docs/benchmark_notes.md](docs/benchmark_notes.md): usage and interpretation notes
-- [docs/benchmark_card.html](docs/benchmark_card.html): one-page benchmark card
-- [docs/decisions.md](docs/decisions.md): scoping rationale
-- [tests](tests): verification for runtime behavior and benchmark inputs
+- [`benchmark/v1`](benchmark/v1) — frozen scenario bank, runner, and
+  run outputs
+- [`core`](core) — model adapters, judge logic, scoring, report
+  generation
+- [`docs/benchmark_spec.md`](docs/benchmark_spec.md) — full benchmark
+  specification
+- [`docs/schema.md`](docs/schema.md) — scenario field reference
+- [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md)
+  — authoring rules and validation checklist
+- [`docs/benchmark_notes.md`](docs/benchmark_notes.md) — score
+  interpretation and limitations
+- [`tests`](tests) — runtime and input-validation tests
+- [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py) —
+  programmatic checks against the scenario bank
 
 ## Install
 
@@ -137,7 +125,7 @@ to run:
 - `HF_TOKEN` and, when needed, `HUGGINGFACE_API_KEY` for supported
   Hugging Face inference routes
 
-An example environment file is provided in [.env.example](.env.example).
+An example environment file is provided in [`.env.example`](.env.example).
 
 ## Run the benchmark
 
@@ -149,98 +137,73 @@ python -m benchmark.v1.run \
 
 Optional flags:
 
-- `--judge-family auto|claude|gemini|openai`
-- `--trials <int>`
-- `--output-dir <path>`
+- `--judge-family auto|claude|gemini|openai` — judge family override.
+  Default is `auto`, which picks a different family than the candidate.
+- `--trials <int>` — trials per (scenario, condition) cell. Default is 2.
+- `--output-dir <path>` — output directory. Default is
+  `benchmark/v1/runs/latest/`.
 
-With no `--output-dir`, the runner writes transcripts, findings, and
-the manifest to `benchmark/v1/runs/latest/`.
+The runner writes `transcripts.jsonl`, `findings.md`, and a
+reproducibility manifest into the output directory.
 
 ## Verify the repo
 
 ```bash
 python -m pytest tests/ -q
+python scripts/validate_scenarios.py
 ```
 
-The test suite runs without live API calls by stubbing candidate models
-and the judge.
+The test suite stubs candidate models and the judge so the runtime
+tests work without API access. The validator script runs four
+programmatic checks (token leakage, object-name leakage, schema
+validation, cross-scenario duplication) over the scenario bank.
 
 ## How the judge works
 
-A second model acts as the judge. For each Turn 2 answer, the judge
-labels the response as `current`, `prior`, `clarify`, or `abstain`.
-
-The primary score uses only the `current` and `prior` target classes.
-`clarify` and `abstain` still appear in the scenario bank and the
-findings output, but they are treated as auxiliary diagnostic classes
-in canonical v1 rather than part of the headline ranking score.
+The judge is a second model that labels each Turn 2 response with
+one of `current`, `prior`, `clarify`, or `abstain`.
 
 By default, `--judge-family auto` resolves to a different model family
-than the candidate whenever that can be done safely. Explicit
-`claude`, `gemini`, and `openai` overrides are also supported.
+than the candidate (Claude candidate → Gemini judge, Gemini candidate
+→ OpenAI judge, OpenAI candidate → Gemini judge). This reduces
+self-judging artifacts. Explicit `claude`, `gemini`, and `openai`
+overrides are supported.
+
+The judge receives the same audio and camera channels as the
+candidate, plus a ground-truth section that names the actual objects
+in the T1 and T2 frames. The candidate never sees this ground-truth
+section. The split lets the judge reliably determine whether the
+response reflects T2 (current) or T1 (prior) context.
 
 ## How to read the primary score
 
-The primary score is **balanced Turn 2 accuracy under `baseline`**.
+The primary score is **balanced Turn 2 accuracy across `current` and
+`prior` under `baseline`**.
 
 Balanced means the mean of per-class accuracy across the two scored
-classes, `current` and `prior`, so one class does not dominate the
-headline score.
-
-Use it this way:
-
-- Compare candidate models on the same canonical v1 release.
-- Treat `baseline` as the default comparison condition.
-- Use `condition_a` and `condition_b` as prompt-sensitivity checks.
-- Read simulated repair rate as a secondary product signal about likely
-  user correction cost.
+classes, so one class does not dominate the headline number.
+`baseline` is the default comparison condition; `condition_a` and
+`condition_b` are prompt-sensitivity checks, not replacement scores.
 
 On this benchmark, score deltas matter more than absolute values.
+Treat differences between models on the same release as the signal.
+For interpretation guidance, see
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md).
 
 ## Results
 
-The v1.0.0 baseline run is at `benchmark/v1/runs/v1.0.0-gemini-v3/`.
-
-Run details:
-
-- candidate: `gemini-2.5-flash-lite`
-- judge: `gemini-2.5-flash-lite` (heuristic prose fallback active)
-- scored condition: `baseline`
-- trials: `1`
-- scenarios: **74 of 101** (sc-89+ stalled on Gemini API SSL timeouts; see findings.md)
-
-Results under `baseline` condition:
-
-- **primary score: 61.7%** (mean of current + prior accuracy)
-- `current` accuracy: **50.0%** (21/42)
-- `prior` accuracy: **73.3%** (11/15)
-- `clarify` accuracy: **88.9%** (8/9) — auxiliary, not in primary score
-- `abstain` accuracy: **100.0%** (8/8) — auxiliary, not in primary score
-
-Condition sensitivity (balanced Turn 2 accuracy):
-
-| Condition | Score |
-|-----------|-------|
-| `baseline` | 61.7% |
-| `condition_a` | 78.6% |
-| `condition_b` | 78.8% |
-
-Primary score uses only `current` and `prior` categories (macro average).
-`clarify` and `abstain` are diagnostic; they do not enter the headline number.
-
-Full findings and per-scenario transcripts are in
-`benchmark/v1/runs/v1.0.0-gemini-v3/findings.md`.
-
-Future published runs should land under
-`benchmark/v1/runs/<run-label>/`.
+Baseline run pending. Once Step 7 of the v2 rebuild completes, the
+canonical baseline run will land under
+`benchmark/v1/runs/v2-baseline/` and this section will be filled in
+with the actual figures.
 
 ## Contributing
 
-Canonical v1 is frozen in meaning. Bug fixes, doc improvements, and new
-candidate-model adapter support are welcome. Edits that change scenario
-text, answer keys, prompt text, or scoring semantics are out of scope
-for the current release. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
-full policy.
+Edits that change scenario text, answer keys, prompt text, or scoring
+semantics are out of scope once the `v2.0.0` release tag is created.
+Bug fixes, new model adapters, doc improvements, and reproducibility
+improvements are welcome at any time. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for the full policy.
 
 ## License
 

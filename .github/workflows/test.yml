@@ -32,5 +32,8 @@ jobs:
           pip install -r requirements.txt
           python -m spacy download en_core_web_sm
 
+      - name: Validate scenario bank
+        run: python scripts/validate_scenarios.py
+
       - name: Run pytest
         run: pytest tests/ -q

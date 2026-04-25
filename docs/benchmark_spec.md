@@ -1,276 +1,214 @@
 # Benchmark Spec: Wearable Assistant Context Benchmark
 
-**Subtitle:** A product benchmark for comparing models on cross-turn reference resolution under context change in a wearable multimodal assistant.
+## Overview
 
-## Project purpose
+The Wearable Assistant Context Benchmark tests one specific failure mode
+of multimodal wearable assistants: when the user's situation changes
+between turns, does the model respond from the current situational
+evidence, or does it stay anchored to the prior context?
 
-This benchmark exists to support a practical model-selection decision
-for a live wearable assistant.
+A wearable assistant lives in a continuous stream. The user puts down
+one object and picks up another. The user moves from the workbench to
+the kitchen. The pan was empty a minute ago and now holds simmering
+sauce. Each turn is a new chance for the model to either update or stay
+stuck.
 
-The product problem is that users should not have to keep restating
-what they are looking at, holding, or referring to after they move,
-swap objects, change screens, or otherwise change context. The
-assistant should infer the right reference from the situational cues
-already present in the interaction.
+This benchmark is narrow on purpose. It does not measure whether the
+assistant's coaching advice is correct, safe, or domain-appropriate.
+It does not measure multi-turn conversation dynamics beyond a 3-turn
+structure. It does not measure performance on real video frames.
+It does not measure proactive coaching. A model that fails this
+benchmark is unlikely to be viable as a wearable assistant. A model
+that passes still needs separate evaluation for everything this
+benchmark does not measure.
 
-This benchmark was built from real user feedback and product testing,
-then turned into a frozen scenario bank so candidate models can be
-compared on the same conditions over time.
+## The three-channel design
 
-## Current v1 measured task
+Every scenario uses three distinct channels. Each channel carries
+different content and is visible to a different audience.
 
-This benchmark is pre-release; the first public release will be
-tagged `v1` alongside the accompanying benchmark results. In its
-pre-release form, v1 measures **cross-turn reference resolution under
-context change**.
+| Channel | Field(s) | Visible to candidate | Visible to judge |
+|---|---|---|---|
+| Audio | `turn_1_user`, `turn_2_user`, `turn_3_repair_anchor` | Yes | Yes |
+| Camera | `context_image`, `turn_1_image`, `turn_2_image` | Yes (as `[Camera: ...]` blocks) | Yes |
+| Ground truth | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
 
-In plain language, it checks whether the assistant answers about the
-right thing after the user's context changes, instead of forcing the
-user to restate what they mean.
+The candidate model sees what a wearable would see: the user's spoken
+words, plus a perceptual description of the camera frame at each turn.
+The judge sees the same thing plus the ground-truth answer keys, which
+name the actual objects in frame. The candidate never sees the answer
+keys.
 
-Canonical examples:
+This separation is the point of the benchmark. The candidate has to
+infer from perceptual cues alone — shape, motion, material, position —
+which context the question refers to. The judge has the privileged
+information needed to score whether the candidate got it right.
 
-- the user asks about a bedroom wall, walks into the kitchen, and asks
-  about the wall again
-- the user asks about a hammer, switches to a screwdriver, and then
-  says "how do I use this?"
+For the rules that govern how each channel is written, see
+[`scenario_authoring_rules.md`](scenario_authoring_rules.md).
 
-Although the benchmark was developed around a wearable multimodal
-assistant, it can also apply to related assistant devices on or near
-the user if they support live multimodal interaction.
+## Scenario structure
 
-## What canonical v1 includes
+Each scenario is a 3-turn conversation:
 
-The current v1 release contains:
+1. **Turn 1** — Optional `context_image` injected first (only on
+   `pre_conversation_recall` scenarios), then `turn_1_image` plus
+   `turn_1_user`. T1 establishes the starting state.
+2. **Turn 2** — `turn_2_image` plus `turn_2_user`. The image has
+   changed. The user's question is natural and deictic; it does not
+   announce the change.
+3. **Turn 3** — `turn_3_repair_anchor`. Fired only when the candidate
+   misses on T2. Names the intended frame explicitly. Used to compute
+   the simulated repair rate.
 
-- **101 frozen scenarios**
-- **3 prompt conditions**: `baseline`, `condition_a`, `condition_b`
-- **2 trials per (scenario, condition) cell** by default
-- **Turn 2 scoring only**
-- **Turn 3 repair** as a secondary product check
+Field reference is in [`schema.md`](schema.md).
 
-The scenario bank includes four authored target labels:
+## Camera injection format
 
-- `current`
-- `prior`
-- `clarify`
-- `abstain`
+The runner builds each user turn as:
 
-`current` and `prior` are the two scored classes used in the headline
-metric. `clarify` and `abstain` remain in the benchmark and findings
-output as auxiliary diagnostic classes.
+```text
+[Camera: {turn_N_image}]
+{turn_N_user}
+```
 
-## Runtime inputs
+When `turn_N_image` is null, the camera block is omitted and only the
+user message is sent. When `context_image` is populated, it is injected
+as a `[Camera: ...]` block before T1, with no accompanying user
+message — this represents what the wearable's camera saw before the
+user started speaking.
 
-The active runtime inputs are:
+The candidate model sees the camera block as part of the user turn.
+The judge receives the same content plus a separate ground-truth
+section.
 
-- [`benchmark/v1/scenarios.json`](../benchmark/v1/scenarios.json)
-- [`benchmark/v1/expected_answers.json`](../benchmark/v1/expected_answers.json)
-- [`benchmark/v1/interventions.json`](../benchmark/v1/interventions.json)
+The implementation lives in `_build_message` and
+`_build_context_image_message` in `benchmark/v1/run.py`.
 
-These JSON files define the current public benchmark release.
+## The 8 cue_type categories
 
-## Scenario schema
+Every scenario fits exactly one category. Categories describe the
+shape of the context shift between T1 and T2.
 
-Each entry in `scenarios.json` is an object with the following fields.
+| Category | Description |
+|---|---|
+| `object_in_hand` | User puts down one object, picks up another. Camera sees a different object in the user's hand. |
+| `object_state` | Same object, different state (cooking progress, paint drying, plant growth). |
+| `sequential_task` | Same task, the user has progressed to a later step. |
+| `location` | Whole scene changes; user moves to a different room or work area. |
+| `object_in_view` | Camera stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
+| `absent_referent` | The object the question is about is no longer in frame. |
+| `screen_content` | Both T1 and T2 are looking at a screen; the screen content has changed. |
+| `pre_conversation_recall` | Requires `context_image`; T2 asks about a state that existed before T1. |
 
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `scenario_id` | string | yes | unique identifier, e.g. `sc-01` |
-| `target_context` | enum | yes | one of `current`, `prior`, `clarify`, `abstain` |
-| `authoring_basis` | enum | yes | internal source label such as `pilot`, `extended_from_pilot`, or `theoretical` |
-| `source_example_id` | string or null | yes | internal source reference, or `null` |
-| `surface` | enum | yes | pre-release v1 uses `wearable_live_frame` |
-| `turn_1_user` | string | yes | first user message, establishing the earlier reference state |
-| `turn_2_user` | string | yes | second user message after the context change |
-| `turn_3_repair_anchor` | string | yes | repair prompt used only after a Turn 2 miss |
-| `turn_1_image` | string or null | no | reserved optional image path |
-| `turn_2_image` | string or null | no | reserved optional image path |
-| `cue_type` | string | no | optional internal tag for the main cue shape |
-| `activity_domain` | string | no | optional domain tag |
-| `time_gap_bucket` | string | no | optional short-horizon time-gap tag |
-| `ambiguity_marker` | string | no | optional ambiguity tag |
-| `modality_required` | string | no | optional tag describing whether text alone is sufficient |
-| `cognitive_load` | string | no | optional internal complexity tag |
-| `difficulty_tier` | string | no | optional internal difficulty tier |
-| `variant` | string | no | optional variant label |
-| `text_proxy_degraded` | boolean | no | optional flag for scenarios where transcript proxies understate the visual distinction |
-| `notes` | string | no | authoring commentary |
+## Target context labels
 
-`expected_answers.json` is a dict keyed by `scenario_id`. Each entry
-has:
+Each scenario carries a `target_context` field naming the correct
+grounding target for a well-functioning assistant. One of:
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `current_answers` | list of strings | substrings indicating grounding in the current context |
-| `prior_answers` | list of strings | substrings indicating grounding in the prior context |
-| `clarify_indicators` | list of strings | substrings indicating a clarifying question |
-| `abstain_indicators` | list of strings | substrings indicating refusal or inability to answer |
-
-These lists drive the deterministic substring scorer described in the
-Scoring section above.
-
-`interventions.json` stores the three prompt conditions. Each entry has
-a `name`, `description`, `system_prompt`, and `token_count`. The prompt
-text is frozen for the current release.
+| Value | Meaning |
+|---|---|
+| `current` | The correct answer refers to what the camera sees right now (T2 frame). |
+| `prior` | The correct answer refers to something from an earlier scene (T1 frame, or `context_image`). |
+| `clarify` | The question is ambiguous given the available context; the assistant should ask for clarification rather than guessing. |
+| `abstain` | The needed information is not present in the context; the assistant should decline rather than hallucinating. |
 
 ## Scoring
 
-### Method
+For each Turn 2 response, the judge emits exactly one of the four
+labels: `current`, `prior`, `clarify`, or `abstain`. A scenario is
+counted correct when the judge's label matches `target_context`.
 
-v1.0 uses **deterministic substring containment** scoring. No LLM judge
-is required for the primary score. LLM-as-judge scoring is deferred to
-v1.1.
+The primary score is **balanced accuracy across `current` and `prior`
+under the `baseline` prompt condition**. Balanced means the mean of
+per-class accuracy across the two scored classes, so one class does
+not dominate the headline number. `current` and `prior` are the two
+scored classes because the bank is dominated by them (33 and 12
+scenarios respectively); `clarify` (3) and `abstain` (2) are too small
+to support reliable per-class accuracy on their own.
 
-Each Turn 2 response is scored correct or incorrect per scenario using
-word-boundary substring matching against `expected_answers.json`:
+`clarify` and `abstain` accuracy still appear in the findings output
+as auxiliary diagnostic rows. They do not enter the primary number.
 
-- **current scenarios**: correct if the response contains any token from
-  `current_answers`.
-- **prior scenarios**: correct if the response contains any token from
-  `prior_answers`.
-- **clarify scenarios**: correct if the response contains any token from
-  `clarify_indicators` AND does not contain any token from
-  `current_answers` or `prior_answers` (no confident wrong answer).
-- **abstain scenarios**: correct if the response contains any token from
-  `abstain_indicators` AND does not contain any token from
-  `current_answers` or `prior_answers`.
+Deterministic substring containment is also computed alongside the
+judge label. The substring scorer uses word-boundary matching
+(`re.search(r'\b<token>\b', response, re.IGNORECASE)`) against the
+four answer lists. This produces code signals that travel with the
+trial record but are not the score; the headline metric is the judge
+label.
 
-Matching is case-insensitive and word-boundary delimited (regex
-`\b<token>\b`).
+## The judge
 
-### Main score
+A second LLM acts as the judge. The judge sees:
 
-The main score is the **macro average of the four per-category
-accuracy means**:
+1. A short scenario description (cue type, target context, activity
+   domain).
+2. The Turn 2 user message.
+3. The candidate's Turn 2 response.
+4. The four answer lists for the scenario.
+5. A **ground-truth context section** that names the objects in the
+   T1 and T2 frames in plain language.
 
-```text
-main_score = mean(
-    current_accuracy,
-    prior_accuracy,
-    clarify_accuracy,
-    abstain_accuracy
-)
-```
+The judge emits a JSON verdict naming one of the four labels and a
+one-sentence rationale. See `core/llm_judge.py` for the prompt and
+parsing logic. The judge prompt is versioned (`JUDGE_PROMPT_VERSION`)
+and hashed into the run manifest.
 
-Macro averaging prevents the larger categories (50 current, 24 prior)
-from dominating the number. Clarify and abstain remain visible and
-contribute equally.
+### Cross-family default
 
-### Recovery metric
+By default, `--judge-family auto` resolves to a different model
+family than the candidate. For example, a Claude candidate gets a
+Gemini judge by default; a Gemini candidate gets an OpenAI judge.
+The mapping is in `resolve_judge_family` in `core/llm_judge.py`.
 
-For scenarios with a non-empty `turn_3_repair_anchor`, the runner fires
-the repair anchor after a Turn 2 miss and scores the Turn 3 response
-using the same substring rules. The recovery metric is:
+Explicit `--judge-family claude|gemini|openai` overrides the default.
 
-```text
-recovery_rate = (
-    count of scenarios where T2 incorrect and T3 correct
-) / (
-    count of scenarios where T2 incorrect
-)
-```
+The cross-family default reduces the chance that a candidate model
+appears to perform unusually well or unusually badly because the same
+model is judging itself.
 
-Reported per category.
+## Repair turn (T3)
 
-### Clarify vs abstain
+When the candidate misses on T2, the runner appends the repair anchor
+as a follow-up user message. The repair anchor names the intended
+frame explicitly (for example, `"I mean the hammer I'm holding now,
+not the screwdriver from before"`). The model gets one more chance to
+respond. The judge labels the T3 response the same way it labeled T2.
 
-- Use `clarify` when some context is present but the referent is
-  ambiguous (the question could be answered, but clarification is needed
-  first).
-- Use `abstain` when the needed information is simply not available in
-  the context.
+The simulated repair rate is the fraction of T2 misses that pass on
+T3. It is reported as a secondary product-facing metric and stands in
+for the cost of user correction. It is not part of the primary score.
 
-### Default comparison condition
+## Reproducibility
 
-`baseline` is the default comparison condition used to rank candidate
-models. `condition_a` and `condition_b` expose prompt sensitivity but
-do not replace `baseline` as the ranking reference.
+Each run emits a manifest recorded in the findings output. The
+manifest fields include:
 
-## Runtime behavior
+- `benchmark_version` — the runner code version (`v1`)
+- `schema_version` — the scenario schema version (`v2`)
+- `camera_injection` — boolean; always `true` in v2
+- `scenarios_sha256` — hash of `benchmark/v1/scenarios.json`
+- `expected_answers_sha256` — hash of
+  `benchmark/v1/expected_answers.json`
+- `interventions_sha256` — hash of `benchmark/v1/interventions.json`
+- `judge_prompt_version`, `judge_prompt_sha256` — judge prompt
+  identification
+- `candidate_model`, `judge_model`, `judge_family`,
+  `judge_family_resolution` — model and resolution mode
+- `trials`, `temperature`, `ranking_condition` — run parameters
+- `timestamp_utc`, `runner_git_commit` — run identity
 
-The runner supports native and LiteLLM-backed model access.
+Two runs with the same `scenarios_sha256`,
+`expected_answers_sha256`, and `judge_prompt_sha256` evaluate against
+the same benchmark content. Comparison across runs is meaningful when
+those hashes match.
 
-- Claude-family models
-- Gemini-family models
-- OpenAI-family models
-- provider-qualified model IDs routed through LiteLLM, including
-  supported OpenRouter and Hugging Face inference paths
+## Reference
 
-Judge behavior:
-
-- `--judge-family auto` is the default
-- under `auto`, the judge should resolve to a different model family
-  than the candidate whenever that can be done safely
-- explicit `claude`, `gemini`, and `openai` overrides are supported
-
-Each run emits:
-
-- `transcripts.jsonl`
-- `findings.md`
-- a reproducibility manifest bundled into the findings output
-
-The manifest records the scenario, answers, and prompt file SHAs, judge
-prompt version/hash, model IDs, trial count, default comparison
-condition, timestamp, and git commit.
-
-## Audio and transcript-proxy scope
-
-Spoken user questions already count as part of the cue set in the
-benchmark. In the pre-release v1 bank, those spoken queries are
-represented through transcript proxies rather than raw audio.
-
-Canonical v1 does **not** yet directly test:
-
-- raw acoustic grounding
-- speaker attribution
-- ambient audio cues
-
-## Governance and versioning
-
-The following benchmark content is frozen in canonical v1:
-
-- scenario text
-- expected answers
-- prompt text
-- scoring semantics
-- the default comparison condition
-
-The following changes do not require a new benchmark release:
-
-- documentation clarifications
-- implementation refactors that do not change benchmark meaning
-- report or manifest polish that does not affect scoring
-- new model adapters that preserve benchmark semantics
-
-The following changes require a new release decision:
-
-- changing scenario wording
-- changing answer keys
-- changing prompt wording
-- changing score semantics
-- changing the default comparison condition
-- changing what counts toward the primary metric
-
-## Limitations
-
-Canonical v1 is intentionally product-shaped and narrow.
-
-- It measures one recurring interaction problem, not overall assistant
-  quality.
-- It is a transcript-proxy benchmark, not a raw multimodal device log.
-- It does not directly measure raw audio perception.
-- It does not measure long-horizon memory across sessions.
-- It is best used for like-for-like model comparison on the same
-  release.
-
-## Where this benchmark fits
-
-This benchmark sits near multimodal assistant evaluation, wearable or
-egocentric evaluation, and reference-resolution benchmarks. It is
-narrower and more product-specific than broad embodied or streaming
-benchmarks.
-
-The goal is not to be a general multimodal benchmark. The goal is to
-support one concrete model-selection question for a live assistant
-product.
+- Schema and field-level definitions: [`schema.md`](schema.md)
+- Authoring rules and validation checklist:
+  [`scenario_authoring_rules.md`](scenario_authoring_rules.md)
+- Score interpretation and limitations:
+  [`benchmark_notes.md`](benchmark_notes.md)
+- Dataset card with bank statistics:
+  [`../benchmark/v1/dataset_card.md`](../benchmark/v1/dataset_card.md)

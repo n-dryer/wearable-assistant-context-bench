@@ -1,12 +1,14 @@
-"""Schema checks for benchmark/v1/scenarios.json.
+"""Schema checks for benchmark/v1/scenarios.json (v2 schema).
 
 These tests treat the benchmark JSON files as the only active source of
-truth for scenario configuration.
+truth for scenario configuration. They enforce v2 field requirements,
+enum constraints, and the answer-set contract from `docs/schema.md`.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -17,32 +19,43 @@ SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios.json"
 EXPECTED_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers.json"
 
 
-REQUIRED_FIELDS = {
+REQUIRED_V2_FIELDS = {
     "scenario_id",
     "target_context",
-    "authoring_basis",
-    "source_example_id",
-    "surface",
+    "cue_type",
+    "activity_domain",
+    "cognitive_load",
+    "difficulty_tier",
+    "context_image",
+    "turn_1_image",
     "turn_1_user",
+    "turn_2_image",
     "turn_2_user",
     "turn_3_repair_anchor",
 }
-OPTIONAL_IMAGE_FIELDS = {"turn_1_image", "turn_2_image"}
-OPTIONAL_METADATA_FIELDS = {
-    "cue_type",
-    "activity_domain",
-    "time_gap_bucket",
-    "ambiguity_marker",
-    "modality_required",
-    "cognitive_load",
-    "difficulty_tier",
-    "variant",
-    "text_proxy_degraded",
-    "notes",
+OPTIONAL_FIELDS = {"time_gap_bucket", "notes"}
+
+ALLOWED_TARGET_CONTEXTS = {"current", "prior", "clarify", "abstain"}
+ALLOWED_CUE_TYPES = {
+    "object_in_hand",
+    "object_state",
+    "sequential_task",
+    "location",
+    "object_in_view",
+    "absent_referent",
+    "screen_content",
+    "pre_conversation_recall",
 }
-ALLOWED_CONTEXTS = {"current", "prior", "clarify", "abstain"}
-ALLOWED_SURFACES = {"wearable_live_frame", "mobile_app_chat", "synthetic"}
-ALLOWED_AUTHORING_BASIS = {"pilot", "extended_from_pilot", "theoretical"}
+ALLOWED_DIFFICULTIES = {"easy", "medium", "hard"}
+ALLOWED_COGNITIVE_LOADS = {
+    "single_referent",
+    "multi_referent",
+    "distractor_present",
+    "absent_referent",
+    "compound_shift",
+}
+
+SCENARIO_ID_PATTERN = re.compile(r"^sc-\d{2}$")
 
 
 @pytest.fixture(scope="module")
@@ -60,51 +73,98 @@ def test_scenarios_json_is_non_empty_list(scenarios: list[dict]) -> None:
     assert len(scenarios) > 0
 
 
-def test_scenario_ids_are_unique(scenarios: list[dict]) -> None:
-    ids = [entry["scenario_id"] for entry in scenarios]
-    assert len(ids) == len(set(ids))
-
-
-def test_every_scenario_has_required_fields(scenarios: list[dict]) -> None:
+def test_every_scenario_has_required_v2_fields(scenarios: list[dict]) -> None:
     for entry in scenarios:
-        missing = REQUIRED_FIELDS - entry.keys()
+        missing = REQUIRED_V2_FIELDS - entry.keys()
         assert not missing, (
             f"scenario {entry.get('scenario_id')!r} missing fields: {missing}"
         )
 
 
+def test_scenario_ids_are_unique(scenarios: list[dict]) -> None:
+    ids = [entry["scenario_id"] for entry in scenarios]
+    assert len(ids) == len(set(ids))
+
+
+def test_scenario_ids_follow_sc_nn_format(scenarios: list[dict]) -> None:
+    for entry in scenarios:
+        sid = entry["scenario_id"]
+        assert SCENARIO_ID_PATTERN.match(sid), (
+            f"scenario_id {sid!r} does not match `sc-NN` format"
+        )
+
+
 def test_target_contexts_in_allowed_set(scenarios: list[dict]) -> None:
     for entry in scenarios:
-        assert entry["target_context"] in ALLOWED_CONTEXTS, (
+        assert entry["target_context"] in ALLOWED_TARGET_CONTEXTS, (
             f"{entry['scenario_id']}: unexpected target_context "
             f"{entry['target_context']!r}"
         )
 
 
-def test_source_example_ids_non_null_for_non_theoretical_scenarios(
-    scenarios: list[dict],
-) -> None:
+def test_cue_types_in_allowed_set(scenarios: list[dict]) -> None:
     for entry in scenarios:
-        if entry["authoring_basis"] == "theoretical":
+        assert entry["cue_type"] in ALLOWED_CUE_TYPES, (
+            f"{entry['scenario_id']}: unexpected cue_type "
+            f"{entry['cue_type']!r}"
+        )
+
+
+def test_difficulty_tiers_in_allowed_set(scenarios: list[dict]) -> None:
+    for entry in scenarios:
+        assert entry["difficulty_tier"] in ALLOWED_DIFFICULTIES, (
+            f"{entry['scenario_id']}: unexpected difficulty_tier "
+            f"{entry['difficulty_tier']!r}"
+        )
+
+
+def test_cognitive_loads_in_allowed_set(scenarios: list[dict]) -> None:
+    for entry in scenarios:
+        assert entry["cognitive_load"] in ALLOWED_COGNITIVE_LOADS, (
+            f"{entry['scenario_id']}: unexpected cognitive_load "
+            f"{entry['cognitive_load']!r}"
+        )
+
+
+def test_required_v2_string_fields_are_non_empty(scenarios: list[dict]) -> None:
+    """Required string fields (excluding nullable context_image) must be non-empty strings."""
+    for entry in scenarios:
+        sid = entry["scenario_id"]
+        for field_name in (
+            "turn_1_image",
+            "turn_1_user",
+            "turn_2_image",
+            "turn_2_user",
+            "turn_3_repair_anchor",
+            "activity_domain",
+        ):
+            value = entry[field_name]
+            assert isinstance(value, str) and value, (
+                f"{sid}.{field_name}: must be a non-empty string"
+            )
+
+
+def test_context_image_is_string_or_null(scenarios: list[dict]) -> None:
+    for entry in scenarios:
+        value = entry["context_image"]
+        assert value is None or isinstance(value, str), (
+            f"{entry['scenario_id']}.context_image: must be null or str, "
+            f"got {type(value).__name__}"
+        )
+
+
+def test_pre_conversation_recall_has_context_image(scenarios: list[dict]) -> None:
+    """Pre-conversation-recall scenarios must have a non-null context_image."""
+    for entry in scenarios:
+        if entry["cue_type"] != "pre_conversation_recall":
             continue
-        assert entry["source_example_id"], (
-            f"{entry['scenario_id']}: source_example_id must be non-null "
-            "for non-theoretical scenarios"
+        sid = entry["scenario_id"]
+        assert entry["context_image"], (
+            f"{sid}: pre_conversation_recall scenarios must have a non-null "
+            f"context_image populated"
         )
-
-
-def test_surfaces_in_allowed_set(scenarios: list[dict]) -> None:
-    for entry in scenarios:
-        assert entry["surface"] in ALLOWED_SURFACES, (
-            f"{entry['scenario_id']}: unexpected surface {entry['surface']!r}"
-        )
-
-
-def test_authoring_basis_documented(scenarios: list[dict]) -> None:
-    for entry in scenarios:
-        assert entry["authoring_basis"] in ALLOWED_AUTHORING_BASIS, (
-            f"{entry['scenario_id']}: unexpected authoring_basis "
-            f"{entry['authoring_basis']!r}"
+        assert isinstance(entry["context_image"], str) and entry["context_image"].strip(), (
+            f"{sid}: context_image must be a non-empty string"
         )
 
 
@@ -125,35 +185,60 @@ def test_every_scenario_has_answer_set(
             assert isinstance(ans[key], list), f"{sid}.{key}: must be a list"
 
 
-def test_image_seam_fields_allowed_but_optional(scenarios: list[dict]) -> None:
+def test_current_target_has_three_plus_current_answers(
+    scenarios: list[dict], expected_answers: dict
+) -> None:
+    """Three-category vocabulary requirement: current scenarios need 3+ current_answers tokens."""
     for entry in scenarios:
-        for field_name in OPTIONAL_IMAGE_FIELDS:
-            if field_name in entry:
-                value = entry[field_name]
-                assert value is None or isinstance(value, str), (
-                    f"{entry['scenario_id']}.{field_name}: must be null or str, "
-                    f"got {type(value).__name__}"
-                )
+        if entry["target_context"] != "current":
+            continue
+        sid = entry["scenario_id"]
+        ans = expected_answers[sid]
+        assert len(ans["current_answers"]) >= 3, (
+            f"{sid}: target_context=current requires 3+ items in current_answers "
+            f"(object name + technique + state); got {len(ans['current_answers'])}"
+        )
 
 
-def test_optional_metadata_fields_have_expected_types(
-    scenarios: list[dict],
+def test_prior_target_has_three_plus_prior_answers(
+    scenarios: list[dict], expected_answers: dict
+) -> None:
+    """Three-category vocabulary requirement: prior scenarios need 3+ prior_answers tokens."""
+    for entry in scenarios:
+        if entry["target_context"] != "prior":
+            continue
+        sid = entry["scenario_id"]
+        ans = expected_answers[sid]
+        assert len(ans["prior_answers"]) >= 3, (
+            f"{sid}: target_context=prior requires 3+ items in prior_answers "
+            f"(object name + technique + state); got {len(ans['prior_answers'])}"
+        )
+
+
+def test_clarify_target_has_clarify_indicators(
+    scenarios: list[dict], expected_answers: dict
 ) -> None:
     for entry in scenarios:
-        for field_name in OPTIONAL_METADATA_FIELDS:
-            if field_name not in entry:
-                continue
-            value = entry[field_name]
-            if field_name == "text_proxy_degraded":
-                assert value is None or isinstance(value, bool), (
-                    f"{entry['scenario_id']}.{field_name}: must be null or bool, "
-                    f"got {type(value).__name__}"
-                )
-                continue
-            assert value is None or isinstance(value, str), (
-                f"{entry['scenario_id']}.{field_name}: must be null or str, "
-                f"got {type(value).__name__}"
-            )
+        if entry["target_context"] != "clarify":
+            continue
+        sid = entry["scenario_id"]
+        ans = expected_answers[sid]
+        assert ans["clarify_indicators"], (
+            f"{sid}: target_context=clarify requires non-empty clarify_indicators"
+        )
+
+
+def test_abstain_target_has_abstain_indicators(
+    scenarios: list[dict], expected_answers: dict
+) -> None:
+    for entry in scenarios:
+        if entry["target_context"] != "abstain":
+            continue
+        sid = entry["scenario_id"]
+        ans = expected_answers[sid]
+        assert ans["abstain_indicators"], (
+            f"{sid}: target_context=abstain requires non-empty abstain_indicators"
+        )
 
 
 def test_canonical_v1_composition_includes_all_four_contexts(
@@ -162,22 +247,26 @@ def test_canonical_v1_composition_includes_all_four_contexts(
     counts: dict[str, int] = {}
     for entry in scenarios:
         counts[entry["target_context"]] = counts.get(entry["target_context"], 0) + 1
-    for context in ALLOWED_CONTEXTS:
+    for context in ALLOWED_TARGET_CONTEXTS:
         assert counts.get(context, 0) > 0, (
-            f"expected canonical v1 to include {context!r} scenarios, got {counts}"
+            f"expected canonical bank to include {context!r} scenarios, got {counts}"
         )
 
 
-def test_scenario_notes_do_not_reference_removed_paths(scenarios: list[dict]) -> None:
-    forbidden = (
-        "docs/" + "concept" + "_v0_2.md",
-        "experiments/" + "exp_" + "001",
-        ".agent-" + "prompts/",
-        "docs/" + "history/",
-    )
+def test_no_removed_v1_fields_present(scenarios: list[dict]) -> None:
+    """v2 removed several v1 fields. They must not reappear."""
+    removed_fields = {
+        "surface",
+        "authoring_basis",
+        "source_example_id",
+        "ambiguity_marker",
+        "modality_required",
+        "variant",
+        "text_proxy_degraded",
+    }
     for entry in scenarios:
-        notes = entry.get("notes", "")
-        for snippet in forbidden:
-            assert snippet not in notes, (
-                f"{entry['scenario_id']}.notes contains removed path {snippet!r}"
-            )
+        sid = entry["scenario_id"]
+        present = removed_fields & entry.keys()
+        assert not present, (
+            f"{sid}: removed v1 fields reappeared: {sorted(present)}"
+        )
