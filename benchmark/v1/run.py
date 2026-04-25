@@ -66,49 +66,38 @@ CONFIG: dict[str, Any] = {
 
 @dataclass
 class Scenario:
-    """One canonical v1 scenario.
+    """One v2 scenario.
 
     JSON schema (scenarios.json is a list of these):
         scenario_id: str
         target_context: str   # current | prior | clarify | abstain
-        authoring_basis: str # pilot | extended_from_pilot | theoretical
-        source_example_id: str | None
-        surface: str         # internal input-setting label
+        cue_type: str         # one of the 8 v2 cue_type values
+        activity_domain: str
+        cognitive_load: str
+        difficulty_tier: str  # easy | medium | hard
+        time_gap_bucket: str | None
+        context_image: str | None  # pre-T1 camera state, null when unused
+        turn_1_image: str          # camera description at T1
         turn_1_user: str
+        turn_2_image: str          # camera description at T2
         turn_2_user: str
         turn_3_repair_anchor: str
-        turn_1_image: str | None
-        turn_2_image: str | None
-        cue_type: str | None
-        activity_domain: str | None
-        time_gap_bucket: str | None
-        ambiguity_marker: str | None
-        modality_required: str | None
-        cognitive_load: str | None
-        difficulty_tier: str | None
-        variant: str | None
         notes: str (optional)
     """
 
     scenario_id: str
     target_context: str
-    authoring_basis: str
-    source_example_id: str | None
-    surface: str
+    cue_type: str
+    activity_domain: str
+    cognitive_load: str
+    difficulty_tier: str
+    turn_1_image: str
     turn_1_user: str
+    turn_2_image: str
     turn_2_user: str
     turn_3_repair_anchor: str
-    turn_1_image: str | None = None
-    turn_2_image: str | None = None
-    cue_type: str | None = None
-    activity_domain: str | None = None
+    context_image: str | None = None
     time_gap_bucket: str | None = None
-    ambiguity_marker: str | None = None
-    modality_required: str | None = None
-    cognitive_load: str | None = None
-    difficulty_tier: str | None = None
-    variant: str | None = None
-    text_proxy_degraded: bool | None = None
     notes: str = ""
 
 
@@ -143,23 +132,17 @@ def load_scenarios(path: Path) -> list[Scenario]:
             Scenario(
                 scenario_id=entry["scenario_id"],
                 target_context=entry["target_context"],
-                authoring_basis=entry["authoring_basis"],
-                source_example_id=entry.get("source_example_id"),
-                surface=entry["surface"],
+                cue_type=entry["cue_type"],
+                activity_domain=entry["activity_domain"],
+                cognitive_load=entry["cognitive_load"],
+                difficulty_tier=entry["difficulty_tier"],
+                turn_1_image=entry["turn_1_image"],
                 turn_1_user=entry["turn_1_user"],
+                turn_2_image=entry["turn_2_image"],
                 turn_2_user=entry["turn_2_user"],
                 turn_3_repair_anchor=entry["turn_3_repair_anchor"],
-                turn_1_image=entry.get("turn_1_image"),
-                turn_2_image=entry.get("turn_2_image"),
-                cue_type=entry.get("cue_type"),
-                activity_domain=entry.get("activity_domain"),
+                context_image=entry.get("context_image"),
                 time_gap_bucket=entry.get("time_gap_bucket"),
-                ambiguity_marker=entry.get("ambiguity_marker"),
-                modality_required=entry.get("modality_required"),
-                cognitive_load=entry.get("cognitive_load"),
-                difficulty_tier=entry.get("difficulty_tier"),
-                variant=entry.get("variant"),
-                text_proxy_degraded=entry.get("text_proxy_degraded"),
                 notes=entry.get("notes", ""),
             )
         )
@@ -249,6 +232,8 @@ def _build_manifest(
 
     manifest: dict[str, Any] = {
         "benchmark_version": BENCHMARK_VERSION,
+        "schema_version": "v2",
+        "camera_injection": True,
         "scenarios_sha256": _sha_or_warn(SCENARIOS_PATH, "scenarios_sha256"),
         "expected_answers_sha256": _sha_or_warn(
             EXPECTED_ANSWERS_PATH, "expected_answers_sha256"
@@ -384,9 +369,13 @@ def _run_one_trial(
     model_config: ModelConfig,
 ) -> dict:
     """Run one (scenario, condition, trial) cell end-to-end."""
-    messages: list[dict[str, str]] = [
+    messages: list[dict[str, str]] = []
+    # Pre-conversation camera state (only set on recall scenarios)
+    if scenario.context_image:
+        messages.append(_build_context_image_message(scenario.context_image))
+    messages.append(
         _build_message(role="user", text=scenario.turn_1_user, image=scenario.turn_1_image)
-    ]
+    )
     turn_1_response = adapter.query(
         messages=messages, system=condition.system_prompt, config=model_config
     )
@@ -412,6 +401,8 @@ def _run_one_trial(
         f"the target context for Turn 2 is `{scenario.target_context}`."
     )
 
+    ground_truth_context = _build_ground_truth_context(scenario)
+
     judge_verdict = judge.label(
         response=turn_2_response,
         scenario_description=scenario_description,
@@ -420,6 +411,7 @@ def _run_one_trial(
         prior_answers=answers.prior_answers,
         clarify_indicators=answers.clarify_indicators,
         abstain_indicators=answers.abstain_indicators,
+        ground_truth_context=ground_truth_context,
     )
 
     turn_2_passed = judge_verdict.selected_policy == scenario.target_context
@@ -446,6 +438,7 @@ def _run_one_trial(
             prior_answers=answers.prior_answers,
             clarify_indicators=answers.clarify_indicators,
             abstain_indicators=answers.abstain_indicators,
+            ground_truth_context=ground_truth_context,
         )
         turn_3_passed = turn_3_verdict.selected_policy == scenario.target_context
 
@@ -454,7 +447,10 @@ def _run_one_trial(
         "condition": condition.name,
         "trial": trial,
         "target_context": scenario.target_context,
-        "surface": scenario.surface,
+        "cue_type": scenario.cue_type,
+        "activity_domain": scenario.activity_domain,
+        "difficulty_tier": scenario.difficulty_tier,
+        "context_image": scenario.context_image,
         "turn_1_user": scenario.turn_1_user,
         "turn_1_image": scenario.turn_1_image,
         "turn_1_response": turn_1_response,
@@ -489,15 +485,59 @@ def _public_code_signals(signals: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]:
-    """Build a single chat message.
+def _build_ground_truth_context(scenario: Scenario) -> str:
+    """Construct the judge-only ground-truth description.
 
-    Canonical v1 is a transcript-proxy benchmark. `image` is plumbed
-    through the message payload but currently unset in shipped inputs.
+    The candidate model sees perceptual camera descriptions only (no
+    object names). The judge sees this richer ground-truth description
+    so it can determine whether the response reflects T2 or T1 context.
+    """
+    parts: list[str] = []
+    parts.append(
+        f"Cue type: {scenario.cue_type}. "
+        f"Target context: {scenario.target_context}. "
+        f"Activity domain: {scenario.activity_domain}."
+    )
+    if scenario.context_image:
+        parts.append(f"Pre-conversation camera state: {scenario.context_image}")
+    parts.append(f"Turn 1 camera state: {scenario.turn_1_image}")
+    parts.append(f"Turn 2 camera state: {scenario.turn_2_image}")
+    if scenario.notes:
+        parts.append(f"Authoring notes: {scenario.notes}")
+    return "\n\n".join(parts)
+
+
+def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]:
+    """Build a single chat message with optional camera-channel injection.
+
+    The benchmark uses a perceptual-text proxy for the camera frame. When
+    `image` is non-null, it is prepended to the user message as a tagged
+    `[Camera: ...]` block, simulating what a vision backbone would have
+    returned alongside the transcribed user speech.
+
+    Format:
+        [Camera: {image}]
+        {text}
+
+    The `[Camera:]` block represents content the candidate would have
+    received from the wearable's vision channel; the user's spoken words
+    follow on the next line.
     """
     if image:
-        return {"role": role, "content": text, "image": image}
+        content = f"[Camera: {image}]\n{text}"
+        return {"role": role, "content": content}
     return {"role": role, "content": text}
+
+
+def _build_context_image_message(image: str) -> dict[str, str]:
+    """Build a standalone camera-channel message for `context_image`.
+
+    `context_image` represents what the wearable's camera saw before any
+    user speech began. It is injected as a user-role message containing
+    only the `[Camera: ...]` block, with no spoken text. This precedes
+    the T1 message in the conversation.
+    """
+    return {"role": "user", "content": f"[Camera: {image}]"}
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:

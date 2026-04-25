@@ -31,7 +31,7 @@ JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
 JUDGE_MODEL_ID_OPENAI = "openai/gpt-4.1-mini"
 JUDGE_TEMPERATURE = 0.0
 JUDGE_MAX_TOKENS = 1024
-JUDGE_PROMPT_VERSION = "v1.0.0"
+JUDGE_PROMPT_VERSION = "v2.0.0"
 
 
 ALLOWED_POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
@@ -265,8 +265,18 @@ class LLMJudge:
         prior_answers: list[str],
         clarify_indicators: list[str],
         abstain_indicators: list[str],
+        ground_truth_context: str | None = None,
     ) -> JudgeVerdict:
-        """Label the Turn 2 response with one of the four policies."""
+        """Label the Turn 2 response with one of the four policies.
+
+        Args:
+            ground_truth_context: Optional plain-language description of
+                the actual T1 vs. T2 situation, including the names of
+                objects in frame. The judge uses this to determine
+                whether the response reflects T2 (current) or T1 (prior)
+                context. The candidate model never sees this — only the
+                judge does.
+        """
         user_message = _build_user_prompt(
             response=response,
             scenario_description=scenario_description,
@@ -275,6 +285,7 @@ class LLMJudge:
             prior_answers=prior_answers,
             clarify_indicators=clarify_indicators,
             abstain_indicators=abstain_indicators,
+            ground_truth_context=ground_truth_context,
         )
         raw = self._adapter.call(
             system=JUDGE_SYSTEM_PROMPT,
@@ -410,14 +421,29 @@ def _build_user_prompt(
     prior_answers: list[str],
     clarify_indicators: list[str],
     abstain_indicators: list[str],
+    ground_truth_context: str | None = None,
 ) -> str:
-    """Format the judge user message."""
+    """Format the judge user message.
+
+    The optional `ground_truth_context` field gives the judge plain-language
+    information about what's actually in the T1 vs. T2 frames (object
+    names, scene descriptions). The candidate model never sees this; the
+    judge uses it to decide whether the response reflects current or
+    prior context.
+    """
     current_block = _format_list(current_answers)
     prior_block = _format_list(prior_answers)
     clarify_block = _format_list(clarify_indicators)
     abstain_block = _format_list(abstain_indicators)
+    ground_truth_section = ""
+    if ground_truth_context:
+        ground_truth_section = (
+            f"GROUND TRUTH (judge-only, not visible to the candidate):\n"
+            f"{ground_truth_context}\n\n"
+        )
     return (
         f"SCENARIO (Turn 1 context and state shift):\n{scenario_description}\n\n"
+        f"{ground_truth_section}"
         f"TURN 2 USER MESSAGE:\n{turn_2_user}\n\n"
         f"RESPONSE TO LABEL:\n{response}\n\n"
         f"CURRENT ANSWERS (anchors for the `current` policy):\n{current_block}\n\n"
