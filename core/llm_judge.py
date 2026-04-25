@@ -476,6 +476,14 @@ def parse_verdict(raw: str) -> JudgeVerdict:
     if not matches:
         label = _heuristic_label(raw)
         if label is None:
+            if not (raw or "").strip():
+                # Empty response (e.g. from a timed-out candidate/judge that
+                # returned ""). Record as abstain so the runner continues
+                # rather than aborting. Score will be wrong for this cell.
+                return JudgeVerdict(
+                    selected_policy="abstain",
+                    rationale="(no-response fallback — candidate or judge returned empty)",
+                )
             raise ValueError(
                 f"Judge response contained no JSON verdict and no label word: {raw!r}"
             )
