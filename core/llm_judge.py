@@ -435,6 +435,24 @@ def _format_list(items: list[str]) -> str:
 
 
 _JSON_OBJECT_RE = re.compile(r"\{[^{}]*\"selected_policy\"[^{}]*\}", re.DOTALL)
+# Matches label words as whole words; used for heuristic fallback parsing
+# when the judge model does not produce a JSON verdict block.
+_LABEL_RE = re.compile(
+    r"\b(current|prior|clarify|abstain)\b", re.IGNORECASE
+)
+
+
+def _heuristic_label(raw: str) -> str | None:
+    """Extract a label from verbose prose when JSON is absent.
+
+    Scans backwards through the text and returns the last label word found
+    (most likely to be the judge's conclusion). Returns None if no label
+    word appears anywhere.
+    """
+    matches = list(_LABEL_RE.finditer(raw or ""))
+    if not matches:
+        return None
+    return matches[-1].group(1).lower()
 
 
 def parse_verdict(raw: str) -> JudgeVerdict:
@@ -444,13 +462,24 @@ def parse_verdict(raw: str) -> JudgeVerdict:
     last such object, which tolerates any step-by-step reasoning that
     precedes it.
 
+    When no JSON block is found (e.g. a model that produces verbose prose
+    without structured output), a heuristic fallback scans backwards for
+    the last label word and returns a JudgeVerdict with an empty rationale.
+    This keeps the runner alive for models that ignore the JSON instruction.
+
     Raises:
-        ValueError: If no JSON verdict can be parsed or the
-            `selected_policy` field is missing or not in the allowed set.
+        ValueError: If no JSON verdict can be parsed *and* no label word
+            appears in the raw text, or the `selected_policy` extracted
+            via JSON is not in the allowed set.
     """
     matches = list(_JSON_OBJECT_RE.finditer(raw or ""))
     if not matches:
-        raise ValueError(f"Judge response contained no JSON verdict: {raw!r}")
+        label = _heuristic_label(raw)
+        if label is None:
+            raise ValueError(
+                f"Judge response contained no JSON verdict and no label word: {raw!r}"
+            )
+        return JudgeVerdict(selected_policy=label, rationale="(heuristic fallback)")
 
     try:
         payload: dict[str, Any] = json.loads(matches[-1].group(0))
