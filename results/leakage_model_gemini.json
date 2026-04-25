@@ -1,0 +1,134 @@
+[
+  {
+    "scenario_id": "sc-13",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "Over in a different aisle now. What about this for the hallway?"
+  },
+  {
+    "scenario_id": "sc-18",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "Checking back now. They look different from when I poured them. Can I take these out?"
+  },
+  {
+    "scenario_id": "sc-23",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "Pulled into a gas station. The oil-pressure icon is flashing now. What's this telling me?"
+  },
+  {
+    "scenario_id": "sc-26",
+    "target_context": "prior",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "New plug is in. What color was the old one again?"
+  },
+  {
+    "scenario_id": "sc-49",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "It's noon today. It's been in there a full day. Is it done?"
+  },
+  {
+    "scenario_id": "sc-65",
+    "target_context": "prior",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "He's gone up ahead now. Did he ever signal?"
+  },
+  {
+    "scenario_id": "sc-85",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "Put that back. Grabbed a different tool from the middle drawer. Is this one right for a seized lug nut?"
+  },
+  {
+    "scenario_id": "sc-89",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "It's 8:15 now and the toast has wrapped up. How does the energy feel in here?"
+  },
+  {
+    "scenario_id": "sc-90",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "It's 2pm. The roast still looks firm in the center when I poke it. Is it ready?"
+  },
+  {
+    "scenario_id": "sc-91",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "He hopped off. Is there anything left on this cushion?"
+  },
+  {
+    "scenario_id": "sc-92",
+    "target_context": "current",
+    "score_rate": 1.0,
+    "threshold": 0.43000000000000005,
+    "scores": [
+      true,
+      true,
+      true
+    ],
+    "turn_2_user": "It flew off. Is anything knocked over on the surface there?"
+  }
+]
