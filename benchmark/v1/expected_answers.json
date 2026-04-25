@@ -385,11 +385,11 @@
   "sc-26": {
     "current_answers": [],
     "prior_answers": [
-      "NGK",
-      "clean porcelain",
-      "gap was tight",
-      "old plug",
-      "the one I took out"
+      "charred black",
+      "darkened",
+      "porcelain was darkened",
+      "black electrode",
+      "fouled"
     ],
     "clarify_indicators": [
       "remind me",
@@ -423,7 +423,8 @@
     "prior_answers": [
       "toward the mailbox",
       "mailbox side",
-      "toward the street mailbox"
+      "toward the street mailbox",
+      "right"
     ],
     "clarify_indicators": [],
     "abstain_indicators": []
