@@ -8,7 +8,7 @@ between turns, does the model respond from the current situational
 evidence, or does it stay anchored to the prior context?
 
 In standard ML and dialog terminology, the task is **reference
-resolution under cross-turn context shift** — the model has to resolve
+resolution under cross-turn context shift**. The model has to resolve
 the user's reference (their "this", "that", or "it") to the current
 camera frame instead of staying anchored to an earlier frame. We use
 **context tracking** as the casual shorthand throughout this document.
@@ -22,8 +22,8 @@ stuck.
 
 This benchmark is narrow on purpose. It does not measure whether the
 assistant's coaching advice is correct, safe, or domain-appropriate.
-It does not measure multi-turn conversation dynamics beyond a 3-turn
-structure. It does not measure performance on real video frames.
+It does not measure multi-turn conversation dynamics beyond a
+three-turn structure. It does not measure performance on real video frames.
 It does not measure proactive coaching. A model that fails this
 benchmark is unlikely to be viable as a wearable assistant. A model
 that passes still needs separate evaluation for everything this
@@ -62,14 +62,14 @@ different content and is visible to a different audience.
 The candidate model sees what a wearable would see: the user's spoken
 words, plus a scene description of the camera frame at each turn.
 Scene descriptions are what a vision system would say about a camera
-frame — shape, material, color, motion, position — without naming the
+frame: shape, material, color, motion, position, without naming the
 object directly. The judge sees the same thing plus the ground-truth
 answer keys, which name the actual objects in frame. The candidate
 never sees the answer keys.
 
 This separation is the point of the benchmark. The candidate has to
-infer from scene cues alone — shape, motion, material, position —
-which context the question refers to. The judge has the privileged
+infer from scene cues alone (shape, motion, material, position) which
+context the question refers to. The judge has the privileged
 information needed to score whether the candidate got it right.
 
 For the rules that govern how each channel is written, see
@@ -77,15 +77,15 @@ For the rules that govern how each channel is written, see
 
 ## Scenario structure
 
-Each scenario is a 3-turn conversation:
+Each scenario is a three-turn conversation:
 
-1. **Turn 1** — Optional `context_image` injected first (only on
+1. **Turn 1.** Optional `context_image` injected first (only on
    `pre_conversation_recall` scenarios), then `turn_1_image` plus
    `turn_1_user`. Turn 1 establishes the starting state.
-2. **Turn 2** — `turn_2_image` plus `turn_2_user`. The image has
+2. **Turn 2.** `turn_2_image` plus `turn_2_user`. The image has
    changed. The user's question is natural and deictic; it does not
    announce the change.
-3. **Turn 3** — `turn_3_repair_anchor`. Fired only when the candidate
+3. **Turn 3.** `turn_3_repair_anchor`. Fired only when the candidate
    misses on Turn 2. Names the intended frame explicitly. Used to
    compute the repair rate.
 
@@ -109,7 +109,7 @@ The runner builds each user turn as:
 When `turn_N_image` is null, the camera block is omitted and only the
 user message is sent. When `context_image` is populated, it is injected
 as a `[Camera: ...]` block before Turn 1, with no accompanying user
-message — this represents what the wearable's camera saw before the
+message. This represents what the wearable's camera saw before the
 user started speaking.
 
 The candidate model sees the camera block as part of the user turn.
@@ -220,19 +220,19 @@ the cost of user correction. It is not part of the primary score.
 Each run emits a manifest recorded in the findings output. The
 manifest fields include:
 
-- `benchmark_version` — the runner code version (`v1`)
-- `schema_revision` — internal scenario data-format counter (integer)
-- `camera_injection` — boolean; always `true`
-- `scenarios_sha256` — hash of `benchmark/v1/scenarios.json`
-- `expected_answers_sha256` — hash of
+- `benchmark_version`: the runner code version (`v1`)
+- `schema_revision`: internal scenario data-format counter (integer)
+- `camera_injection`: boolean; always `true`
+- `scenarios_sha256`: hash of `benchmark/v1/scenarios.json`
+- `expected_answers_sha256`: hash of
   `benchmark/v1/expected_answers.json`
-- `interventions_sha256` — hash of `benchmark/v1/interventions.json`
-- `judge_prompt_version`, `judge_prompt_sha256` — judge prompt
+- `interventions_sha256`: hash of `benchmark/v1/interventions.json`
+- `judge_prompt_version`, `judge_prompt_sha256`: judge prompt
   identification
 - `candidate_model`, `judge_model`, `judge_family`,
-  `judge_family_resolution` — model and resolution mode
-- `trials`, `temperature`, `ranking_condition` — run parameters
-- `timestamp_utc`, `runner_git_commit` — run identity
+  `judge_family_resolution`: model and resolution mode
+- `trials`, `temperature`, `ranking_condition`: run parameters
+- `timestamp_utc`, `runner_git_commit`: run identity
 
 Two runs with the same `scenarios_sha256`,
 `expected_answers_sha256`, and `judge_prompt_sha256` evaluate against

@@ -55,7 +55,7 @@ def render() -> str:
 
     # Header
     lines.append(
-        "# Scenario Review Sheet — Wearable Assistant Context Benchmark v1"
+        "# Scenario Review Sheet: Wearable Assistant Context Benchmark v1"
     )
     lines.append("")
     lines.append(
@@ -92,7 +92,7 @@ def render() -> str:
     )
     lines.append("- **Shift types (`cue_type`):**")
     for c in CUE_TYPE_ORDER:
-        lines.append(f"  - `{c}` — {cue_counts.get(c, 0)}")
+        lines.append(f"  - `{c}`: {cue_counts.get(c, 0)}")
     domains_sorted = sorted(
         domain_counts.items(), key=lambda x: (-x[1], x[0])
     )
@@ -111,7 +111,7 @@ def render() -> str:
     lines.append("")
     lines.append(
         "1. **Image identifiability.** A fresh reader can identify the "
-        "object from the Turn 1 image and Turn 2 image alone — no scenario "
+        "object from the Turn 1 image and Turn 2 image alone, no scenario "
         "context, no answer key. If not, the description is "
         "underspecified."
     )
@@ -154,7 +154,7 @@ def render() -> str:
     for sc in scenarios:
         sid = sc["scenario_id"]
         lines.append(
-            f"- [{sid}](#{sid}) — `{sc['cue_type']}` / "
+            f"- [{sid}](#{sid}): `{sc['cue_type']}` / "
             f"`{sc['target_context']}` / {sc['activity_domain']} / "
             f"{sc['difficulty_tier']}"
         )
@@ -188,25 +188,25 @@ def render() -> str:
             lines.append(f"> {sc['context_image']}")
             lines.append("")
 
-        lines.append("**Turn 1 — camera (`turn_1_image`):**")
+        lines.append("**Turn 1, camera (`turn_1_image`):**")
         lines.append("")
         lines.append(f"> {sc['turn_1_image']}")
         lines.append("")
         lines.append(
-            f'**Turn 1 — user speech (`turn_1_user`):** *"{sc["turn_1_user"]}"*'
+            f'**Turn 1, user speech (`turn_1_user`):** *"{sc["turn_1_user"]}"*'
         )
         lines.append("")
 
-        lines.append("**Turn 2 — camera (`turn_2_image`):**")
+        lines.append("**Turn 2, camera (`turn_2_image`):**")
         lines.append("")
         lines.append(f"> {sc['turn_2_image']}")
         lines.append("")
         lines.append(
-            f'**Turn 2 — user speech (`turn_2_user`):** *"{sc["turn_2_user"]}"*'
+            f'**Turn 2, user speech (`turn_2_user`):** *"{sc["turn_2_user"]}"*'
         )
         lines.append("")
         lines.append(
-            f'**Turn 3 — repair anchor (`turn_3_repair_anchor`):** '
+            f'**Turn 3, repair anchor (`turn_3_repair_anchor`):** '
             f'*"{sc["turn_3_repair_anchor"]}"*'
         )
         lines.append("")

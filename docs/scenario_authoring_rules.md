@@ -21,7 +21,7 @@ situational evidence, or does it stay anchored to the prior context?
 It does **not** measure:
 
 - Whether the coaching advice is correct, safe, or domain-appropriate
-- Multi-turn conversation dynamics beyond a 3-turn structure
+- Multi-turn conversation dynamics beyond a three-turn structure
 - Performance on actual video frames (these are text proxies)
 - Proactive coaching (noticing without being asked)
 
@@ -93,8 +93,8 @@ was previously visible.
 ## Camera channel rules
 
 Describe what a camera frame would contain at the scene level. Scene
-descriptions are what a vision system would say about a camera frame
-— shape, material, color, motion, position — without naming the
+descriptions are what a vision system would say about a camera frame:
+shape, material, color, motion, position, without naming the
 object directly. Physical properties only. No object names. No
 technique evaluation.
 
@@ -103,7 +103,7 @@ technique evaluation.
 - Describe shape, material, color, texture, motion, and spatial
   position
 - Include enough distinguishing detail that a person reading the
-  description — without any other context — can correctly identify the
+  description, without any other context, can correctly identify the
   object
 - Describe what the user is doing with the object (motion, contact,
   orientation)
@@ -120,19 +120,19 @@ technique evaluation.
   tool than before"`)
 - Announce the context shift (`"user has switched from X to Y"`)
 
-### Quality bar — the human identification test
+### Quality bar: the human identification test
 
 Show the description to a person with no scenario context. They should
 be able to identify the object with high confidence. If they cannot,
 add more distinguishing scene detail. If they identify it immediately
-from one feature, that is acceptable — the description does not need
+from one feature, that is acceptable. The description does not need
 to be cryptic, only non-labeled.
 
 ### Examples
 
 | Wrong | Right |
 |---|---|
-| "User holding a claw hammer above a nail." | "Hand wrapped around a long wooden handle. Heavy metal head at the top — one face flat, the other split into two curved prongs. Positioned above a nail head protruding from a pine board." |
+| "User holding a claw hammer above a nail." | "Hand wrapped around a long wooden handle. Heavy metal head at the top, one face flat, the other split into two curved prongs. Positioned above a nail head protruding from a pine board." |
 | "Correctly gripped Phillips-head screwdriver inserted into screw." | "Right hand gripping a slim metal tool with a crosshead tip, inserted into a fastener partially driven into a wood surface. Elbow raised, wrist rotated." |
 | "Pan of soup on the stove, looks done." | "Shallow metal pan on a gas burner. Liquid surface showing small bubbles around the edges. Steam rising visibly." |
 
@@ -179,10 +179,10 @@ these fields.
 Every `current_answers` and `prior_answers` list must include at least
 one item from each of these three vocabulary categories:
 
-1. **Object name** — `"hammer"`, `"screwdriver"`, `"saucepan"`
-2. **Technique or action vocabulary** — `"swing from the elbow"`,
+1. **Object name.** `"hammer"`, `"screwdriver"`, `"saucepan"`
+2. **Technique or action vocabulary.** `"swing from the elbow"`,
    `"steady torque"`, `"flat strike"`
-3. **State or condition descriptors** — `"flat face down"`,
+3. **State or condition descriptors.** `"flat face down"`,
    `"crosshead tip seated"`, `"partially driven"`
 
 This ensures the judge can score:

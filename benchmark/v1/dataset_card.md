@@ -8,13 +8,13 @@ specific failure mode: when the user's situation changes between
 turns, does the model respond from the current situational evidence,
 or does it stay anchored to the prior context?
 
-Each scenario is a 3-turn conversation with a deliberate context
+Each scenario is a three-turn conversation with a deliberate context
 shift between Turn 1 and Turn 2. The shift is visible only in the
-camera channel — the user does not announce it in speech. The model
+camera channel; the user does not announce it in speech. The model
 has to integrate scene descriptions with deictic user speech to
 determine which context the question refers to. Scene descriptions
-are what a vision system would say about a camera frame — shape,
-material, color, motion, position — without naming the object
+are what a vision system would say about a camera frame: shape,
+material, color, motion, position, without naming the object
 directly.
 
 This is not a coaching benchmark. It does not measure advice quality,
@@ -37,9 +37,9 @@ change between turns.
 See [`docs/schema.md`](../../docs/schema.md) for the full field
 reference. The bank consists of two files:
 
-- `scenarios.json` — a flat array of 50 scenario objects with audio
+- `scenarios.json`: a flat array of 50 scenario objects with audio
   and camera channel content, plus metadata
-- `expected_answers.json` — a dict keyed by `scenario_id`, each value
+- `expected_answers.json`: a dict keyed by `scenario_id`, each value
   containing four answer lists used by the judge
 
 The candidate model receives the audio and camera channels; the
@@ -88,7 +88,7 @@ section naming the actual objects in frame.
 The bank spans 16 distinct activity domains, including kitchen,
 workshop, garden, art and craft, automotive, electronics, sports,
 fitness, music, household, office, navigation, finance, and
-communication. Coverage is broad but shallow — the benchmark does not
+communication. Coverage is broad but shallow. The benchmark does not
 measure domain expertise.
 
 ## Data creation
@@ -102,7 +102,7 @@ inclusion.
 The audio channel (user speech) uses natural deictic language without
 naming objects, describing visible properties, or announcing context
 shifts. The camera channel (image descriptions) describes scene-level
-features — shape, material, color, motion, position — without object
+features: shape, material, color, motion, position, without object
 names or technique evaluation. The ground-truth channel (answer keys)
 is judge-only and uses object names, technique vocabulary, and state
 descriptors freely.
@@ -111,24 +111,24 @@ descriptors freely.
 
 Every scenario passed six validation checks before being committed:
 
-1. **Token-leakage scan** — Programmatic word-boundary check that no
+1. **Token-leakage scan.** Programmatic word-boundary check that no
    `current_answers` or `prior_answers` token appears in any
    user-speech field.
-2. **Object-name scan** — Programmatic word-boundary check that no
+2. **Object-name scan.** Programmatic word-boundary check that no
    common object name (hammer, screwdriver, pan, etc.) appears in any
    image field.
-3. **Schema and structural validation** — All required fields
+3. **Schema and structural validation.** All required fields
    present, types correct, scenario IDs unique, category metadata
    matching, distributions matching the targets.
-4. **Semantic image-identification review** — LLM-driven check that
+4. **Semantic image-identification review.** LLM-driven check that
    each image description identifies its object with high confidence
    to a fresh reader.
-5. **Semantic-leakage isolation test** — LLM-driven check that the
+5. **Semantic-leakage isolation test.** LLM-driven check that the
    Turn 2 image plus Turn 2 user speech alone (without Turn 1
    context) is not sufficient to answer the question correctly. If a
    scenario passes without Turn 1 context, it is not actually testing
    context tracking.
-6. **Cross-scenario duplication check** — Programmatic textual and
+6. **Cross-scenario duplication check.** Programmatic textual and
    structural overlap scan to surface near-duplicates.
 
 Checks 1, 2, 3, and 6 are run on every PR via

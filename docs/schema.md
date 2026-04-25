@@ -5,7 +5,7 @@ Field definitions for `benchmark/v1/scenarios.json` and
 
 The benchmark uses a three-channel design. The candidate model sees two
 of these channels: the audio (user speech) and the camera (image
-descriptions). The third channel — ground truth answers — is visible
+descriptions). The third channel, ground truth answers, is visible
 only to the judge.
 
 For the rules that govern how each channel is written, see
@@ -85,7 +85,7 @@ least one item from each of these three categories:
 
 This three-category rule ensures the judge can score responses that
 name the object, responses that describe technique without naming the
-object, and responses that describe state — all as evidence of which
+object, and responses that describe state, all as evidence of which
 context the model used.
 
 ### Scoring contract

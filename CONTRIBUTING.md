@@ -15,9 +15,9 @@ quality, or domain expertise are not.
 Once the `v1.0.0` release tag is created, the following stay stable
 across patch releases so cross-model comparisons remain valid:
 
-- `benchmark/v1/scenarios.json` — scenario text
-- `benchmark/v1/expected_answers.json` — answer keys
-- `benchmark/v1/interventions.json` — prompt conditions
+- `benchmark/v1/scenarios.json`: scenario text
+- `benchmark/v1/expected_answers.json`: answer keys
+- `benchmark/v1/interventions.json`: prompt conditions
 - The four judge labels (`current`, `prior`, `clarify`, `abstain`)
 - The primary scoring rule (balanced accuracy across `current` and
   `prior` under `baseline`)
@@ -43,9 +43,9 @@ benchmark release rather than an in-place edit.
 
 Adapters live in [`core/`](core). The existing examples are:
 
-- `core/models.py` — Claude adapter
-- `core/gemini_adapter.py` — Gemini adapter
-- `core/litellm_adapter.py` — LiteLLM-backed adapter for OpenAI-family
+- `core/models.py`: Claude adapter
+- `core/gemini_adapter.py`: Gemini adapter
+- `core/litellm_adapter.py`: LiteLLM-backed adapter for OpenAI-family
   and provider-qualified model IDs
 
 Each adapter exposes a `query(messages, system, config)` method

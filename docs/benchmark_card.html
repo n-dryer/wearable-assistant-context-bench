@@ -239,7 +239,7 @@ a {
 
         <section class="section">
           <h2>What this benchmark measures</h2>
-          <p>This benchmark measures context tracking. Each scenario is a 3-turn conversation with a deliberate context shift between Turn 1 and Turn 2. The shift is visible only in the camera channel; the user does not announce it.</p>
+          <p>This benchmark measures context tracking. Each scenario is a three-turn conversation with a deliberate context shift between Turn 1 and Turn 2. The shift is visible only in the camera channel; the user does not announce it.</p>
           <div class="metric">
             <strong>Primary score</strong>
             Balanced Turn 2 accuracy across the <code>current</code> and <code>prior</code> classes under the <code>baseline</code> prompt condition.
@@ -254,9 +254,9 @@ a {
           <h2>Three-channel design</h2>
           <p>Every scenario uses three channels with different audiences:</p>
           <ul>
-            <li><strong>Audio</strong> &mdash; user speech (<code>turn_1_user</code>, <code>turn_2_user</code>). Natural and deictic; never names the object or announces the shift. Visible to candidate and judge.</li>
-            <li><strong>Camera</strong> &mdash; scene descriptions (<code>turn_1_image</code>, <code>turn_2_image</code>) injected as <code>[Camera: &hellip;]</code> blocks on the user side. Shape, material, motion, position; no object names. The camera channel uses scene descriptions in text as a proxy for real video frames. Visible to candidate and judge.</li>
-            <li><strong>Ground truth</strong> &mdash; answer keys naming the actual objects in Turn 1 and Turn 2. Visible to the judge only.</li>
+            <li><strong>Audio.</strong> User speech (<code>turn_1_user</code>, <code>turn_2_user</code>). Natural and deictic; never names the object or announces the shift. Visible to candidate and judge.</li>
+            <li><strong>Camera.</strong> Scene descriptions (<code>turn_1_image</code>, <code>turn_2_image</code>) injected as <code>[Camera: &hellip;]</code> blocks on the user side. Shape, material, motion, position; no object names. The camera channel uses scene descriptions in text as a proxy for real video frames. Visible to candidate and judge.</li>
+            <li><strong>Ground truth.</strong> Answer keys naming the actual objects in Turn 1 and Turn 2. Visible to the judge only.</li>
           </ul>
         </section>
 
@@ -302,12 +302,12 @@ a {
         <section class="section left">
           <h2>Repo pointers</h2>
           <ul>
-            <li><a href="../README.md">README.md</a> &mdash; product framing and quickstart</li>
-            <li><a href="benchmark_spec.md">benchmark_spec.md</a> &mdash; the benchmark contract</li>
-            <li><a href="benchmark_notes.md">benchmark_notes.md</a> &mdash; score interpretation and limitations</li>
-            <li><a href="schema.md">schema.md</a> &mdash; scenario field reference</li>
-            <li><a href="scenario_authoring_rules.md">scenario_authoring_rules.md</a> &mdash; authoring rules and validation checklist</li>
-            <li><a href="../benchmark/v1/dataset_card.md">dataset_card.md</a> &mdash; bank statistics</li>
+            <li><a href="../README.md">README.md</a>: product framing and quickstart</li>
+            <li><a href="benchmark_spec.md">benchmark_spec.md</a>: the benchmark contract</li>
+            <li><a href="benchmark_notes.md">benchmark_notes.md</a>: score interpretation and limitations</li>
+            <li><a href="schema.md">schema.md</a>: scenario field reference</li>
+            <li><a href="scenario_authoring_rules.md">scenario_authoring_rules.md</a>: authoring rules and validation checklist</li>
+            <li><a href="../benchmark/v1/dataset_card.md">dataset_card.md</a>: bank statistics</li>
           </ul>
         </section>
 

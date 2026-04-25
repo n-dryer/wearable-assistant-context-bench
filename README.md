@@ -38,10 +38,10 @@ frame, or stays anchored to prior context after a shift.
 The bank is **50 scenarios across 8 shift-type categories**: object in
 hand, object state, sequential task, location, object in view, absent
 referent, screen content, and pre-conversation recall. Each scenario
-is a 3-turn conversation with scene descriptions injected on the user
+is a three-turn conversation with scene descriptions injected on the user
 side as `[Camera: ...]` blocks. Scene descriptions are what a vision
-system would say about a camera frame — shape, material, color,
-motion, position — without naming the object directly. The model has
+system would say about a camera frame: shape, material, color,
+motion, position, without naming the object directly. The model has
 to integrate those camera blocks with the deictic user speech to
 figure out what context the question refers to.
 
@@ -55,10 +55,10 @@ This is a context-tracking benchmark. It is not a coaching benchmark.
 It does not directly evaluate:
 
 - Whether the coaching advice is correct, safe, or domain-appropriate
-- Multi-turn conversation dynamics beyond a 3-turn structure
+- Multi-turn conversation dynamics beyond a three-turn structure
 - Performance on real video frames (the camera channel uses
   scene descriptions in text as a proxy)
-- Proactive coaching — noticing without being asked
+- Proactive coaching, noticing without being asked
 - Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
 - Latency, cost, audio perception, speaker attribution, or long-horizon
   memory across sessions
@@ -84,26 +84,26 @@ flowchart LR
 The candidate sees the audio channel (user speech) and the camera
 channel (scene descriptions). The judge also receives a
 ground-truth section that names the actual objects in Turn 1 and
-Turn 2 — the candidate never sees that. Each scenario runs across
+Turn 2; the candidate never sees that. Each scenario runs across
 three prompt conditions (`baseline`, `condition_a`, `condition_b`) at
 temperature 0. Turn 3 fires only after a Turn 2 miss and feeds the
 repair rate.
 
 ## Repository layout
 
-- [`benchmark/v1`](benchmark/v1) — scenario bank, runner, and run
+- [`benchmark/v1`](benchmark/v1): scenario bank, runner, and run
   outputs
-- [`core`](core) — model adapters, judge logic, scoring, report
+- [`core`](core): model adapters, judge logic, scoring, report
   generation
-- [`docs/benchmark_spec.md`](docs/benchmark_spec.md) — full benchmark
+- [`docs/benchmark_spec.md`](docs/benchmark_spec.md): full benchmark
   specification
-- [`docs/schema.md`](docs/schema.md) — scenario field reference
-- [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md)
-  — authoring rules and validation checklist
-- [`docs/benchmark_notes.md`](docs/benchmark_notes.md) — score
+- [`docs/schema.md`](docs/schema.md): scenario field reference
+- [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md):
+  authoring rules and validation checklist
+- [`docs/benchmark_notes.md`](docs/benchmark_notes.md): score
   interpretation and limitations
-- [`tests`](tests) — runtime and input-validation tests
-- [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py) —
+- [`tests`](tests): runtime and input-validation tests
+- [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py):
   programmatic checks against the scenario bank
 
 ## Install
@@ -139,10 +139,10 @@ python -m benchmark.v1.run \
 
 Optional flags:
 
-- `--judge-family auto|claude|gemini|openai` — judge family override.
+- `--judge-family auto|claude|gemini|openai`: judge family override.
   Default is `auto`, which picks a different family than the candidate.
-- `--trials <int>` — trials per (scenario, condition) cell. Default is 2.
-- `--output-dir <path>` — output directory. Default is
+- `--trials <int>`: trials per (scenario, condition) cell. Default is 2.
+- `--output-dir <path>`: output directory. Default is
   `benchmark/v1/runs/latest/`.
 
 The runner writes `transcripts.jsonl`, `findings.md`, and a
@@ -211,8 +211,8 @@ Results under `baseline` condition:
 - **primary score: 98.5%** (balanced Turn 2 accuracy across `current` and `prior`)
 - `current` accuracy: **97.0%** (64/66)
 - `prior` accuracy: **100.0%** (24/24)
-- `clarify` accuracy: **100.0%** (6/6) — auxiliary, not in primary score
-- `abstain` accuracy: **100.0%** (4/4) — auxiliary, not in primary score
+- `clarify` accuracy: **100.0%** (6/6). Auxiliary, not in primary score.
+- `abstain` accuracy: **100.0%** (4/4). Auxiliary, not in primary score.
 
 Condition sensitivity (balanced Turn 2 accuracy):
 

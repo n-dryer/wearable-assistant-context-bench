@@ -65,7 +65,7 @@ PRODUCT_PROBLEM_BULLETS = [
 
 WHAT_MEASURED_PARAGRAPH = (
     "This benchmark measures context tracking. Each scenario is a "
-    "3-turn conversation with a deliberate context shift between "
+    "three-turn conversation with a deliberate context shift between "
     "Turn 1 and Turn 2. The shift is visible only in the camera "
     "channel; the user does not announce it."
 )
@@ -93,13 +93,13 @@ THREE_CHANNEL_INTRO = (
 
 THREE_CHANNEL_BULLETS = [
     (
-        "<strong>Audio</strong> &mdash; user speech "
+        "<strong>Audio.</strong> User speech "
         "(<code>turn_1_user</code>, <code>turn_2_user</code>). Natural "
         "and deictic; never names the object or announces the shift. "
         "Visible to candidate and judge."
     ),
     (
-        "<strong>Camera</strong> &mdash; scene descriptions "
+        "<strong>Camera.</strong> Scene descriptions "
         "(<code>turn_1_image</code>, <code>turn_2_image</code>) "
         "injected as <code>[Camera: &hellip;]</code> blocks on the "
         "user side. Shape, material, motion, position; no object "
@@ -108,7 +108,7 @@ THREE_CHANNEL_BULLETS = [
         "judge."
     ),
     (
-        "<strong>Ground truth</strong> &mdash; answer keys naming the "
+        "<strong>Ground truth.</strong> Answer keys naming the "
         "actual objects in Turn 1 and Turn 2. Visible to the judge only."
     ),
 ]
@@ -478,7 +478,7 @@ def _link_list(links: list[tuple[str, str, str]]) -> str:
     rendered = "\n".join(
         (
             "            <li>"
-            f"<a href=\"{href}\">{text}</a> &mdash; {desc}"
+            f"<a href=\"{href}\">{text}</a>: {desc}"
             "</li>"
         )
         for href, text, desc in links

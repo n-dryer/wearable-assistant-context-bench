@@ -33,24 +33,24 @@ tracking.
 The findings output reports accuracy per scored class, not just the
 balanced mean. Read each one separately:
 
-- **`current` accuracy** — fraction of `target_context = current`
+- **`current` accuracy.** Fraction of `target_context = current`
   scenarios where the judge labeled the response `current`. A model
   with high `current` accuracy responds well when the question is
   about what's in the camera right now.
-- **`prior` accuracy** — fraction of `target_context = prior`
+- **`prior` accuracy.** Fraction of `target_context = prior`
   scenarios where the judge labeled the response `prior`. A model with
   high `prior` accuracy correctly answers about an earlier state when
   the user asks about it.
-- **`clarify` accuracy** — fraction of `target_context = clarify`
+- **`clarify` accuracy.** Fraction of `target_context = clarify`
   scenarios where the judge labeled the response `clarify`. Auxiliary;
   not in the primary score.
-- **`abstain` accuracy** — fraction of `target_context = abstain`
+- **`abstain` accuracy.** Fraction of `target_context = abstain`
   scenarios where the judge labeled the response `abstain`. Auxiliary;
   not in the primary score.
 
 Auxiliary classes are reported because `clarify` and `abstain` failures
-have different product implications than `current`/`prior` failures —
-a model that hallucinates rather than abstaining is a different
+have different product implications than `current`/`prior` failures.
+A model that hallucinates rather than abstaining is a different
 problem than a model that picks the wrong frame.
 
 The bank is dominated by `current` (33 scenarios) and `prior` (12).
@@ -69,19 +69,19 @@ Most often this means the model is confused about what to attend to
 and is over-anchoring on Turn 1 even when Turn 2 is the right frame.
 
 A balanced model handles both. The headline score is balanced for
-exactly this reason — to reward models that handle both, not just one.
+exactly this reason: to reward models that handle both, not just one.
 
 ## Condition sensitivity
 
 `baseline`, `condition_a`, and `condition_b` use different system
 prompts:
 
-- `baseline` — minimal system prompt. The model is told it is helping
+- `baseline`. Minimal system prompt. The model is told it is helping
   a user with an ongoing project, nothing more.
-- `condition_a` — direct policy-selection instruction. Tells the model
+- `condition_a`. Direct policy-selection instruction. Tells the model
   the visual context may shift between turns and asks it to decide
   which frame each question refers to before answering.
-- `condition_b` — pre-answer scaffold. Requires the model to identify
+- `condition_b`. Pre-answer scaffold. Requires the model to identify
   the relevant context (`current` or `prior`) on the first line of its
   response, then answer.
 
@@ -108,7 +108,7 @@ its answer after this kind of correction. It measures how recoverable
 a Turn 2 miss is.
 
 In the runner, when the candidate misses on Turn 2, the runner appends
-Turn 3 — a repair anchor that names the intended frame explicitly
+Turn 3, a repair anchor that names the intended frame explicitly
 (`"I mean the hammer I'm holding now, not the screwdriver from
 before"`). The judge labels the Turn 3 response, and the repair rate
 is the fraction of Turn 2 misses that pass on Turn 3.
@@ -139,7 +139,7 @@ as future work.
 ## What this benchmark does not measure
 
 The benchmark is narrow on purpose. It tests one specific failure
-mode — context tracking under situational change — and nothing else.
+mode (context tracking under situational change) and nothing else.
 The following are out of scope by design:
 
 - **Advice quality.** The judge does not check whether the response
@@ -166,17 +166,17 @@ version.
 ## Known v1 limitations and future work
 
 These are real limitations of the v1 release that affect how the
-results should be interpreted. They are not "out of scope" — the
+results should be interpreted. They are not "out of scope". The
 benchmark could measure them but does not yet. Future versions are
 expected to address them.
 
 - **Repair-line style is named, not deictic.** The Turn 3 repair line
   explicitly names both the right and the wrong objects (for example,
   *"I mean the soldering iron I just picked up, not the multimeter
-  probe"*). This measures floor recoverability — given a maximally
+  probe"*). This measures floor recoverability. Given a maximally
   specific user correction, can the model recover? It is not a model
   of realistic user correction behavior, where users typically start
-  with deictic emphasis (*"no, this — what I'm holding now"*) and only
+  with deictic emphasis (*"no, this, what I'm holding now"*) and only
   escalate to explicit naming after the deictic attempt fails. Future
   versions may add deictic-only repair lines for visible-referent
   scenarios to better isolate camera-channel attentiveness from
@@ -245,63 +245,108 @@ in the evaluation pipeline that fits your product.
 
 ## Glossary
 
-- **Reference resolution** — figuring out what a referring expression
+- **Reference resolution.** Figuring out what a referring expression
   like "this", "that", "it", or "earlier" points to. In multi-turn
   dialog, the same word can point to different things in different
   turns, so the model has to resolve which one. Standard term in
   dialog systems and computational linguistics.
-- **Context tracking** — the casual shorthand we use for reference
+- **Context tracking.** The casual shorthand we use for reference
   resolution under cross-turn context shift. Used in MultiChallenge
   and other multi-turn benchmarks. Same task, plain-language label.
-- **Turn** — one user message plus the assistant's response. Each
+- **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the camera channel and conversation history to figure out what the user means.
+- **Turn.** One user message plus the assistant's response. Each
   scenario has up to three turns: Turn 1 (initial question), Turn 2
   (follow-up after the situation has changed), and an optional Turn 3
   (a clarifying repair line, fired only when the model gets Turn 2
   wrong).
-- **Shift type** — project-specific label for the kind of context
+- **Shift type.** Project-specific label for the kind of context
   change between Turn 1 and Turn 2. The benchmark covers eight:
   object swap, object state change, sequential task step, location,
   attention shift, absent referent, screen content, and
   pre-conversation recall. Stored in the data files as `cue_type`.
-  Not a standardized ML benchmark term — closest standard alternative
+  Not a standardized ML benchmark term; closest standard alternative
   would be "scenario category."
-- **Context shift** — a meaningful change between Turn 1 and Turn 2
+- **Context shift.** A meaningful change between Turn 1 and Turn 2
   in what the user is showing, holding, doing, or referring to.
-- **`current`** — judge label for responses grounded in the current
+- **`current`.** Judge label for responses grounded in the current
   (Turn 2) context.
-- **`prior`** — judge label for responses grounded in an earlier
+- **`prior`.** Judge label for responses grounded in an earlier
   context (Turn 1, or `context_image` for pre-conversation recall
   scenarios).
-- **`clarify`** — judge label for responses that ask the user to
+- **`clarify`.** Judge label for responses that ask the user to
   disambiguate.
-- **`abstain`** — judge label for responses that decline or claim the
+- **`abstain`.** Judge label for responses that decline or claim the
   model cannot answer.
-- **Prompt conditions** — the three prompt setups used: `baseline`,
+- **Prompt conditions.** The three prompt setups used: `baseline`,
   `condition_a`, `condition_b`.
-- **Default comparison condition** — the condition used for the
+- **Default comparison condition.** The condition used for the
   headline number. Always `baseline`.
-- **Balanced accuracy** — the mean of per-class accuracy across the
+- **Balanced accuracy.** The mean of per-class accuracy across the
   two scored classes (`current` and `prior`).
-- **Repair** — a conversational repair is a follow-up message that
+- **Repair.** A conversational repair is a follow-up message that
   fixes a misunderstanding. The benchmark fires a Turn 3 repair when
   the model gets Turn 2 wrong; the model gets one chance to recover.
-- **Repair rate** — fraction of Turn 2 misses where the model gives
+- **Repair rate.** Fraction of Turn 2 misses where the model gives
   the right answer after the Turn 3 repair line. Descriptive metric
   name; not a fixed term across benchmarks. Adjacent terms in the
   literature: "recovery rate," "correction success rate."
-- **Self-preference bias** — the tendency of a model used as judge to
+- **Repair line style.** How the user phrases the Turn 3 correction when the model misses Turn 2. Two main styles exist. Named: "I mean the soldering iron I just picked up, not the multimeter probe" (current v1 style). Deictic: "no, this, what I'm holding now". The v1 benchmark uses named repairs, which measures floor recoverability rather than realistic user behavior. See "Known v1 limitations and future work" for context.
+- **Self-preference bias.** The tendency of a model used as judge to
   rate outputs from its own family more favorably than outputs from
   other families. Established term in LLM-as-judge literature
   (JudgeBench, MT-Bench). Mitigated by using a different model family
   as judge.
-- **Inter-annotator agreement (IAA)** — when two or more people
+- **Inter-annotator agreement (IAA).** When two or more people
   independently label the same item and you measure how often they
   agree. Standard practice in ML datasets to confirm labels reflect
   shared understanding rather than one person's opinion. Common
   metrics: Cohen's kappa (two raters), Fleiss' kappa (three or more),
   or simple percent agreement.
-- **Scene description** — what a vision system would say about a
+- **Scene description.** What a vision system would say about a
   camera frame: shape, material, color, motion, position. In this
   benchmark, scene descriptions follow an authoring rule: they
   describe physical features without naming the object directly. The
   model has to identify what's in frame from those features.
+- **Proactive coaching.** When the assistant flags a problem or
+  offers advice without being directly asked. Example: noticing that
+  the user is reaching toward a hot pan and prompting them before
+  they touch it. This benchmark only scores responses to direct user
+  questions; proactive behavior is out of scope.
+- **Ablation.** A controlled experiment that tests how much a
+  specific feature or input contributes to a model's performance, by
+  running the same evaluation with that feature removed and comparing
+  scores. A "camera-channel ablation" would compare runs with versus
+  without the `[Camera: ...]` blocks to quantify how much the camera
+  channel actually contributes to the score.
+- **Hallucination.** When a model produces an answer that sounds
+  confident but is not supported by the evidence available to it. In
+  a context-tracking benchmark, hallucinating a description of an
+  object that isn't actually in frame is a failure even if the wording
+  is fluent.
+- **Macro average.** The mean of per-class scores, weighting each
+  class equally. Different from "micro average," which weights each
+  example equally and lets large classes dominate. The primary score
+  in this benchmark uses macro average across `current` and `prior`
+  so neither class can dominate the headline number.
+- **Scaffold (pre-answer scaffold).** A prompt structure that
+  requires the model to produce intermediate reasoning before its
+  final answer. The `condition_b` prompt asks the model to identify
+  the relevant context (`current` or `prior`) on the first line of
+  its response, then answer. The scaffold structures the reasoning
+  step.
+- **Speaker attribution.** Identifying which person spoke a given
+  utterance when multiple people are present. Distinguishing the
+  wearable's user from a coworker or family member in the same room.
+  Out of scope for this benchmark.
+- **Addressee detection.** Telling whether the user is talking to the
+  assistant, to another person, or to themselves. A wearable that
+  streams audio constantly needs to know when a question is for it.
+  Out of scope for this benchmark.
+- **Audio perception.** Understanding spoken-language input directly
+  from raw audio (rather than from a text transcript). Includes
+  accent handling, ambient noise robustness, prosody, and tone. Out
+  of scope for this benchmark.
+- **Long-horizon memory.** Memory that persists across multiple
+  conversations or sessions, not just within a single conversation.
+  A wearable might remember last week's project state when the user
+  picks it back up; this benchmark does not test that.

@@ -27,7 +27,7 @@ OUT_HTML = Path("docs/review/scenarios_review.html")
 OUT_PDF = Path("docs/review/scenarios_review.pdf")
 
 
-# Color coding by target context — quick visual filter when scanning
+# Color coding by target context: quick visual filter when scanning
 TARGET_COLORS = {
     "current": ("#1f6f4a", "#dff0e7"),   # green
     "prior": ("#234a85", "#e0e8f3"),     # blue
@@ -68,7 +68,7 @@ def render_html() -> str:
     diff_counts = Counter(s["difficulty_tier"] for s in scenarios)
 
     # ------------------------------------------------------------------
-    # CSS — print-friendly, A4 portrait, one scenario per page
+    # CSS: print-friendly, A4 portrait, one scenario per page
     # ------------------------------------------------------------------
     css = """
     @page {
@@ -444,7 +444,7 @@ def render_html() -> str:
     ]
 
     # ------------------------------------------------------------------
-    # Cover page — overview, summary, checklist
+    # Cover page: overview, summary, checklist
     # ------------------------------------------------------------------
     parts.append('<section class="cover">')
     parts.append('<div class="kicker">Wearable Assistant Context Benchmark v1</div>')
@@ -498,7 +498,7 @@ def render_html() -> str:
     parts.append("<ol>")
     parts.append(
         "<li><strong>Camera identifies the object.</strong> Read the Turn 1 "
-        "and Turn 2 camera descriptions cold — without seeing the answer "
+        "and Turn 2 camera descriptions cold, without seeing the answer "
         "vocabulary. You should be able to identify what's in frame from "
         "the description alone. If you can't, the description is too vague."
         "</li>"
@@ -526,7 +526,7 @@ def render_html() -> str:
         "<li><strong>Answer vocabulary is reasonable.</strong> The "
         "judge-only vocabulary at the bottom should cover the right things "
         "for both contexts (object name, technique, state). You don't need "
-        "to memorize it — just sanity-check it makes sense."
+        "to memorize it. Just sanity-check it makes sense."
         "</li>"
     )
     parts.append(
@@ -585,7 +585,7 @@ def render_html() -> str:
             parts.append('<div class="pre-conversation">')
             parts.append(
                 '<div class="turn-label">Before the conversation '
-                "started — what the camera saw</div>"
+                "started: what the camera saw</div>"
             )
             parts.append(
                 f'<div class="camera-text">{_esc(sc["context_image"])}</div>'
@@ -639,7 +639,7 @@ def render_html() -> str:
         # Repair line
         parts.append('<div class="repair-line">')
         parts.append(
-            '<div class="repair-label">Repair line — fired only if model '
+            '<div class="repair-label">Repair line, fired only if model '
             "misses Turn 2</div>"
         )
         parts.append(
@@ -686,7 +686,7 @@ def render_html() -> str:
             )
         parts.append("</div>")
 
-        # Review area — checkboxes + notes lines
+        # Review area: checkboxes + notes lines
         parts.append('<div class="review-area">')
         parts.append('<div class="review-label">Your call</div>')
         parts.append('<div class="checkboxes">')
