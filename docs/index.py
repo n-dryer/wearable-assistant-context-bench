@@ -421,7 +421,7 @@ def render_html() -> str:
         </section>
 
         <div class="footer">
-            <div>Released under the MIT License. Code and scenarios at
+            <div>Built by <strong>Nate Dryer</strong>. Released under the MIT License. Code and scenarios at
             <a href="https://github.com/n-dryer/wearable-assistant-context-bench">github.com/n-dryer/wearable-assistant-context-bench</a>.
             For citation, see <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/CITATION.cff">CITATION.cff</a>.</div>
             <div class="links">

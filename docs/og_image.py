@@ -187,7 +187,7 @@ def render() -> None:
     stats = [
         ("50", "scenarios"),
         ("4", "published runs"),
-        ("3-channel", "design"),
+        ("Reference", "resolution"),
         ("MIT", "license"),
     ]
     col_w = (WIDTH - 160) // len(stats)
@@ -202,15 +202,22 @@ def render() -> None:
             label_font,
         )
 
-    # Footer URL
-    url_font = _font(20, "Bold")
+    # Footer attribution (left) and URL (right)
+    footer_font = _font(20, "Bold")
+    author_text = "by Nate Dryer"
+    draw.text(
+        (80, HEIGHT - 80),
+        author_text,
+        fill=INK_MUTED,
+        font=footer_font,
+    )
     url_text = "n-dryer.github.io/wearable-assistant-context-bench"
-    url_w = draw.textlength(url_text, font=url_font)
+    url_w = draw.textlength(url_text, font=footer_font)
     draw.text(
         (WIDTH - 80 - int(url_w), HEIGHT - 80),
         url_text,
         fill=ACCENT,
-        font=url_font,
+        font=footer_font,
     )
 
     img.save(OUT_PATH, "PNG", optimize=True)
