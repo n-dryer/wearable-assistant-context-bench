@@ -174,8 +174,8 @@ def render() -> None:
     # ---- Subtitle (two lines) -------------------------------------------
     subtitle_font = _font(26)
     subtitle_lines = [
-        "Does the model use the camera frame the user is looking at",
-        "right now, or stay anchored to an earlier one?",
+        "When the user's situation changes mid-conversation, does the",
+        "assistant follow along, or stay stuck on what was happening before?",
     ]
     y = 320
     for line in subtitle_lines:
@@ -189,7 +189,6 @@ def render() -> None:
     badges = [
         "50 scenarios",
         "4 published runs",
-        "Reference resolution",
         "MIT license",
     ]
     gap = 12

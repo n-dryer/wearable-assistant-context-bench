@@ -28,46 +28,46 @@ KICKER = "v1 &middot; scenario bank"
 TITLE = "Wearable Assistant Context Benchmark"
 
 SUBTITLE = (
-    "A model-selection benchmark for whether a multimodal assistant "
-    "updates to <strong>current context</strong> instead of staying "
-    "anchored to <strong>prior context</strong> after the user's "
-    "situation changes between turns."
+    "A model-selection benchmark for wearable AI assistants. Tests "
+    "whether smart glasses update to <strong>current context</strong> "
+    "instead of staying anchored to <strong>prior context</strong> as "
+    "the user's point-of-view changes between turns."
 )
 
 HERO_BADGES = [
     "50 scenarios",
-    "8 shift-type categories",
-    "3 prompt conditions",
-    "balanced Turn 2 accuracy",
+    "4 published runs",
 ]
 
 PRODUCT_PROBLEM_PARAGRAPHS = [
     (
-        "Users should not have to keep restating what they are looking "
-        "at, holding, or referring to after they move, switch objects, "
-        "or otherwise change context."
+        "Wearable AI fails if users must constantly narrate their "
+        "changing environment. To be frictionless, smart glasses "
+        "must silently track the user's point-of-view as they move, "
+        "look around, or swap objects."
     ),
     "Examples:",
 ]
 
 PRODUCT_PROBLEM_BULLETS = [
     (
-        "Bedroom to kitchen. The user asks about a wall, walks into "
-        "the kitchen, and asks about it again. The assistant should "
-        "answer about the kitchen wall, not the bedroom wall."
+        "Task shift: A user asks about a recipe on a tablet, looks "
+        "down at a pan on the stove, and asks, \"Is this done?\" "
+        "The assistant must evaluate the food in the pan, not the "
+        "text on the tablet."
     ),
     (
-        "Hammer to screwdriver. The user asks about a hammer, swaps "
-        "to a screwdriver, then asks \"how do I use this?\" The "
-        "assistant should answer about the screwdriver."
+        "Object swap: A user looks at a stripped bolt, picks up a "
+        "pair of pliers, and asks, \"Will this work?\" The assistant "
+        "must evaluate the pliers in hand, not the bolt."
     ),
 ]
 
 WHAT_MEASURED_PARAGRAPH = (
-    "This benchmark measures context tracking. Each scenario is a "
-    "three-turn conversation with a deliberate context shift between "
-    "Turn 1 and Turn 2. The shift is visible only in the camera "
-    "channel; the user does not announce it."
+    "This benchmark measures context tracking. Each scenario has "
+    "three turns with a deliberate context shift between Turn 1 and "
+    "Turn 2. The shift is visible only in the video channel; the "
+    "user does not announce it out loud."
 )
 
 PRIMARY_SCORE_METRIC = {
@@ -88,28 +88,29 @@ AUXILIARY_METRIC = {
 }
 
 THREE_CHANNEL_INTRO = (
-    "Every scenario uses three channels with different audiences:"
+    "Every scenario carries three inputs, each with a different audience:"
 )
 
 THREE_CHANNEL_BULLETS = [
     (
         "<strong>Audio.</strong> User speech "
         "(<code>turn_1_user</code>, <code>turn_2_user</code>). Natural "
-        "and deictic; never names the object or announces the shift. "
+        "phrasing, with references that depend on the scene; the user "
+        "never names the object outright or announces the shift. "
         "Visible to candidate and judge."
     ),
     (
-        "<strong>Camera.</strong> Scene descriptions "
+        "<strong>Video.</strong> Scene descriptions "
         "(<code>turn_1_image</code>, <code>turn_2_image</code>) "
-        "injected as <code>[Camera: &hellip;]</code> blocks on the "
-        "user side. Shape, material, motion, position; no object "
-        "names. The camera channel uses scene descriptions in text as "
-        "a proxy for real video frames. Visible to candidate and "
-        "judge."
+        "injected on the user side as <code>[Camera: &hellip;]</code> "
+        "blocks (the literal field marker from the scenario JSON). "
+        "Shape, material, motion, position; no object names. The "
+        "video input is short text descriptions, used as a proxy for "
+        "real video frames. Visible to candidate and judge."
     ),
     (
-        "<strong>Ground truth.</strong> Answer keys naming the "
-        "actual objects in Turn 1 and Turn 2. Visible to the judge only."
+        "<strong>Ground truth.</strong> Answer keys naming the actual "
+        "objects in Turn 1 and Turn 2. Visible to the judge only."
     ),
 ]
 
@@ -125,8 +126,8 @@ CUE_TYPE_COUNTS = [
 ]
 
 SCENARIO_BANK_INTRO = (
-    "50 scenarios across 8 shift-type categories. The shape of the "
-    "shift is what the categories describe."
+    "50 scenarios across eight kinds of context shift. The shape of "
+    "the shift is what the categories describe."
 )
 
 SCENARIO_BANK_FOOTER = (
@@ -151,8 +152,8 @@ HOW_TO_READ_BULLETS = [
         "<code>condition_a</code> and <code>condition_b</code> are "
         "prompt-sensitivity diagnostics, not replacement scores. A "
         "model that only clears the bar with the pre-answer scaffold "
-        "is not the same ship-readiness story as one that clears it "
-        "under <code>baseline</code>."
+        "is a different signal than one that clears it under "
+        "<code>baseline</code>."
     ),
     (
         "The repair rate stands in for user-correction cost after a "
@@ -168,14 +169,14 @@ NOT_MEASURED_BULLETS = [
         "context."
     ),
     (
-        "<strong>Multi-turn dynamics.</strong> The conversation is 3 "
-        "turns. Long conversations and branching dialogue are out of "
-        "scope."
+        "<strong>Multi-turn flow past Turn 2.</strong> The "
+        "conversation is three turns. Long conversations and "
+        "branching dialogue are out of scope."
     ),
     (
-        "<strong>Real video.</strong> The camera channel uses scene "
-        "descriptions in text as a proxy. Performance here is not a "
-        "guarantee of performance on actual video frames."
+        "<strong>Real video.</strong> The video input is text "
+        "descriptions of the scene, not actual frames. Performance "
+        "here is not a guarantee of performance on real video."
     ),
     (
         "<strong>Proactive coaching.</strong> Only direct-question "
@@ -211,15 +212,15 @@ REPO_LINKS = [
 RESULTS_METRIC = {
     "title": "v1 results: 4 runs published",
     "body": (
-        "Cross-family judging baselines and a camera channel ablation. "
+        "Cross-family judging baselines plus a video ablation. "
         "Run A: <code>gemini-2.5-flash-lite</code> candidate + "
         "<code>gpt-4o-mini</code> judge: <strong>92.8%</strong>. "
         "Run B: <code>gpt-4o-mini</code> candidate + "
         "<code>gemini-2.5-flash-lite</code> judge: <strong>100.0%</strong>. "
-        "Run C: same as Run A but with <code>--no-camera</code>: "
-        "<strong>7.2%</strong>. The 85.6 percentage point gap between "
-        "Run A and Run C is the camera channel's contribution. Full "
-        "results table at "
+        "Run C: same as Run A with the video input hidden "
+        "(<code>--no-camera</code> flag): <strong>7.2%</strong>. The "
+        "85.6 percentage point gap between Run A and Run C is the "
+        "video channel's contribution. Full results table at "
         "<a href=\"https://n-dryer.github.io/wearable-assistant-context-bench/\">"
         "n-dryer.github.io/wearable-assistant-context-bench</a>."
     ),
@@ -533,7 +534,7 @@ def render_html() -> str:
         </section>
 
         <section class="section left">
-          <h2>Three-channel design</h2>
+          <h2>Three inputs</h2>
           <p>{THREE_CHANNEL_INTRO}</p>
 {_bullets(THREE_CHANNEL_BULLETS)}
         </section>

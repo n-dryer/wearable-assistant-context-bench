@@ -124,9 +124,9 @@ context misses. The repair anchor is templated and explicit. It tells
 you whether the model can be corrected, not whether real users would
 phrase their corrections that way.
 
-## Camera channel ablation
+## Video ablation
 
-The camera channel is what carries the scene description into the
+The video channel is what carries the scene description into the
 model's context. The benchmark asserts that this channel does real
 work: without it, the model should not be able to track context
 shifts, because the only signal that something changed is the
@@ -135,18 +135,20 @@ description.
 
 The v1 release ships an ablation that tests this assertion. Two runs
 were executed with the same Gemini Flash Lite candidate and the same
-GPT-4o-mini cross-family judge. The only variable was the camera
-channel itself, controlled by the `--no-camera` flag on the runner.
+GPT-4o-mini cross-family judge. The only variable was the video
+channel itself, controlled by the `--no-camera` flag on the runner
+(the flag name is preserved for backward compatibility with the
+runner CLI).
 
-| Run | Camera channel | Primary score (`baseline`) | `current` accuracy | `prior` accuracy |
-|-----|----------------|----------------------------|---------------------|-------------------|
-| Run A | on | 92.8% | 93.9% | 91.7% |
-| Run C | off (`--no-camera`) | 7.2% | 6.1% | 8.3% |
+| Run | Video | Primary score (`baseline`) | `current` accuracy | `prior` accuracy |
+|-----|-------|----------------------------|---------------------|-------------------|
+| Run A | shown | 92.8% | 93.9% | 91.7% |
+| Run C | hidden (`--no-camera`) | 7.2% | 6.1% | 8.3% |
 | **Delta** | | **85.6 pp** | **87.8 pp** | **83.4 pp** |
 
-Without the camera channel, the same model collapses from 92.8%
+Without the video channel, the same model collapses from 92.8%
 balanced accuracy to 7.2%, a drop of 85.6 percentage points. The
-camera channel is doing essentially all the work in this benchmark.
+video channel is doing essentially all the work in this benchmark.
 The deictic user speech alone is not enough for the model to track
 context shifts.
 

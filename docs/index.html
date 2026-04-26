@@ -4,20 +4,20 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Wearable Assistant Context Benchmark</title>
-        <meta name="description" content="A benchmark for measuring whether multimodal assistants update to current context instead of staying anchored to prior context.">
+        <meta name="description" content="When the user's situation changes mid-conversation, does a wearable AI assistant follow along, or stay stuck on what was happening before? 50 scenarios scored across four runs.">
 
         <meta property="og:type" content="website">
         <meta property="og:title" content="Wearable Assistant Context Benchmark">
-        <meta property="og:description" content="50 scenarios. Three-channel design. Cross-family LLM-as-judge. Camera channel ablation. v1.0.0 published April 2026.">
+        <meta property="og:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 50 scenarios, four published runs. v1.0.0 April 2026.">
         <meta property="og:url" content="https://n-dryer.github.io/wearable-assistant-context-bench/">
         <meta property="og:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="Wearable Assistant Context Benchmark v1.0.0. 50 scenarios, 4 published runs, 3-channel design, MIT license.">
+        <meta property="og:image:alt" content="Wearable Assistant Context Benchmark v1.0.0. 50 scenarios, four published runs, MIT license.">
 
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="Wearable Assistant Context Benchmark">
-        <meta name="twitter:description" content="50 scenarios. Three-channel design. Cross-family LLM-as-judge. Camera channel ablation. v1.0.0 published April 2026.">
+        <meta name="twitter:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 50 scenarios, four published runs. v1.0.0 April 2026.">
         <meta name="twitter:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
         <meta name="twitter:image:alt" content="Wearable Assistant Context Benchmark v1.0.0.">
 
@@ -130,6 +130,19 @@ section.row h2 {
     color: #2b2118;
 }
 
+section.row h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b14f31;
+    margin: 24px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+section.row h3:first-of-type {
+    margin-top: 18px;
+}
+
 table.leaderboard {
     width: 100%;
     border-collapse: collapse;
@@ -204,6 +217,34 @@ ul.bullets li {
     background: #faf5ee;
 }
 
+.callout .callout-stat.flow {
+    font-size: 22px;
+    font-variant-numeric: tabular-nums;
+}
+
+dl.glossary {
+    margin: 14px 0 0 0;
+    padding: 0;
+}
+
+dl.glossary dt {
+    font-weight: 700;
+    font-size: 15px;
+    color: #2b2118;
+    margin-top: 16px;
+}
+
+dl.glossary dt:first-of-type {
+    margin-top: 0;
+}
+
+dl.glossary dd {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 15px;
+    color: #5b4a3d;
+}
+
 .footer {
     margin-top: 40px;
     padding-top: 22px;
@@ -231,163 +272,324 @@ ul.bullets li {
         <div class="kicker">v1 &middot; published April 2026</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-            Tests whether multimodal assistants follow the situation
-            in front of them or get stuck on the one a turn ago. Built
-            to pick a model for a live wearable assistant.
+            A smart wearable sees what you see and hears what you
+            say. When your situation changes (you swap tools, walk
+            into a new room), does the assistant follow along, or
+            stay stuck on what was happening before? This benchmark
+            scores that.
         </p>
 
         <div class="badges">
             <span class="badge">50 scenarios</span>
-            <span class="badge">8 shift-type categories</span>
-            <span class="badge">3 prompt conditions</span>
-            <span class="badge">balanced T2 accuracy</span>
-            <span class="badge">MIT license</span>
+            <span class="badge">4 published runs</span>
         </div>
 
         <section class="row">
-            <div class="label">v1 results</div>
-            <h2>Leaderboard</h2>
-            <p>Four runs. The headline number is balanced Turn 2
-            accuracy under <code>baseline</code>. That's the average
-            of <code>current</code> accuracy and <code>prior</code>
-            accuracy. Every run hit all 50 scenarios across 3 prompt
-            conditions with 2 trials each (300 cells per run).</p>
+            <div class="label">The setup</div>
+            <h2>How the test works</h2>
+            <p>Picture glasses that see what you see and hear what
+            you say. You ask them questions and they answer.</p>
+            <p>In the middle of a conversation, your situation
+            changes. You picked up a different tool. You walked
+            into another room. You didn't say it out loud. It just
+            happened in front of the glasses. Then you ask a
+            follow-up. Does the assistant answer about what's
+            happening now, or about what was happening a minute
+            ago?</p>
+            <p>Each scenario has three turns. Turn 1 sets the
+            scene. Between Turn 1 and Turn 2, something visible
+            changes. Turn 2 is a question that only makes sense if
+            the assistant noticed the change. We score whether the
+            answer reflects the new scene (<code>current</code>)
+            or the old one (<code>prior</code>).</p>
+            <p><strong>One disclosure up front.</strong> The
+            video input is short text descriptions of the scene,
+            not actual video frames. That keeps the benchmark
+            cheap and reproducible, but it means a model that does
+            well here might not do well on real video. More on
+            that in <a href="#out-of-scope">Out of scope</a>.</p>
+        </section>
+
+        <section class="row">
+            <div class="label">Four runs</div>
+            <h2>Results</h2>
+
+            <p><strong>What the score means.</strong> The headline
+            number is <strong>Balanced Turn 2 accuracy</strong>: how
+            often the model picks the right reference. Half the
+            scenarios are designed so the right answer is
+            <code>current</code> (about the new scene); half so the
+            right answer is <code>prior</code> (about the old one).
+            The score averages how often the model is correct on
+            each. 100% means correct in both directions on every
+            scenario.</p>
+
+            <p><strong>What's in a run.</strong> A run is one model
+            setup tested against all 50 scenarios with the same
+            candidate, the same judge, and the same video setting
+            throughout. Each scenario is repeated under three
+            system prompts (the neutral baseline plus two nudge
+            variants), two trials each. That's 300 calls per run.
+            The judge reads every Turn 2 answer and labels it
+            <code>current</code>, <code>prior</code>,
+            <code>clarify</code>, or <code>abstain</code>; the
+            score is computed from those labels.</p>
+
+            <p><strong>What "same family" vs "cross family" means.</strong>
+            Same family: the candidate model and the judge model
+            come from the same maker (e.g., both Gemini). Cross
+            family: different makers (e.g., a Gemini answer graded
+            by a GPT judge). Cross-family pairings remove
+            <em>self-preference bias</em>, the tendency of a model
+            to grade its own family more favorably.</p>
+
+            <p>Each row below is a different experiment, not a
+            ranked entry. The rows aren't sorted by score because
+            they're not directly comparable: one is an
+            uncorrected-bias baseline, one is an ablation. Compare
+            within the table by holding the rest constant.</p>
 
             <table class="leaderboard">
                 <thead>
                     <tr>
                         <th>Run</th>
+                        <th>What it shows</th>
                         <th>Candidate</th>
                         <th>Judge</th>
-                        <th>Family pairing</th>
-                        <th>Camera</th>
-                        <th>Primary score</th>
+                        <th>Video</th>
+                        <th>Balanced Turn 2 accuracy</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Original</td>
-                        <td><code>gemini-2.5-flash-lite</code></td>
-                        <td><code>gemini-2.5-flash-lite</code></td>
-                        <td>same family</td>
-                        <td>on</td>
-                        <td class="score">98.5%</td>
-                    </tr>
                     <tr class="highlight">
                         <td><strong>Run A</strong></td>
+                        <td>Cross-family baseline</td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td><code>gpt-4o-mini</code></td>
-                        <td>cross family</td>
-                        <td>on</td>
+                        <td>shown</td>
                         <td class="score">92.8%</td>
                     </tr>
                     <tr class="highlight">
                         <td><strong>Run B</strong></td>
+                        <td>Cross-family, different candidate</td>
                         <td><code>gpt-4o-mini</code></td>
                         <td><code>gemini-2.5-flash-lite</code></td>
-                        <td>cross family</td>
-                        <td>on</td>
+                        <td>shown</td>
                         <td class="score">100.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Original</td>
+                        <td>Same-family judge (inflated)</td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td>shown</td>
+                        <td class="score">98.5%</td>
                     </tr>
                     <tr class="highlight">
                         <td><strong>Run C</strong></td>
+                        <td>Run A with video removed</td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td><code>gpt-4o-mini</code></td>
-                        <td>cross family</td>
-                        <td><strong>off</strong></td>
+                        <td><strong>hidden</strong></td>
                         <td class="score">7.2%</td>
                     </tr>
                 </tbody>
             </table>
+
+            <p style="font-size: 14px; color: #6b5a4d; margin-top: 14px;">
+                <strong>Test conditions.</strong> Every run covered
+                all 50 scenarios under the neutral
+                <code>baseline</code> system prompt plus two
+                variants that nudge toward <code>current</code> or
+                <code>prior</code>, two trials each. That's 300
+                calls per run. Scores in this table are from the
+                <code>baseline</code> prompt only; the variants are
+                in the raw run output in the
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/tree/main/benchmark/v1/runs">runs
+                directory</a>.
+            </p>
         </section>
 
         <section class="row">
-            <div class="label">Cross-family judging correction</div>
+            <div class="label">Video ablation</div>
+            <h2>Without video, the model can't answer</h2>
+            <div class="callout">
+                <div class="callout-title">Same Gemini, video shown vs hidden</div>
+                <div class="callout-stat flow">92.8% &rarr; 7.2%</div>
+                <p>Strip the video out of the prompt and the same
+                Gemini candidate drops 85.6 percentage points. The
+                model has nothing to work with: the user is asking
+                "is this right?" and never says what "this" is.
+                The video channel is carrying the test.</p>
+            </div>
+        </section>
+
+        <section class="row">
+            <div class="label">Judge bias</div>
             <h2>When a model judges itself, it scores higher</h2>
             <div class="callout">
-                <div class="callout-title">Original &rarr; Run A delta</div>
-                <div class="callout-stat">&minus;5.7 pp</div>
-                <p>Same Gemini candidate, two different judges. Gemini
-                judging Gemini gives it 98.5%. GPT-4o-mini judging the
-                same Gemini gives it 92.8%. The 5.7 point gap is a
-                model rating its own family more favorably. Cross-family
-                judging is the default here so this can't happen
-                quietly.</p>
+                <div class="callout-title">Same Gemini candidate, judge swapped</div>
+                <div class="callout-stat flow">98.5% &rarr; 92.8%</div>
+                <p>Gemini judging Gemini gives it 98.5%. GPT-4o-mini
+                judging the same Gemini gives it 92.8%. The 5.7
+                point gap is a model rating its own family more
+                favorably. Cross-family judging is the default here
+                so this can't happen quietly.</p>
             </div>
         </section>
 
         <section class="row">
-            <div class="label">Camera channel ablation</div>
-            <h2>The camera channel does the work</h2>
-            <div class="callout">
-                <div class="callout-title">Run A vs Run C delta</div>
-                <div class="callout-stat">&minus;85.6 pp</div>
-                <p>Turn the camera off and the same Gemini candidate
-                drops from 92.8% to 7.2%. Without the camera, the
-                model has nothing to work with: the user is asking
-                "is this right?" and never says what "this" is. The
-                camera is carrying the test.</p>
-            </div>
-        </section>
-
-        <section class="row">
-            <div class="label">Multi-model comparison</div>
+            <div class="label">Two candidate models</div>
             <h2>GPT-4o-mini scores higher than Gemini Flash Lite</h2>
             <div class="callout muted">
-                <div class="callout-title">Run A vs Run B</div>
-                <div class="callout-stat">92.8% vs 100.0%</div>
+                <div class="callout-title">Same scenarios, different candidate</div>
+                <div class="callout-stat flow">92.8% (Gemini) vs 100.0% (GPT)</div>
                 <p>Both runs use cross-family judging on the same
                 scenarios. GPT-4o-mini got every cell right. Worth
                 flagging: the benchmark might not separate the
                 strongest current models from each other. Harder
-                scenarios are a v2 question.</p>
+                scenarios are a v2 question. With only 50 scenarios
+                and 2 trials per cell, small score differences here
+                may also be noise — see <a href="#out-of-scope">Out
+                of scope</a>.</p>
             </div>
         </section>
 
-        <section class="row">
-            <div class="label">The test, in plain English</div>
-            <h2>Picking the right frame, turn by turn</h2>
-            <p>Three-turn conversations. Between Turn 1 and Turn 2
-            the user's situation changes. They swap tools, walk into
-            a different room, switch what's on a screen, that kind of
-            thing. The change shows up in the camera; the user
-            doesn't announce it out loud. When they ask a follow-up
-            like "am I doing this right?", does the model answer
-            about what's in the camera now, or about what was there
-            a turn ago?</p>
-            <p>Design details are in
-            <a href="benchmark_spec.html">benchmark_spec</a>. How to
-            read scores and what's out of scope is in
-            <a href="benchmark_notes.html">benchmark_notes</a>. The
-            one-page summary card is at
-            <a href="benchmark_card.html">benchmark_card</a> or
-            <a href="wearable_assistant_context_card.pdf">PDF</a>.</p>
+        <section class="row" id="out-of-scope">
+            <h2>Out of scope</h2>
+
+            <h3>Inputs</h3>
+            <ul class="bullets">
+                <li><strong>Real video frames.</strong> The video
+                    input is short text descriptions of the scene,
+                    not actual frames. A model that does well here
+                    might not do well on real video.</li>
+                <li><strong>Live audio and voice mode.</strong>
+                    Scoring is on text. A real wearable also needs
+                    to listen, talk back, and handle interruptions
+                    in real time. None of that is exercised here.</li>
+            </ul>
+
+            <h3>Answer characteristics</h3>
+            <ul class="bullets">
+                <li><strong>Advice quality.</strong> The judge
+                    doesn't check whether the answer is correct,
+                    safe, or appropriate to the domain. A
+                    confidently wrong answer can pass.</li>
+                <li><strong>Domain depth.</strong> Whether the
+                    advice is expert-level for cooking,
+                    woodworking, or any other activity in the
+                    scenario.</li>
+                <li><strong>Proactive coaching.</strong> Whether
+                    the assistant volunteers help unprompted.</li>
+            </ul>
+
+            <h3>Conversation shape</h3>
+            <ul class="bullets">
+                <li><strong>Multi-turn flow past Turn 2.</strong>
+                    Whether the conversation works naturally from
+                    Turn 3 onward.</li>
+                <li><strong>Long-horizon memory.</strong> Recall
+                    across days or weeks.</li>
+                <li><strong>Audio understanding.</strong>
+                    Recognizing what kind of sound is happening,
+                    who's talking, and whether they're talking to
+                    the assistant.</li>
+            </ul>
+
+            <h3>Engineering and statistics</h3>
+            <ul class="bullets">
+                <li><strong>Latency and cost.</strong> Wall-clock
+                    response time and price per call. Not
+                    measured.</li>
+                <li><strong>Statistical significance.</strong> 50
+                    scenarios with two trials each gives 100 eval
+                    points per condition. At that sample size,
+                    small score differences (a few points) may not
+                    be significant. v1 reports point estimates
+                    only; confidence intervals are a v2 question.</li>
+            </ul>
+
+            <p>Full discussion in
+            <a href="benchmark_notes.html">benchmark_notes</a>.</p>
         </section>
 
-        <section class="row">
-            <div class="label">What it doesn't test</div>
-            <h2>Out of scope</h2>
-            <ul class="bullets">
-                <li><strong>Advice quality.</strong> The judge doesn't
-                    check whether the answer is correct, safe, or
-                    appropriate to the domain. A confidently wrong
-                    answer can pass.</li>
-                <li><strong>Real video.</strong> The "camera" is text
-                    descriptions of what the camera would see, not
-                    actual frames. A model that does well here might
-                    not do well on real video.</li>
-                <li><strong>Live audio and voice mode.</strong>
-                    Scoring is on text. A model that ships in a real
-                    wearable also needs to listen, talk back, and
-                    handle interruptions in real time. None of that
-                    is exercised here.</li>
-                <li><strong>Multi-turn dynamics, proactive coaching,
-                    domain depth, latency, cost, audio perception,
-                    speaker attribution, addressee detection,
-                    long-horizon memory.</strong> Out of scope. Full
-                    list in
-                    <a href="benchmark_notes.html">benchmark_notes</a>.</li>
-            </ul>
+        <section class="row" id="glossary">
+            <h2>Glossary</h2>
+            <dl class="glossary">
+                <dt>Wearable AI assistant</dt>
+                <dd>A device worn on the body (glasses, pin, watch)
+                with a camera and microphone, plus an AI model that
+                can answer questions about what it sees and hears.</dd>
+
+                <dt>Context shift</dt>
+                <dd>The user's situation changes mid-conversation.
+                They pick up a different tool, walk into a new
+                room, switch what's on a screen. The change is
+                visible to the wearable but not stated out loud.</dd>
+
+                <dt>Turn</dt>
+                <dd>One message exchange. Each scenario has three
+                turns: Turn 1 sets the scene, the situation shifts,
+                then Turn 2 is the question we score. Turn 3 is
+                reserved for repair if needed.</dd>
+
+                <dt><code>current</code> vs <code>prior</code></dt>
+                <dd>The two ways a Turn 2 answer can land.
+                <code>current</code> means the answer is about the
+                new situation (the model noticed the shift).
+                <code>prior</code> means the answer is about the
+                situation before the shift (the model didn't
+                notice).</dd>
+
+                <dt>Balanced Turn 2 accuracy</dt>
+                <dd>The headline score. Half of scenarios are
+                designed so the right answer is <code>current</code>;
+                half so the right answer is <code>prior</code>.
+                The score averages how often the model is correct
+                on each. 100% means correct in both directions on
+                every scenario.</dd>
+
+                <dt>Run</dt>
+                <dd>One model setup tested against all 50
+                scenarios with the same candidate, the same judge,
+                and the same video setting throughout. Each
+                scenario is repeated under three system prompts
+                (the neutral baseline plus two nudge variants),
+                two trials each. That's 300 model calls per run.</dd>
+
+                <dt>Baseline prompt</dt>
+                <dd>The neutral system prompt used for the headline
+                score. Two other prompt variants nudge the model
+                toward <code>current</code> or <code>prior</code>;
+                those are reported in the raw run output but kept
+                out of the headline.</dd>
+
+                <dt>Judge model</dt>
+                <dd>A second LLM that reads the candidate's Turn 2
+                answer and labels it <code>current</code> or
+                <code>prior</code>. Lets us score open-ended text
+                answers without a human in the loop.</dd>
+
+                <dt>Same-family vs cross-family judging</dt>
+                <dd>Same family: candidate and judge are from the
+                same maker (e.g., both Gemini). Cross family:
+                different makers (e.g., a Gemini answer judged by
+                GPT). Cross-family is used here to remove
+                self-preference bias.</dd>
+
+                <dt>Self-preference bias</dt>
+                <dd>A model's tendency to grade its own family's
+                answers more favorably than answers from other
+                families. Visible here as the 5.7-point gap between
+                Original and Run A.</dd>
+
+                <dt>Ablation</dt>
+                <dd>Removing one input from the test to measure how
+                much it was contributing. Run C ablates the video
+                input, leaving the model with only the user's
+                words.</dd>
+            </dl>
         </section>
 
         <div class="footer">
@@ -395,11 +597,14 @@ ul.bullets li {
             <a href="https://github.com/n-dryer/wearable-assistant-context-bench">github.com/n-dryer/wearable-assistant-context-bench</a>.
             For citation, see <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/CITATION.cff">CITATION.cff</a>.</div>
             <div class="links">
+                <a href="#glossary">Glossary</a>
                 <a href="https://github.com/n-dryer/wearable-assistant-context-bench">GitHub repo</a>
-                <a href="benchmark_spec.html">Spec</a>
-                <a href="benchmark_notes.html">Notes</a>
-                <a href="schema.html">Schema</a>
-                <a href="scenario_authoring_rules.html">Authoring rules</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_spec.md">Spec</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_notes.md">Notes</a>
+                <a href="benchmark_card.html">One-page card</a>
+                <a href="wearable_assistant_context_card.pdf">PDF</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/schema.md">Schema</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/scenario_authoring_rules.md">Authoring rules</a>
             </div>
         </div>
 

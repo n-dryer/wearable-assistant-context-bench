@@ -4,8 +4,10 @@
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A benchmark for measuring whether multimodal assistants update to
-current context instead of staying anchored to prior context.
+A smart wearable sees what you see and hears what you say. When the
+user's situation changes (they swap tools, walk into a new room),
+does the assistant follow along, or stay stuck on what was
+happening before? This benchmark scores that.
 
 ## Why this exists
 
@@ -32,22 +34,24 @@ record.
 ## What this benchmark measures
 
 This benchmark measures **context tracking**. It tests whether a
-model uses the current situational evidence visible in the camera
-frame, or stays anchored to prior context after a shift.
+model uses the current situational evidence visible in the video
+input, or stays anchored to prior context after a shift.
 
-The bank is **50 scenarios across 8 shift-type categories**: object in
-hand, object state, sequential task, location, object in view, absent
-referent, screen content, and pre-conversation recall. Each scenario
-is a three-turn conversation with scene descriptions injected on the user
-side as `[Camera: ...]` blocks. Scene descriptions are what a vision
-system would say about a camera frame: shape, material, color,
-motion, position, without naming the object directly. The model has
-to integrate those camera blocks with the deictic user speech to
-figure out what context the question refers to.
+The bank is **50 scenarios across eight kinds of context shift**:
+object in hand, object state, sequential task, location, object in
+view, absent referent, screen content, and pre-conversation recall.
+Each scenario has three turns, with scene descriptions injected on
+the user side as `[Camera: ...]` blocks (the literal field name from
+the scenario JSON). Scene descriptions are what a vision system would
+say about a video frame: shape, material, color, motion, position,
+without naming the object directly. The model has to combine those
+scene blocks with user speech that depends on the scene to figure out
+what the question is about.
 
 The judge labels each Turn 2 response with one of `current`, `prior`,
-`clarify`, or `abstain`. The primary score is balanced accuracy across
-`current` and `prior` under the `baseline` prompt condition.
+`clarify`, or `abstain`. The primary score is **Balanced Turn 2
+accuracy**: the average of `current` accuracy and `prior` accuracy
+under the `baseline` system prompt.
 
 ## What this benchmark does NOT measure
 
@@ -55,13 +59,17 @@ This is a context-tracking benchmark. It is not a coaching benchmark.
 It does not directly evaluate:
 
 - Whether the coaching advice is correct, safe, or domain-appropriate
-- Multi-turn conversation dynamics beyond a three-turn structure
-- Performance on real video frames (the camera channel uses
-  scene descriptions in text as a proxy)
+- Multi-turn conversation flow past Turn 2
+- Performance on real video frames (the video channel uses scene
+  descriptions in text as a proxy)
 - Proactive coaching, noticing without being asked
 - Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
-- Latency, cost, audio perception, speaker attribution, or long-horizon
-  memory across sessions
+- Latency, cost, audio understanding, speaker attribution, or
+  long-horizon memory across sessions
+- Statistical significance: 50 scenarios with two trials per cell
+  gives 100 eval points per condition. Small score differences (a
+  few points) may not be significant. v1 reports point estimates
+  only; confidence intervals are a v2 question.
 
 A model that fails this benchmark is unlikely to be viable as a
 wearable assistant. A model that passes still needs separate
@@ -72,22 +80,22 @@ evaluation for everything in this list.
 ```mermaid
 flowchart LR
     Ctx["[Camera: t0 frame]<br/>(optional context_image)"] --> T1["Turn 1<br/>[Camera: t1 frame]<br/>+ user speech"]
-    T1 --> Shift["Context shift<br/>(visible only in camera)"]
-    Shift --> T2["Turn 2<br/>[Camera: t2 frame]<br/>+ deictic user speech"]
+    T1 --> Shift["Context shift<br/>(visible only in video)"]
+    Shift --> T2["Turn 2<br/>[Camera: t2 frame]<br/>+ user speech"]
     T2 --> Cand["Candidate model"]
     Cand --> Judge["LLM judge<br/>(different family by default)<br/>+ ground truth"]
     Judge --> Label{"Judge label"}
-    Label -->|current or prior| Score["Primary score<br/>balanced T2 accuracy"]
+    Label -->|current or prior| Score["Primary score<br/>Balanced Turn 2 accuracy"]
     Label -->|clarify or abstain| Aux["Auxiliary diagnostics"]
 ```
 
-The candidate sees the audio channel (user speech) and the camera
-channel (scene descriptions). The judge also receives a
-ground-truth section that names the actual objects in Turn 1 and
-Turn 2; the candidate never sees that. Each scenario runs across
-three prompt conditions (`baseline`, `condition_a`, `condition_b`) at
-temperature 0. Turn 3 fires only after a Turn 2 miss and feeds the
-repair rate.
+The candidate sees the audio channel (user speech) and the video
+channel (scene descriptions). The judge also receives a ground-truth
+section that names the actual objects in Turn 1 and Turn 2; the
+candidate never sees that. Each scenario runs under three system
+prompts — the neutral `baseline` plus `condition_a` and `condition_b`,
+two nudge variants — at temperature 0. Turn 3 fires only after a
+Turn 2 miss and feeds the repair rate.
 
 ## Repository layout
 
@@ -145,8 +153,9 @@ Optional flags:
 - `--output-dir <path>`: output directory. Default is
   `benchmark/v1/runs/latest/`.
 
-The runner writes `transcripts.jsonl`, `findings.md`, and a
-reproducibility manifest into the output directory.
+The runner writes `transcripts.jsonl` and `findings.md` (which
+includes a reproducibility manifest as a JSON block) into the
+output directory.
 
 ## Verify the repo
 
@@ -172,7 +181,7 @@ than the candidate (Claude candidate → Gemini judge, Gemini candidate
 its own family more favorably. Explicit `claude`, `gemini`, and
 `openai` overrides are supported.
 
-The judge receives the same audio and camera channels as the
+The judge receives the same audio and video channels as the
 candidate, plus a ground-truth section that names the actual objects
 in the Turn 1 and Turn 2 frames. The candidate never sees this
 ground-truth section. The split lets the judge reliably determine
@@ -181,12 +190,12 @@ context.
 
 ## How to read the primary score
 
-The primary score is **balanced Turn 2 accuracy across `current` and
+The primary score is **Balanced Turn 2 accuracy across `current` and
 `prior` under `baseline`**.
 
 Balanced means the mean of per-class accuracy across the two scored
 classes, so one class does not dominate the headline number.
-`baseline` is the default comparison condition; `condition_a` and
+`baseline` is the default comparison system prompt; `condition_a` and
 `condition_b` are prompt-sensitivity checks, not replacement scores.
 
 On this benchmark, score deltas matter more than absolute values.
@@ -198,25 +207,31 @@ For interpretation guidance, see
 
 Four runs are published with v1: an original same-family baseline,
 two cross-family runs covering two different candidate model families,
-and a camera channel ablation.
+and a video ablation.
 
-Headline table, primary score (balanced Turn 2 accuracy under
+Headline table, primary score (Balanced Turn 2 accuracy under
 `baseline`):
 
-| Run | Candidate | Judge | Camera | Primary score |
-|-----|-----------|-------|--------|---------------|
-| Original | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same family) | on | 98.5% |
-| **Run A** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | on | **92.8%** |
-| **Run B** | `gpt-4o-mini` | `gemini-2.5-flash-lite` (cross family) | on | **100.0%** |
-| **Run C** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | **off** | **7.2%** |
+| Run | Candidate | Judge | Video | Balanced Turn 2 accuracy |
+|-----|-----------|-------|-------|--------------------------|
+| Original | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same family) | shown | 98.5% |
+| **Run A** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | shown | **92.8%** |
+| **Run B** | `gpt-4o-mini` | `gemini-2.5-flash-lite` (cross family) | shown | **100.0%** |
+| **Run C** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | **hidden** | **7.2%** |
 
-All runs: 50 scenarios, 3 prompt conditions, 2 trials per cell, 300
-total cells per run. All candidates are vision-capable models from
+All runs: 50 scenarios under three system prompts (the neutral
+`baseline` plus two nudge variants), 2 trials per cell, 300 total
+calls per run. All candidates are vision-capable models from
 families that ship full omnimodal stacks suitable for a wearable
 deployment (vision in, audio in, audio out, real-time streaming).
 
 ### What the runs show
 
+- **Video ablation.** With the video channel hidden from the prompt
+  (Run C, 7.2%), the same Gemini candidate that scored 92.8% with
+  video collapses to near-floor. The 85.6 percentage point gap is
+  the video channel's contribution under `baseline`. The video
+  channel is doing real work, not decoration.
 - **Cross-family judging correction.** Switching from same-family
   judging (Original, 98.5%) to cross-family judging (Run A, 92.8%)
   drops the same Gemini candidate's score by 5.7 percentage points.
@@ -224,12 +239,9 @@ deployment (vision in, audio in, audio out, real-time streaming).
 - **Multi-model comparison.** GPT-4o-mini (Run B, 100.0%) clearly
   outperforms Gemini Flash Lite (Run A, 92.8%) on this task. Both
   numbers come from cross-family judging, so the comparison is
-  apples-to-apples.
-- **Camera channel ablation.** With the camera channel turned off
-  (Run C, 7.2%), the same Gemini candidate that scored 92.8% with
-  the camera collapses to near-floor. The 85.6 percentage point gap
-  is the camera channel's contribution under `baseline`. The camera
-  channel is doing real work, not decoration.
+  apples-to-apples. With only 100 eval points per condition (50
+  scenarios × 2 trials), small differences here may also be
+  sampling noise.
 
 Per-class accuracy in each run is in the run's `findings.md`. Full
 transcripts are at:
@@ -243,7 +255,7 @@ transcripts are at:
 
 These four runs are not a complete leaderboard. They are the v1
 release set: enough to show the benchmark works end-to-end, that
-cross-family judging matters, that the camera channel matters, and
+cross-family judging matters, that the video channel matters, and
 that two different candidate models produce meaningfully different
 scores. Score deltas between runs on the same scenario bank are the
 right signal. See

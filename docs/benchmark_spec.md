@@ -22,8 +22,8 @@ stuck.
 
 This benchmark is narrow on purpose. It does not measure whether the
 assistant's coaching advice is correct, safe, or domain-appropriate.
-It does not measure multi-turn conversation dynamics beyond a
-three-turn structure. It does not measure performance on real video frames.
+It does not measure multi-turn conversation dynamics beyond three
+turns. It does not measure performance on real video frames.
 It does not measure proactive coaching. A model that fails this
 benchmark is unlikely to be viable as a wearable assistant. A model
 that passes still needs separate evaluation for everything this
@@ -77,7 +77,7 @@ For the rules that govern how each channel is written, see
 
 ## Scenario structure
 
-Each scenario is a three-turn conversation:
+Each scenario has three turns:
 
 1. **Turn 1.** Optional `context_image` injected first (only on
    `pre_conversation_recall` scenarios), then `turn_1_image` plus
