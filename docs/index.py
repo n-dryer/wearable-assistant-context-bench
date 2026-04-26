@@ -224,6 +224,8 @@ ul.bullets li {
 dl.glossary {
     margin: 14px 0 0 0;
     padding: 0;
+    column-count: 2;
+    column-gap: 40px;
 }
 
 dl.glossary dt {
@@ -231,6 +233,8 @@ dl.glossary dt {
     font-size: 15px;
     color: #2b2118;
     margin-top: 16px;
+    break-after: avoid;
+    page-break-after: avoid;
 }
 
 dl.glossary dt:first-of-type {
@@ -242,6 +246,12 @@ dl.glossary dd {
     padding: 0;
     font-size: 15px;
     color: #5b4a3d;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+@media (max-width: 720px) {
+    dl.glossary { column-count: 1; }
 }
 
 .footer {
@@ -341,11 +351,11 @@ def render_html() -> str:
             <div class="label">Results</div>
             <h2>Four experimental runs</h2>
 
-            <p>Each row below is a different experiment, not a
-            ranked entry. The primary metric is
-            <strong>Balanced Turn 2 accuracy</strong> — how often
-            the model picks the right reference (<code>current</code>
-            or <code>prior</code>). Term definitions in the
+            <p>Each row below is an isolated experiment, not a
+            ranked leaderboard. The score measures how often the
+            assistant correctly realizes your environment has
+            changed versus getting stuck on what happened
+            previously. Full test conditions are in the
             <a href="#glossary">Glossary</a>.</p>
 
             <table class="leaderboard">
@@ -356,7 +366,7 @@ def render_html() -> str:
                         <th>Candidate</th>
                         <th>Judge</th>
                         <th>Video</th>
-                        <th>Balanced Turn 2 accuracy</th>
+                        <th>Accuracy score</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -394,19 +404,6 @@ def render_html() -> str:
                     </tr>
                 </tbody>
             </table>
-
-            <p style="font-size: 14px; color: #6b5a4d; margin-top: 14px;">
-                <strong>Test conditions.</strong> Every run covered
-                all 50 scenarios under the neutral
-                <code>baseline</code> system prompt plus two
-                variants that nudge toward <code>current</code> or
-                <code>prior</code>, two trials each. That's 300
-                calls per run. Scores in this table are from the
-                <code>baseline</code> prompt only; the variants are
-                in the raw run output in the
-                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/tree/main/benchmark/v1/runs">runs
-                directory</a>.
-            </p>
         </section>
 
         <section class="row">
