@@ -28,7 +28,7 @@ CSS = """
 html, body {
     margin: 0;
     padding: 0;
-    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-family: "Inter", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     color: #2b2118;
     background: radial-gradient(circle at 30% 20%, #fffaf4 0%, #f6f1ea 100%);
     min-height: 100vh;
@@ -117,7 +117,7 @@ section.row .label {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    color: #b14f31;
+    color: #6b5a4d;
     margin-bottom: 12px;
 }
 
@@ -175,7 +175,7 @@ table.leaderboard tr.highlight td {
 
 .callout {
     background: #f0e8dd;
-    border-radius: 14pt;
+    border-radius: 14px;
     padding: 18px 22px;
     margin-top: 18px;
 }
@@ -221,37 +221,47 @@ ul.bullets li {
     font-variant-numeric: tabular-nums;
 }
 
-dl.glossary {
-    margin: 14px 0 0 0;
-    padding: 0;
-    column-count: 2;
-    column-gap: 40px;
+.glossary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 40px;
+    margin-top: 14px;
 }
 
-dl.glossary dt {
+.glossary-cat h3 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #b14f31;
+    margin: 0 0 10px 0;
+}
+
+.glossary-cat dl {
+    margin: 0;
+    padding: 0;
+}
+
+.glossary-cat dt {
     font-weight: 700;
     font-size: 15px;
     color: #2b2118;
-    margin-top: 16px;
-    break-after: avoid;
-    page-break-after: avoid;
+    margin-top: 14px;
 }
 
-dl.glossary dt:first-of-type {
+.glossary-cat dt:first-of-type {
     margin-top: 0;
 }
 
-dl.glossary dd {
+.glossary-cat dd {
     margin: 4px 0 0 0;
     padding: 0;
     font-size: 15px;
     color: #5b4a3d;
-    break-inside: avoid;
-    page-break-inside: avoid;
 }
 
 @media (max-width: 720px) {
-    dl.glossary { column-count: 1; }
+    .glossary-grid { grid-template-columns: 1fr; gap: 28px; }
 }
 
 .footer {
@@ -268,6 +278,16 @@ dl.glossary dd {
 
 .footer .links a {
     margin-right: 18px;
+}
+
+.footer .links-label {
+    display: inline-block;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+    color: #6b5a4d;
+    margin-right: 14px;
 }
 
 @media (max-width: 720px) {
@@ -427,27 +447,30 @@ def render_html() -> str:
                 <div class="callout-title">Same Gemini candidate, judge swapped</div>
                 <div class="callout-stat flow">98.5% &rarr; 92.8%</div>
                 <p>Gemini judging Gemini gives it 98.5%. GPT-4o-mini
-                judging the same Gemini gives it 92.8%. The 5.7
-                point gap is a model rating its own family more
-                favorably. Cross-family judging is the default here
-                so this can't happen quietly.</p>
+                judging the same Gemini gives it 92.8%. The 5.7-point
+                gap is a model rating its own family more favorably.
+                Cross-family judging is the default here so this
+                can't happen quietly.</p>
             </div>
         </section>
 
         <section class="row">
             <div class="label">Model comparison</div>
-            <h2>GPT-4o-mini scores higher than Gemini Flash Lite</h2>
+            <h2>Both models score high — a v1 finding in itself</h2>
             <div class="callout muted">
                 <div class="callout-title">Same scenarios, different candidate</div>
-                <div class="callout-stat flow">92.8% (Gemini) vs 100.0% (GPT)</div>
+                <div class="callout-stat flow">92.8% (Gemini Flash Lite) vs 100.0% (GPT-4o-mini)</div>
                 <p>Both runs use cross-family judging on the same
-                scenarios. GPT-4o-mini got every cell right. Worth
-                flagging: the benchmark might not separate the
-                strongest current models from each other. Harder
-                scenarios are a v2 question. With only 50 scenarios
-                and 2 trials per cell, small score differences here
-                may also be noise — see <a href="#out-of-scope">Out
-                of scope</a>.</p>
+                scenarios. GPT-4o-mini got every cell right; Gemini
+                Flash Lite cleared the bar comfortably too. The
+                7.2-point gap is informative, but the high absolute
+                scores also suggest v1 is approaching its ceiling.
+                v2 likely needs harder scenarios — or richer inputs
+                like real audio and real video frames — to better
+                separate the strongest models. With only 50
+                scenarios and 2 trials per cell, small differences
+                here may also be sampling noise; see
+                <a href="#out-of-scope">Out of scope</a>.</p>
             </div>
         </section>
 
@@ -512,81 +535,123 @@ def render_html() -> str:
         </section>
 
         <section class="row" id="glossary">
+            <div class="label">Reference</div>
             <h2>Glossary</h2>
-            <dl class="glossary">
-                <dt>Wearable AI assistant</dt>
-                <dd>A device worn on the body (glasses, pin, watch)
-                with a camera and microphone, plus an AI model that
-                can answer questions about what it sees and hears.</dd>
+            <div class="glossary-grid">
 
-                <dt>Context shift</dt>
-                <dd>The user's situation changes mid-conversation.
-                They pick up a different tool, walk into a new
-                room, switch what's on a screen. The change is
-                visible to the wearable but not stated out loud.</dd>
+                <div class="glossary-cat">
+                    <h3>What's being tested</h3>
+                    <dl>
+                        <dt>Wearable AI assistant</dt>
+                        <dd>A device worn on the body — smart
+                        glasses, an AI pin (e.g., LUCI), a clip-on
+                        — that continuously captures what the user
+                        sees and hears, paired with an AI model
+                        that can answer questions about the live
+                        scene or recall what just happened.</dd>
 
-                <dt>Turn</dt>
-                <dd>One message exchange. Each scenario has three
-                turns: Turn 1 sets the scene, the situation shifts,
-                then Turn 2 is the question we score. Turn 3 is
-                reserved for repair if needed.</dd>
+                        <dt>Context shift</dt>
+                        <dd>The user's situation changes
+                        mid-conversation. They pick up a different
+                        tool, walk into a new room, switch what's
+                        on a screen. The change is visible to the
+                        wearable but not stated out loud.</dd>
+                    </dl>
+                </div>
 
-                <dt><code>current</code> vs <code>prior</code></dt>
-                <dd>The two ways a Turn 2 answer can land.
-                <code>current</code> means the answer is about the
-                new situation (the model noticed the shift).
-                <code>prior</code> means the answer is about the
-                situation before the shift (the model didn't
-                notice).</dd>
+                <div class="glossary-cat">
+                    <h3>How a scenario is constructed</h3>
+                    <dl>
+                        <dt>Turn</dt>
+                        <dd>One message exchange. Each scenario
+                        has three turns: Turn 1 sets the scene,
+                        the situation shifts, then Turn 2 is the
+                        question we score.</dd>
 
-                <dt>Balanced Turn 2 accuracy</dt>
-                <dd>The headline score. Half of scenarios are
-                designed so the right answer is <code>current</code>;
-                half so the right answer is <code>prior</code>.
-                The score averages how often the model is correct
-                on each. 100% means correct in both directions on
-                every scenario.</dd>
+                        <dt>Video input</dt>
+                        <dd>Short text descriptions of the scene
+                        injected into the user message, standing
+                        in for what a real video frame would
+                        show. Cheap, reproducible; not real
+                        frames.</dd>
 
-                <dt>Run</dt>
-                <dd>One model setup tested against all 50
-                scenarios with the same candidate, the same judge,
-                and the same video setting throughout. Each
-                scenario is repeated under three system prompts
-                (the neutral baseline plus two nudge variants),
-                two trials each. That's 300 model calls per run.</dd>
+                        <dt><code>current</code> vs <code>prior</code></dt>
+                        <dd>The two ways a Turn 2 answer can land.
+                        <code>current</code> means the answer is
+                        about the new situation (the model
+                        noticed the shift). <code>prior</code>
+                        means the answer is about the situation
+                        before the shift (the model didn't
+                        notice).</dd>
+                    </dl>
+                </div>
 
-                <dt>Baseline prompt</dt>
-                <dd>The neutral system prompt used for the headline
-                score. Two other prompt variants nudge the model
-                toward <code>current</code> or <code>prior</code>;
-                those are reported in the raw run output but kept
-                out of the headline.</dd>
+                <div class="glossary-cat">
+                    <h3>How the test runs</h3>
+                    <dl>
+                        <dt>Run</dt>
+                        <dd>One model setup tested against all 50
+                        scenarios with the same candidate, the
+                        same judge, and the same video setting
+                        throughout. Each scenario is repeated
+                        under three system prompts (the neutral
+                        baseline plus two nudge variants), two
+                        trials each. That's 300 model calls per
+                        run.</dd>
 
-                <dt>Judge model</dt>
-                <dd>A second LLM that reads the candidate's Turn 2
-                answer and labels it <code>current</code> or
-                <code>prior</code>. Lets us score open-ended text
-                answers without a human in the loop.</dd>
+                        <dt>Baseline prompt</dt>
+                        <dd>The neutral system prompt used for
+                        the headline score. Two other prompt
+                        variants nudge the model toward
+                        <code>current</code> or <code>prior</code>;
+                        those are reported in the raw run output
+                        but kept out of the headline.</dd>
 
-                <dt>Same-family vs cross-family judging</dt>
-                <dd>Same family: candidate and judge are from the
-                same maker (e.g., both Gemini). Cross family:
-                different makers (e.g., a Gemini answer judged by
-                GPT). Cross-family is used here to remove
-                self-preference bias.</dd>
+                        <dt>Ablation</dt>
+                        <dd>Removing one input from the test to
+                        measure how much it was contributing.
+                        Run C ablates the video input, leaving
+                        the model with only the user's words.</dd>
+                    </dl>
+                </div>
 
-                <dt>Self-preference bias</dt>
-                <dd>A model's tendency to grade its own family's
-                answers more favorably than answers from other
-                families. Visible here as the 5.7-point gap between
-                Original and Run A.</dd>
+                <div class="glossary-cat">
+                    <h3>How the test is graded</h3>
+                    <dl>
+                        <dt>Judge model</dt>
+                        <dd>A second LLM that reads the
+                        candidate's Turn 2 answer and labels it
+                        <code>current</code> or <code>prior</code>.
+                        Lets us score open-ended text answers
+                        without a human in the loop.</dd>
 
-                <dt>Ablation</dt>
-                <dd>Removing one input from the test to measure how
-                much it was contributing. Run C ablates the video
-                input, leaving the model with only the user's
-                words.</dd>
-            </dl>
+                        <dt>Same-family vs cross-family judging</dt>
+                        <dd>Same family: candidate and judge are
+                        from the same maker (e.g., both Gemini).
+                        Cross family: different makers (e.g., a
+                        Gemini answer judged by GPT). Cross-family
+                        is used here to remove self-preference
+                        bias.</dd>
+
+                        <dt>Self-preference bias</dt>
+                        <dd>A model's tendency to grade its own
+                        family's answers more favorably than
+                        answers from other families. Visible here
+                        as the 5.7-point gap between Original and
+                        Run A.</dd>
+
+                        <dt>Balanced Turn 2 accuracy</dt>
+                        <dd>The headline score. Half of scenarios
+                        are designed so the right answer is
+                        <code>current</code>; half so the right
+                        answer is <code>prior</code>. The score
+                        averages how often the model is correct on
+                        each. 100% means correct in both
+                        directions on every scenario.</dd>
+                    </dl>
+                </div>
+
+            </div>
         </section>
 
         <div class="footer">
@@ -594,12 +659,16 @@ def render_html() -> str:
             <a href="https://github.com/n-dryer/wearable-assistant-context-bench">github.com/n-dryer/wearable-assistant-context-bench</a>.
             For citation, see <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/CITATION.cff">CITATION.cff</a>.</div>
             <div class="links">
+                <span class="links-label">For readers:</span>
                 <a href="#glossary">Glossary</a>
-                <a href="https://github.com/n-dryer/wearable-assistant-context-bench">GitHub repo</a>
-                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_spec.md">Spec</a>
-                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_notes.md">Notes</a>
                 <a href="benchmark_card.html">One-page card</a>
                 <a href="wearable_assistant_context_card.pdf">PDF</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench">GitHub repo</a>
+            </div>
+            <div class="links">
+                <span class="links-label">For implementers:</span>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_spec.md">Spec</a>
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_notes.md">Notes</a>
                 <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/schema.md">Schema</a>
                 <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/scenario_authoring_rules.md">Authoring rules</a>
             </div>
