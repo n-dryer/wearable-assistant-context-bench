@@ -124,6 +124,45 @@ context misses. The repair anchor is templated and explicit. It tells
 you whether the model can be corrected, not whether real users would
 phrase their corrections that way.
 
+## Camera channel ablation
+
+The camera channel is what carries the scene description into the
+model's context. The benchmark asserts that this channel does real
+work: without it, the model should not be able to track context
+shifts, because the only signal that something changed is the
+difference between the Turn 1 scene description and the Turn 2 scene
+description.
+
+The v1 release ships an ablation that tests this assertion. Two runs
+were executed with the same Gemini Flash Lite candidate and the same
+GPT-4o-mini cross-family judge. The only variable was the camera
+channel itself, controlled by the `--no-camera` flag on the runner.
+
+| Run | Camera channel | Primary score (`baseline`) | `current` accuracy | `prior` accuracy |
+|-----|----------------|----------------------------|---------------------|-------------------|
+| Run A | on | 92.8% | 93.9% | 91.7% |
+| Run C | off (`--no-camera`) | 7.2% | 6.1% | 8.3% |
+| **Delta** | | **85.6 pp** | **87.8 pp** | **83.4 pp** |
+
+Without the camera channel, the same model collapses from 92.8%
+balanced accuracy to 7.2%, a drop of 85.6 percentage points. The
+camera channel is doing essentially all the work in this benchmark.
+The deictic user speech alone is not enough for the model to track
+context shifts.
+
+One interesting condition-sensitivity finding: under `condition_b`
+(the pre-answer scaffold that asks the model to identify the
+relevant context before answering), the no-camera score recovers to
+65.5%. The scaffold compensates partially for missing visual context
+by forcing explicit context selection in text. Even so, the model
+without camera input cannot recover its with-camera performance.
+
+The ablation methodology is reproducible. The `--no-camera` flag in
+the runner strips every `[Camera: ...]` block from user messages and
+skips injecting `context_image`. The candidate sees only the user's
+spoken text. The same flag can be used for any future candidate
+model.
+
 ## Variance and reproducibility
 
 Each (scenario, condition) cell is run with `--trials 2`. The judge
@@ -179,7 +218,7 @@ expected to address them.
   with deictic emphasis (*"no, this, what I'm holding now"*) and only
   escalate to explicit naming after the deictic attempt fails. Future
   versions may add deictic-only repair lines for visible-referent
-  scenarios to better isolate camera-channel attentiveness from
+  scenarios to better isolate camera channel attentiveness from
   word-matching recovery.
 - **Real video is approximated by scene descriptions in text.** The
   camera channel uses scene descriptions ("Hand wrapped around a
@@ -192,10 +231,9 @@ expected to address them.
   agreement is when two or more people independently label the same
   item and you measure how often they agree. It's the standard way to
   confirm that labels reflect shared understanding rather than one
-  person's opinion. All 50 scenarios were authored and reviewed by a
-  single annotator using LLM-assisted drafting under a fixed
-  authoring rule set. Multi-rater validation is acknowledged as
-  future work.
+  person's opinion. All 50 scenarios were written and reviewed by
+  one person, against a written checklist of authoring rules.
+  Multi-rater validation is acknowledged as future work.
 - **The v1 baseline run uses same-family judging.** The committed
   baseline at `benchmark/v1/runs/baseline/` runs Gemini as both the
   candidate model and the judge. Same-family judging can introduce
@@ -219,6 +257,21 @@ expected to address them.
   not been performed. As a rough guide, treat score deltas under
   approximately 3 percentage points on this 50-scenario bank with
   caution until variance is measured.
+- **The benchmark does not exercise the full omnimodal stack a
+  wearable requires, but candidates should still meet that bar.** A
+  deployable wearable assistant needs live audio input, voice-mode
+  output, real-time streaming, and interruption handling. This
+  benchmark uses text proxies for both vision and audio, and only
+  scores text outputs, so the test mechanics only require a candidate
+  with vision support. Candidate selection should still require the
+  full deployable stack (vision in, audio in, audio out, real-time)
+  because the goal is model selection for a real wearable. Picking a
+  candidate that can't physically run in production is wasted work,
+  even if the benchmark mechanics would let it through. As of April
+  2026, Google (Gemini Live) and OpenAI (Realtime API) families meet
+  this bar; Anthropic Claude does not yet have native audio output.
+  A future benchmark version that exercises live audio and streaming
+  directly is acknowledged as future work.
 
 ## When to use this benchmark vs. when to do separate evaluation
 
@@ -245,14 +298,17 @@ in the evaluation pipeline that fits your product.
 
 ## Glossary
 
-- **Reference resolution.** Figuring out what a referring expression
-  like "this", "that", "it", or "earlier" points to. In multi-turn
-  dialog, the same word can point to different things in different
-  turns, so the model has to resolve which one. Standard term in
-  dialog systems and computational linguistics.
-- **Context tracking.** The casual shorthand we use for reference
-  resolution under cross-turn context shift. Used in MultiChallenge
-  and other multi-turn benchmarks. Same task, plain-language label.
+- **Reference resolution.** Figuring out what a word like "this",
+  "that", "it", or "earlier" is pointing to. The same word can mean
+  different things across a conversation, so the model has to work
+  out which thing the user means. Standard term in dialog systems
+  and computational linguistics.
+- **Context tracking.** The plain-language name for the task this
+  benchmark measures. The technical name is reference resolution
+  under cross-turn context shift. Both names point at the same task:
+  given that the user's situation changed between turns, did the
+  model respond about the new situation or stay anchored to the old
+  one. Used by MultiChallenge and other multi-turn benchmarks.
 - **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the camera channel and conversation history to figure out what the user means.
 - **Turn.** One user message plus the assistant's response. Each
   scenario has up to three turns: Turn 1 (initial question), Turn 2
@@ -268,21 +324,30 @@ in the evaluation pipeline that fits your product.
   would be "scenario category."
 - **Context shift.** A meaningful change between Turn 1 and Turn 2
   in what the user is showing, holding, doing, or referring to.
-- **`current`.** Judge label for responses grounded in the current
-  (Turn 2) context.
-- **`prior`.** Judge label for responses grounded in an earlier
-  context (Turn 1, or `context_image` for pre-conversation recall
-  scenarios).
-- **`clarify`.** Judge label for responses that ask the user to
-  disambiguate.
-- **`abstain`.** Judge label for responses that decline or claim the
-  model cannot answer.
+  Examples: putting down a hammer and picking up a screwdriver,
+  walking from the bedroom to the kitchen, finishing one step of a
+  task and starting the next.
+- **`current`.** Judge label for a response that uses the current
+  Turn 2 context. This means the response is about what the camera
+  sees right now.
+- **`prior`.** Judge label for a response that uses an earlier
+  context: the Turn 1 frame, or the `context_image` (pre-conversation
+  state) for recall scenarios. This means the response is about what
+  the camera saw earlier, not what it sees now.
+- **`clarify`.** Judge label for a response that asks the user to
+  clear up an ambiguity rather than guessing.
+- **`abstain`.** Judge label for a response that declines to answer
+  or says it cannot tell.
 - **Prompt conditions.** The three prompt setups used: `baseline`,
   `condition_a`, `condition_b`.
 - **Default comparison condition.** The condition used for the
   headline number. Always `baseline`.
-- **Balanced accuracy.** The mean of per-class accuracy across the
-  two scored classes (`current` and `prior`).
+- **Balanced accuracy.** The average of the per-class scores. In
+  this benchmark, that means the average of `current` accuracy and
+  `prior` accuracy. We use the average instead of the overall hit
+  rate so the larger class (`current`) cannot dominate the headline
+  number. A model that gets every `current` scenario right but
+  misses every `prior` scenario would score 50%, not 73%.
 - **Repair.** A conversational repair is a follow-up message that
   fixes a misunderstanding. The benchmark fires a Turn 3 repair when
   the model gets Turn 2 wrong; the model gets one chance to recover.
@@ -291,11 +356,20 @@ in the evaluation pipeline that fits your product.
   name; not a fixed term across benchmarks. Adjacent terms in the
   literature: "recovery rate," "correction success rate."
 - **Repair line style.** How the user phrases the Turn 3 correction when the model misses Turn 2. Two main styles exist. Named: "I mean the soldering iron I just picked up, not the multimeter probe" (current v1 style). Deictic: "no, this, what I'm holding now". The v1 benchmark uses named repairs, which measures floor recoverability rather than realistic user behavior. See "Known v1 limitations and future work" for context.
-- **Self-preference bias.** The tendency of a model used as judge to
-  rate outputs from its own family more favorably than outputs from
-  other families. Established term in LLM-as-judge literature
-  (JudgeBench, MT-Bench). Mitigated by using a different model family
-  as judge.
+- **Model family.** A group of related models from the same provider
+  (and usually the same training pipeline). Examples: Claude Sonnet
+  4.6 and Claude Opus 4.7 are in the Claude family. Gemini 2.5 Flash
+  and Gemini 3 Pro are in the Gemini family. GPT-5.5 is in the
+  OpenAI family.
+- **Cross-family judging.** Using a judge from a different model
+  family than the candidate being scored. For example, Claude judging
+  a Gemini candidate. The default in this benchmark, because it
+  reduces self-preference bias.
+- **Self-preference bias.** The tendency of a model used as a judge
+  to rate outputs from its own model family more favorably than
+  outputs from other families. Established term in LLM-as-judge
+  literature (JudgeBench, MT-Bench). Mitigated by cross-family
+  judging.
 - **Inter-annotator agreement (IAA).** When two or more people
   independently label the same item and you measure how often they
   agree. Standard practice in ML datasets to confirm labels reflect
@@ -315,7 +389,7 @@ in the evaluation pipeline that fits your product.
 - **Ablation.** A controlled experiment that tests how much a
   specific feature or input contributes to a model's performance, by
   running the same evaluation with that feature removed and comparing
-  scores. A "camera-channel ablation" would compare runs with versus
+  scores. A "camera channel ablation" would compare runs with versus
   without the `[Camera: ...]` blocks to quantify how much the camera
   channel actually contributes to the score.
 - **Hallucination.** When a model produces an answer that sounds

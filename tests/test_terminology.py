@@ -2,7 +2,7 @@
 
 These tests guard the v1 framing across public-facing docs. They
 enforce both forbidden vocabulary (legacy pre-rebuild design terms)
-and required vocabulary (the wearable, camera-channel, four-label
+and required vocabulary (the wearable, camera channel, four-label
 framing the v1 release commits to).
 """
 

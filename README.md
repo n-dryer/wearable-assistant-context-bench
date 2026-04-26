@@ -196,54 +196,57 @@ For interpretation guidance, see
 
 ## Results
 
-The v1 baseline run is at `benchmark/v1/runs/baseline/`.
+Four runs are published with v1: an original same-family baseline,
+two cross-family runs covering two different candidate model families,
+and a camera channel ablation.
 
-Run details:
+Headline table, primary score (balanced Turn 2 accuracy under
+`baseline`):
 
-- candidate: `openrouter/google/gemini-2.5-flash-lite`
-- judge: `openrouter/google/gemini-2.5-flash-lite`
-- scored condition: `baseline`
-- trials: `2` per (scenario, condition) cell
-- scenarios: 50 / 50
+| Run | Candidate | Judge | Camera | Primary score |
+|-----|-----------|-------|--------|---------------|
+| Original | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same family) | on | 98.5% |
+| **Run A** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | on | **92.8%** |
+| **Run B** | `gpt-4o-mini` | `gemini-2.5-flash-lite` (cross family) | on | **100.0%** |
+| **Run C** | `gemini-2.5-flash-lite` | `gpt-4o-mini` (cross family) | **off** | **7.2%** |
 
-Results under `baseline` condition:
+All runs: 50 scenarios, 3 prompt conditions, 2 trials per cell, 300
+total cells per run. All candidates are vision-capable models from
+families that ship full omnimodal stacks suitable for a wearable
+deployment (vision in, audio in, audio out, real-time streaming).
 
-- **primary score: 98.5%** (balanced Turn 2 accuracy across `current` and `prior`)
-- `current` accuracy: **97.0%** (64/66)
-- `prior` accuracy: **100.0%** (24/24)
-- `clarify` accuracy: **100.0%** (6/6). Auxiliary, not in primary score.
-- `abstain` accuracy: **100.0%** (4/4). Auxiliary, not in primary score.
+### What the runs show
 
-Condition sensitivity (balanced Turn 2 accuracy):
+- **Cross-family judging correction.** Switching from same-family
+  judging (Original, 98.5%) to cross-family judging (Run A, 92.8%)
+  drops the same Gemini candidate's score by 5.7 percentage points.
+  This is the self-preference bias correction in action.
+- **Multi-model comparison.** GPT-4o-mini (Run B, 100.0%) clearly
+  outperforms Gemini Flash Lite (Run A, 92.8%) on this task. Both
+  numbers come from cross-family judging, so the comparison is
+  apples-to-apples.
+- **Camera channel ablation.** With the camera channel turned off
+  (Run C, 7.2%), the same Gemini candidate that scored 92.8% with
+  the camera collapses to near-floor. The 85.6 percentage point gap
+  is the camera channel's contribution under `baseline`. The camera
+  channel is doing real work, not decoration.
 
-| Condition | Score |
-|-----------|-------|
-| `baseline` | 98.5% |
-| `condition_a` | 90.2% |
-| `condition_b` | 100.0% |
+Per-class accuracy in each run is in the run's `findings.md`. Full
+transcripts are at:
 
-Repair rate by condition:
+- `benchmark/v1/runs/baseline/` (Original)
+- `benchmark/v1/runs/baseline-cross-family-a/` (Run A)
+- `benchmark/v1/runs/baseline-cross-family-b/` (Run B)
+- `benchmark/v1/runs/baseline-ablation-no-camera/` (Run C)
 
-| Condition | Repair rate (repaired / failures) |
-|-----------|-----------------------------------|
-| `baseline` | 100.0% (2 / 2) |
-| `condition_a` | 66.7% (4 / 6) |
-| `condition_b` | 0.0% (0 / 2) |
+### How to read these results
 
-Primary score uses only `current` and `prior` categories (macro
-average). `clarify` and `abstain` are diagnostic; they do not enter
-the headline number.
-
-Full findings and per-trial transcripts are in
-`benchmark/v1/runs/baseline/findings.md` and
-`benchmark/v1/runs/baseline/transcripts.jsonl`.
-
-**How to read the v1 baseline:** the committed run uses Gemini as
-both candidate and judge, which can introduce self-preference bias,
-and is the only candidate model tested so far. The number is best
-read as a sanity check that the pipeline works end-to-end, not as a
-final claim about model performance. Cross-family judging,
-multi-model comparison, and other v1 limitations are documented in
+These four runs are not a complete leaderboard. They are the v1
+release set: enough to show the benchmark works end-to-end, that
+cross-family judging matters, that the camera channel matters, and
+that two different candidate models produce meaningfully different
+scores. Score deltas between runs on the same scenario bank are the
+right signal. See
 [`docs/benchmark_notes.md`](docs/benchmark_notes.md) under "Known v1
 limitations and future work."
 

@@ -32,7 +32,7 @@ benchmark does not measure.
 ## Related work
 
 This benchmark borrows two design moves from recent multimodal
-benchmarks. The semantic-leakage check (Check 5 in the validator) is
+benchmarks. The semantic leakage check (Check 5 in the validator) is
 adapted from MMStar (Chen et al., NeurIPS 2024), which proposed
 running questions through text-only models to filter items that don't
 actually require vision. The audio/camera channel separation is

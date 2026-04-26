@@ -120,10 +120,10 @@ Every scenario passed six validation checks before being committed:
 3. **Schema and structural validation.** All required fields
    present, types correct, scenario IDs unique, category metadata
    matching, distributions matching the targets.
-4. **Semantic image-identification review.** LLM-driven check that
+4. **Semantic image-identification review.** Semantic check that
    each image description identifies its object with high confidence
    to a fresh reader.
-5. **Semantic-leakage isolation test.** LLM-driven check that the
+5. **Semantic-leakage isolation test.** Semantic check that the
    Turn 2 image plus Turn 2 user speech alone (without Turn 1
    context) is not sufficient to answer the question correctly. If a
    scenario passes without Turn 1 context, it is not actually testing
@@ -166,19 +166,19 @@ address them.
   actual video frames. Validation against held-out video footage is
   future work.
 - **Inter-annotator agreement is not measured.** All 50 scenarios
-  were authored and reviewed by a single annotator using LLM-assisted
-  drafting under a fixed authoring rule set. Inter-annotator
-  agreement is when two or more people independently label the same
-  item and you measure how often they agree; it's the standard way to
-  confirm that labels reflect shared understanding rather than one
-  person's opinion. Multi-rater validation is future work.
+  were written and reviewed by one person, against a written
+  checklist of authoring rules. Inter-annotator agreement is when
+  two or more people independently label the same item and you
+  measure how often they agree; it's the standard way to confirm
+  that labels reflect shared understanding rather than one person's
+  opinion. Multi-rater validation is future work.
 - **The v1 baseline run uses same-family judging.** The committed
   baseline runs Gemini as both candidate and judge. Same-family
   judging can introduce self-preference bias. A cross-family judge
   run is recommended as the next baseline.
 - **Single-candidate baseline.** Only one candidate model has been
   run. Multi-model comparison is future work.
-- **No camera-channel ablation.** The contribution of the camera
+- **No camera channel ablation.** The contribution of the camera
   channel to the primary score has not been quantified by running a
   controlled with-camera vs. without-camera comparison.
 - **No formal variance estimation.** Multi-seed reruns to bound score

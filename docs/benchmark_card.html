@@ -314,8 +314,8 @@ a {
         <section class="section">
           <h2>Results</h2>
           <div class="metric">
-            <strong>Baseline: 98.5%</strong>
-            Primary score (balanced Turn 2 accuracy under <code>baseline</code>): <strong>98.5%</strong>. <code>current</code>: 97.0% (64/66). <code>prior</code>: 100.0% (24/24). Candidate and judge: <code>gemini-2.5-flash-lite</code> via OpenRouter. Two trials per (scenario, condition) cell. Condition sensitivity: baseline 98.5%, condition_a 90.2%, condition_b 100.0%. Full transcripts and findings under <code>benchmark/v1/runs/baseline/</code>.
+            <strong>v1 results: 4 runs published</strong>
+            Cross-family judging baselines and a camera channel ablation. Run A: <code>gemini-2.5-flash-lite</code> candidate + <code>gpt-4o-mini</code> judge: <strong>92.8%</strong>. Run B: <code>gpt-4o-mini</code> candidate + <code>gemini-2.5-flash-lite</code> judge: <strong>100.0%</strong>. Run C: same as Run A but with <code>--no-camera</code>: <strong>7.2%</strong>. The 85.6 percentage point gap between Run A and Run C is the camera channel's contribution. Full results table at <a href="https://n-dryer.github.io/wearable-assistant-context-bench/">n-dryer.github.io/wearable-assistant-context-bench</a>.
           </div>
         </section>
       </div>

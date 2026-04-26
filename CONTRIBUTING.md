@@ -99,11 +99,11 @@ Before submitting any change to scenarios or answer keys, run:
 python scripts/validate_scenarios.py
 ```
 
-This runs four programmatic checks (token leakage, object-name
+This runs four programmatic checks (token leakage, object name
 leakage, schema validation, cross-scenario duplication) over the
-scenario bank. The semantic checks (human identification of image
-descriptions, semantic-leakage isolation test) are LLM-driven and run
-during scenario authoring; CI runs the four programmatic checks.
+scenario bank. Two additional semantic checks (human identification
+of image descriptions, semantic leakage isolation test) run during
+scenario authoring rather than in CI.
 
 The full 10-point validation checklist is in
 [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md).

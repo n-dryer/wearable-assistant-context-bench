@@ -1,0 +1,433 @@
+"""Render the public GitHub Pages landing page for the benchmark.
+
+Outputs:
+    docs/index.html
+
+Run:
+    .venv/bin/python docs/index.py
+
+The page is a single-file static HTML, designed to mirror the
+visual language of the benchmark card. It is the landing page at
+https://n-dryer.github.io/wearable-assistant-context-bench/.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from textwrap import dedent
+
+
+OUT_HTML = Path(__file__).parent / "index.html"
+
+
+CSS = """
+@import url('https://rsms.me/inter/inter.css');
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    color: #2b2118;
+    background: radial-gradient(circle at 30% 20%, #fffaf4 0%, #f6f1ea 100%);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: #b14f31; text-decoration: none; border-bottom: 1px solid rgba(177, 79, 49, 0.25); }
+a:hover { border-bottom-color: #b14f31; }
+
+code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 0.92em;
+}
+
+.page {
+    max-width: 1100px;
+    margin: 36px auto;
+    background: #fffaf4;
+    border-radius: 28px;
+    padding: 56px 64px 48px;
+    box-shadow: 0 20px 60px rgba(43, 33, 24, 0.08);
+}
+
+.kicker {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #b14f31;
+    background: #f4dfd5;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 100px;
+}
+
+h1 {
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin: 18px 0 12px 0;
+    color: #2b2118;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #5b4a3d;
+    max-width: 720px;
+    margin: 0 0 22px 0;
+}
+
+.badges {
+    margin-top: 18px;
+    margin-bottom: 4px;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: #f0e8dd;
+    color: #5b4a3d;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e3d8c8;
+}
+
+section.row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 36px;
+    border-top: 1px solid #e9dfce;
+    padding-top: 28px;
+}
+
+section.row .label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #b14f31;
+    margin-bottom: 12px;
+}
+
+section.row h2 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px 0;
+    color: #2b2118;
+}
+
+table.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0 8px 0;
+    font-size: 15px;
+}
+
+table.leaderboard th, table.leaderboard td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e9dfce;
+}
+
+table.leaderboard th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b5a4d;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+table.leaderboard td.score {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+table.leaderboard tr.highlight td {
+    background: #fff4ea;
+}
+
+.callout {
+    background: #f0e8dd;
+    border-radius: 14pt;
+    padding: 18px 22px;
+    margin-top: 18px;
+}
+
+.callout .callout-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #b14f31;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.callout .callout-stat {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #2b2118;
+    margin-bottom: 6px;
+}
+
+.callout p {
+    margin: 0;
+    font-size: 15px;
+    color: #5b4a3d;
+}
+
+ul.bullets {
+    margin: 8px 0 0 0;
+    padding-left: 22px;
+}
+
+ul.bullets li {
+    margin-bottom: 8px;
+}
+
+.callout.muted {
+    background: #faf5ee;
+}
+
+.footer {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid #e9dfce;
+    font-size: 13px;
+    color: #6b5a4d;
+}
+
+.footer .links {
+    margin-top: 10px;
+}
+
+.footer .links a {
+    margin-right: 18px;
+}
+
+@media (max-width: 720px) {
+    .page { padding: 32px 22px; margin: 12px; }
+}
+"""
+
+
+def render_html() -> str:
+    return dedent(f"""\
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Wearable Assistant Context Benchmark</title>
+        <meta name="description" content="A benchmark for measuring whether multimodal assistants update to current context instead of staying anchored to prior context.">
+        <style>{CSS}</style>
+    </head>
+    <body>
+    <main class="page">
+
+        <div class="kicker">v1 &middot; published April 2026</div>
+        <h1>Wearable Assistant Context Benchmark</h1>
+        <p class="subtitle">
+            A benchmark for measuring whether multimodal assistants
+            update to current context instead of staying anchored to
+            prior context. Built to support a model-selection decision
+            for a live wearable assistant.
+        </p>
+
+        <div class="badges">
+            <span class="badge">50 scenarios</span>
+            <span class="badge">8 shift-type categories</span>
+            <span class="badge">3 prompt conditions</span>
+            <span class="badge">balanced T2 accuracy</span>
+            <span class="badge">MIT license</span>
+        </div>
+
+        <section class="row">
+            <div class="label">v1 results</div>
+            <h2>Leaderboard</h2>
+            <p>Four runs. Primary score is balanced Turn 2 accuracy
+            across <code>current</code> and <code>prior</code> under the
+            <code>baseline</code> prompt condition. All runs use 50
+            scenarios, 3 prompt conditions, 2 trials per cell, 300
+            total cells per run.</p>
+
+            <table class="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Run</th>
+                        <th>Candidate</th>
+                        <th>Judge</th>
+                        <th>Family pairing</th>
+                        <th>Camera</th>
+                        <th>Primary score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Original</td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td>same family</td>
+                        <td>on</td>
+                        <td class="score">98.5%</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>Run A</strong></td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td><code>gpt-4o-mini</code></td>
+                        <td>cross family</td>
+                        <td>on</td>
+                        <td class="score">92.8%</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>Run B</strong></td>
+                        <td><code>gpt-4o-mini</code></td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td>cross family</td>
+                        <td>on</td>
+                        <td class="score">100.0%</td>
+                    </tr>
+                    <tr class="highlight">
+                        <td><strong>Run C</strong></td>
+                        <td><code>gemini-2.5-flash-lite</code></td>
+                        <td><code>gpt-4o-mini</code></td>
+                        <td>cross family</td>
+                        <td><strong>off</strong></td>
+                        <td class="score">7.2%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="row">
+            <div class="label">Cross-family judging correction</div>
+            <h2>Same-family judging inflates scores</h2>
+            <div class="callout">
+                <div class="callout-title">Original &rarr; Run A delta</div>
+                <div class="callout-stat">&minus;5.7 pp</div>
+                <p>The same Gemini candidate scores 98.5% when judged
+                by Gemini, and 92.8% when judged by GPT-4o-mini. The
+                difference is the self-preference bias of same-family
+                judging. Cross-family judging is the default in this
+                benchmark for this reason.</p>
+            </div>
+        </section>
+
+        <section class="row">
+            <div class="label">Camera channel ablation</div>
+            <h2>The camera channel does the work</h2>
+            <div class="callout">
+                <div class="callout-title">Run A vs Run C delta</div>
+                <div class="callout-stat">&minus;85.6 pp</div>
+                <p>With the camera channel turned off
+                (<code>--no-camera</code>), the same Gemini candidate
+                that scored 92.8% with the camera collapses to 7.2%.
+                The camera channel is doing essentially all the work
+                in this benchmark: the deictic user speech alone is
+                not enough for the model to track context shifts.</p>
+            </div>
+        </section>
+
+        <section class="row">
+            <div class="label">Multi-model comparison</div>
+            <h2>GPT-4o-mini outperforms Gemini Flash Lite on this task</h2>
+            <div class="callout muted">
+                <div class="callout-title">Run A vs Run B</div>
+                <div class="callout-stat">92.8% vs 100.0%</div>
+                <p>Both numbers come from cross-family judging on the
+                same scenario bank. GPT-4o-mini's perfect score
+                suggests the benchmark may not differentiate the
+                strongest current models at the top end. Future
+                versions may add harder scenarios.</p>
+            </div>
+        </section>
+
+        <section class="row">
+            <div class="label">What this benchmark measures</div>
+            <h2>Context tracking under cross-turn context shift</h2>
+            <p>Each scenario is a three-turn conversation. Between
+            Turn 1 and Turn 2 the user's situation changes
+            (object swap, location move, screen content change, and
+            so on). The change is visible only in the camera channel;
+            the user does not announce it. The benchmark measures
+            whether the model resolves the user's reference
+            (their <em>this</em>, <em>that</em>, or <em>it</em>)
+            to the current Turn 2 frame instead of staying anchored to
+            the prior Turn 1 frame.</p>
+            <p>For the full design contract, see
+            <a href="benchmark_spec.html">benchmark_spec</a>. For
+            interpretation guidance and limitations, see
+            <a href="benchmark_notes.html">benchmark_notes</a>. For
+            the one-page summary card, see
+            <a href="benchmark_card.html">benchmark_card</a>
+            (<a href="wearable_assistant_context_card.pdf">PDF</a>).</p>
+        </section>
+
+        <section class="row">
+            <div class="label">What this benchmark does not measure</div>
+            <h2>Scope limits</h2>
+            <ul class="bullets">
+                <li><strong>Advice quality.</strong> The judge does
+                    not check whether the response is correct, safe,
+                    or domain-appropriate.</li>
+                <li><strong>Real video.</strong> The camera channel
+                    uses scene descriptions in text as a proxy.
+                    Performance here does not guarantee performance on
+                    actual video frames.</li>
+                <li><strong>Live audio and voice mode.</strong>
+                    The benchmark only scores text outputs. A
+                    candidate must support full omnimodal capability
+                    (vision in, audio in, audio out, real-time
+                    streaming) to be a deployable wearable assistant,
+                    even if this benchmark does not exercise audio
+                    directly.</li>
+                <li><strong>Multi-turn dynamics, proactive
+                    coaching, domain depth, latency, cost,
+                    speaker attribution, addressee detection,
+                    long-horizon memory.</strong> All out of scope.
+                    Full list in
+                    <a href="benchmark_notes.html">benchmark_notes</a>.</li>
+            </ul>
+        </section>
+
+        <div class="footer">
+            <div>Released under the MIT License. Code and scenarios at
+            <a href="https://github.com/n-dryer/wearable-assistant-context-bench">github.com/n-dryer/wearable-assistant-context-bench</a>.
+            For citation, see <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/CITATION.cff">CITATION.cff</a>.</div>
+            <div class="links">
+                <a href="https://github.com/n-dryer/wearable-assistant-context-bench">GitHub repo</a>
+                <a href="benchmark_spec.html">Spec</a>
+                <a href="benchmark_notes.html">Notes</a>
+                <a href="schema.html">Schema</a>
+                <a href="scenario_authoring_rules.html">Authoring rules</a>
+            </div>
+        </div>
+
+    </main>
+    </body>
+    </html>
+    """)
+
+
+def main() -> None:
+    OUT_HTML.write_text(render_html(), encoding="utf-8")
+    size = OUT_HTML.stat().st_size
+    print(f"Wrote {OUT_HTML} ({size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()

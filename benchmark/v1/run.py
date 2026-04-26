@@ -60,6 +60,7 @@ CONFIG: dict[str, Any] = {
     "trials_per_cell": 2,
     "output_dir": str(DEFAULT_OUTPUT_DIR),
     "ranking_condition": DEFAULT_RANKING_CONDITION,
+    "no_camera": False,
 }
 
 
@@ -232,7 +233,7 @@ def _build_manifest(
     manifest: dict[str, Any] = {
         "benchmark_version": BENCHMARK_VERSION,
         "schema_revision": 2,
-        "camera_injection": True,
+        "camera_injection": not bool(effective_config.get("no_camera", False)),
         "scenarios_sha256": _sha_or_warn(SCENARIOS_PATH, "scenarios_sha256"),
         "expected_answers_sha256": _sha_or_warn(
             EXPECTED_ANSWERS_PATH, "expected_answers_sha256"
@@ -324,6 +325,7 @@ def run(
                         adapter=adapter_,
                         judge=judge_,
                         model_config=model_config,
+                        no_camera=bool(effective_config.get("no_camera", False)),
                     )
                     results.append(result)
                     transcript_file.write(
@@ -366,21 +368,36 @@ def _run_one_trial(
     adapter: Any,
     judge: LLMJudge,
     model_config: ModelConfig,
+    no_camera: bool = False,
 ) -> dict:
-    """Run one (scenario, condition, trial) cell end-to-end."""
+    """Run one (scenario, condition, trial) cell end-to-end.
+
+    When `no_camera` is True, the runner strips the `[Camera: ...]`
+    blocks from every user message and skips injecting the
+    `context_image` standalone message. The candidate sees only the
+    user's spoken text. Used for camera channel ablation runs.
+    """
     messages: list[dict[str, str]] = []
     # Pre-conversation camera state (only set on recall scenarios)
-    if scenario.context_image:
+    if scenario.context_image and not no_camera:
         messages.append(_build_context_image_message(scenario.context_image))
     messages.append(
-        _build_message(role="user", text=scenario.turn_1_user, image=scenario.turn_1_image)
+        _build_message(
+            role="user",
+            text=scenario.turn_1_user,
+            image=None if no_camera else scenario.turn_1_image,
+        )
     )
     turn_1_response = adapter.query(
         messages=messages, system=condition.system_prompt, config=model_config
     )
     messages.append({"role": "assistant", "content": turn_1_response})
     messages.append(
-        _build_message(role="user", text=scenario.turn_2_user, image=scenario.turn_2_image)
+        _build_message(
+            role="user",
+            text=scenario.turn_2_user,
+            image=None if no_camera else scenario.turn_2_image,
+        )
     )
     turn_2_response = adapter.query(
         messages=messages, system=condition.system_prompt, config=model_config
@@ -507,7 +524,7 @@ def _build_ground_truth_context(scenario: Scenario) -> str:
 
 
 def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]:
-    """Build a single chat message with optional camera-channel injection.
+    """Build a single chat message with optional camera channel injection.
 
     The benchmark uses a perceptual-text proxy for the camera frame. When
     `image` is non-null, it is prepended to the user message as a tagged
@@ -529,7 +546,7 @@ def _build_message(*, role: str, text: str, image: str | None) -> dict[str, str]
 
 
 def _build_context_image_message(image: str) -> dict[str, str]:
-    """Build a standalone camera-channel message for `context_image`.
+    """Build a standalone camera channel message for `context_image`.
 
     `context_image` represents what the wearable's camera saw before any
     user speech began. It is injected as a user-role message containing
@@ -596,6 +613,18 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             f"{DEFAULT_OUTPUT_DIR}"
         ),
     )
+    parser.add_argument(
+        "--no-camera",
+        dest="no_camera",
+        action="store_true",
+        default=False,
+        help=(
+            "ablation flag: strip [Camera: ...] blocks from every user "
+            "message and skip injecting context_image. Run with this flag "
+            "to measure the contribution of the camera channel by "
+            "comparing the score against a normal run with the same model."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -611,6 +640,8 @@ def _config_overrides_from_args(args: argparse.Namespace) -> dict[str, Any]:
         overrides["trials_per_cell"] = args.trials
     if args.output_dir is not None:
         overrides["output_dir"] = args.output_dir
+    if getattr(args, "no_camera", False):
+        overrides["no_camera"] = True
     return overrides
 
 
