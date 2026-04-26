@@ -37,6 +37,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
+from core.statistics import wilson_ci
+
 
 POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
 SCORED_POLICIES: tuple[str, ...] = ("current", "prior")
@@ -155,6 +157,27 @@ def class_accuracy_under_condition(
             if bool(trial["turn_2_passed"]):
                 passed += 1
         out[policy] = (passed / total) if total > 0 else None
+    return out
+
+
+def _class_counts_under_condition(
+    results: list[dict],
+    condition: str,
+) -> dict[str, dict[str, int]]:
+    """Return per-class trial counts (k passed, n total) under one condition."""
+    out: dict[str, dict[str, int]] = {}
+    for policy in SCORED_POLICIES:
+        total = 0
+        passed = 0
+        for trial in results:
+            if trial["condition"] != condition:
+                continue
+            if trial["target_context"] != policy:
+                continue
+            total += 1
+            if bool(trial["turn_2_passed"]):
+                passed += 1
+        out[policy] = {"k": passed, "n": total}
     return out
 
 
@@ -290,6 +313,7 @@ def render_findings_markdown(
         results, ranking_condition
     )
     class_accs = class_accuracy_under_condition(results, ranking_condition)
+    class_counts = _class_counts_under_condition(results, ranking_condition)
     per_condition_balanced = {
         condition: balanced_accuracy_under_condition(results, condition)
         for condition in conditions
@@ -308,6 +332,7 @@ def render_findings_markdown(
             primary_score=primary_score,
             class_accs=class_accs,
             per_condition_balanced=per_condition_balanced,
+            class_counts=class_counts,
         ),
         "",
         "## Per-class pass rate by condition",
@@ -341,6 +366,7 @@ def _render_benchmark_summary(
     primary_score: float | None,
     class_accs: dict[str, float | None],
     per_condition_balanced: dict[str, float | None],
+    class_counts: dict[str, dict[str, int]] | None = None,
 ) -> str:
     def _pct(value: float | None) -> str:
         if value is None:
@@ -354,10 +380,17 @@ def _render_benchmark_summary(
         "- **How to read this run**: compare candidate models on the "
         f"`{ranking_condition}` score below; treat the other conditions as "
         "diagnostic sensitivity checks.",
-        f"- **Per-class accuracy under `{ranking_condition}`**:",
+        f"- **Per-class accuracy under `{ranking_condition}`** (95% Wilson CI):",
     ]
     for policy in SCORED_POLICIES:
-        lines.append(f"    - `{policy}`: {_pct(class_accs.get(policy))}")
+        acc = class_accs.get(policy)
+        ci_str = ""
+        if acc is not None and class_counts is not None:
+            counts = class_counts.get(policy)
+            if counts:
+                ci = wilson_ci(counts["k"], counts["n"])
+                ci_str = f" [{ci.lower * 100:.1f}–{ci.upper * 100:.1f}]"
+        lines.append(f"    - `{policy}`: {_pct(acc)}{ci_str}")
     lines.append("")
     lines.append("Condition sensitivity (balanced Turn 2 accuracy):")
     lines.append("")

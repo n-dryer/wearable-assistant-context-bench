@@ -1,0 +1,382 @@
+{
+  "sc-51": {
+    "current_answers": [
+      "deglazing",
+      "fond",
+      "pan sauce",
+      "scrape the brown bits",
+      "loosen the crust",
+      "residue on the bottom",
+      "dissolved into the liquid",
+      "deglaze",
+      "brown residue"
+    ],
+    "prior_answers": [
+      "cookie",
+      "baking sheet",
+      "spatula under the cookie",
+      "let it cool first",
+      "transfer to the rack",
+      "golden disc",
+      "wire rack",
+      "slide it off"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-52": {
+    "current_answers": [
+      "cured",
+      "dry",
+      "set",
+      "remove the clamps",
+      "safe to unclamp",
+      "glue is dry",
+      "joint is solid",
+      "no indentation",
+      "ridge is hard",
+      "fully bonded"
+    ],
+    "prior_answers": [
+      "wet glue",
+      "still setting",
+      "leave the clamps on",
+      "not ready",
+      "squeeze-out is wet",
+      "give it more time",
+      "drips still running",
+      "open gap",
+      "glue still liquid"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-53": {
+    "current_answers": [
+      "roast",
+      "meat thermometer",
+      "internal temperature",
+      "three-digit reading",
+      "done when it reaches",
+      "resting temperature",
+      "pull it out at",
+      "juices running clear"
+    ],
+    "prior_answers": [
+      "cheese",
+      "cheese temperature",
+      "first reading",
+      "two-digit number",
+      "probe in the slab",
+      "earlier measurement",
+      "lower reading",
+      "check the rind temperature",
+      "serving temperature"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-54": {
+    "current_answers": [
+      "drain plug",
+      "oil pan bolt",
+      "thread it in by hand",
+      "clockwise",
+      "finger-tight first",
+      "new crush washer",
+      "copper washer",
+      "torque to spec",
+      "don't cross-thread",
+      "snug and then a quarter turn"
+    ],
+    "prior_answers": [
+      "oil filter",
+      "filter canister",
+      "counterclockwise to remove",
+      "loosen it",
+      "unscrew the old filter",
+      "gasket ring",
+      "spin it off",
+      "break the seal",
+      "oil draining from the filter"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-55": {
+    "current_answers": [
+      "chili flakes",
+      "whole grain paste",
+      "seeded paste",
+      "gochujang with seeds",
+      "sambal with seeds",
+      "coarser grind",
+      "flecked paste",
+      "hotter variety",
+      "a little goes a long way with this one"
+    ],
+    "prior_answers": [
+      "smooth paste",
+      "plain chili paste",
+      "gochujang",
+      "smooth consistency",
+      "no seeds",
+      "uniform texture",
+      "milder",
+      "base sauce amount",
+      "tablespoon or two"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-56": {
+    "current_answers": [
+      "lumberyard",
+      "lumber warehouse",
+      "aisle of shelving",
+      "rack of stacked boards",
+      "forklift area",
+      "loading dock",
+      "commercial yard",
+      "select grade",
+      "premium grade",
+      "stamped on the end"
+    ],
+    "prior_answers": [
+      "workshop",
+      "home shop",
+      "workbench",
+      "vise",
+      "pegboard",
+      "sawdust on the floor",
+      "shop lights",
+      "pencil marks on the board",
+      "personal workspace"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-57": {
+    "current_answers": [],
+    "prior_answers": [
+      "both sprouts are small",
+      "just above the soil",
+      "similar size",
+      "same height",
+      "both just emerging"
+    ],
+    "clarify_indicators": [
+      "what's planted in each",
+      "can you read the labels",
+      "which species",
+      "what are the varieties",
+      "I can't tell what they are",
+      "depends on the plant type",
+      "do you know what's in each pot",
+      "need to know the expected growth rate",
+      "show me the labels"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-58": {
+    "current_answers": [],
+    "prior_answers": [
+      "transaction list",
+      "charges on screen",
+      "merchant names",
+      "bottom of the list",
+      "scrolled past"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "your thumb was covering",
+      "couldn't see those",
+      "hidden behind your finger",
+      "those rows were blocked",
+      "not visible to me",
+      "obscured by your hand",
+      "I didn't have a clear view",
+      "the bottom was occluded",
+      "can't tell what was underneath"
+    ]
+  },
+  "sc-59": {
+    "current_answers": [
+      "gouge",
+      "U-gouge",
+      "scoop cut",
+      "curved channel",
+      "round tip",
+      "shallow relief",
+      "hold it lower",
+      "push with the heel of your hand",
+      "rounded scoop"
+    ],
+    "prior_answers": [
+      "veiner",
+      "V-tool",
+      "V-groove",
+      "fine line",
+      "thin channel",
+      "pointed tip",
+      "incised line",
+      "crisp groove",
+      "sharp V-cut"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-60": {
+    "current_answers": [
+      "bathroom",
+      "bath",
+      "towels under the counter",
+      "washcloths",
+      "mirror on the wall",
+      "run a bath",
+      "fill the tub",
+      "warm water for washing",
+      "bathroom basin"
+    ],
+    "prior_answers": [
+      "kitchen",
+      "kitchen sink",
+      "dish rack",
+      "washing dishes",
+      "fill for soaking",
+      "rinse the dishes",
+      "kitchen counter",
+      "items in the rack"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-61": {
+    "current_answers": [
+      "braising",
+      "simmering in liquid",
+      "herbs in the sauce",
+      "reduced liquid",
+      "lid on to braise",
+      "low and slow",
+      "keep the lid on",
+      "dark pan sauce"
+    ],
+    "prior_answers": [
+      "searing",
+      "hot oil",
+      "oil shimmer",
+      "smoking point",
+      "surface rippling",
+      "high heat",
+      "the oil was ready",
+      "shimmer means hot enough",
+      "no shimmer means too cold",
+      "pale chunks going in"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-62": {
+    "current_answers": [
+      "code reader",
+      "OBD scanner",
+      "diagnostic tool",
+      "fault code",
+      "trouble code",
+      "P0 code",
+      "scan tool readout",
+      "alphanumeric code",
+      "plugged into the port",
+      "check the code"
+    ],
+    "prior_answers": [
+      "check engine light",
+      "dashboard warning",
+      "amber light",
+      "malfunction indicator",
+      "CEL is on",
+      "engine icon lit up",
+      "instrument cluster",
+      "steady amber warning"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-63": {
+    "current_answers": [
+      "painted canvas",
+      "dry painting",
+      "canvas on the easel",
+      "the finished one"
+    ],
+    "prior_answers": [
+      "blank canvas",
+      "fresh stretch",
+      "new canvas",
+      "white surface",
+      "just stapled"
+    ],
+    "clarify_indicators": [
+      "which canvas",
+      "the painted one or the blank one",
+      "are you asking about the one on the easel",
+      "do you mean the new stretch",
+      "which one are you looking at",
+      "there are two canvases",
+      "the one on the table or the one on the easel"
+    ],
+    "abstain_indicators": []
+  },
+  "sc-64": {
+    "current_answers": [
+      "rest",
+      "let it sit",
+      "ten to fifteen minutes",
+      "set before cutting",
+      "hold together better",
+      "juices redistribute",
+      "cool slightly",
+      "golden brown crust",
+      "finished baking",
+      "out of the oven"
+    ],
+    "prior_answers": [
+      "layering",
+      "assembled",
+      "raw lasagna",
+      "not yet baked",
+      "unbaked",
+      "even layers",
+      "white sauce on top",
+      "cover with foil",
+      "put it in the oven",
+      "pre-bake state"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": []
+  },
+  "sc-65": {
+    "current_answers": [],
+    "prior_answers": [
+      "shipping box",
+      "delivery package",
+      "cardboard box by the door",
+      "label was face down",
+      "barcode sticker",
+      "carrier logo",
+      "couldn't see the sender"
+    ],
+    "clarify_indicators": [],
+    "abstain_indicators": [
+      "label was face down",
+      "couldn't read the sender",
+      "no sender info was visible",
+      "the shipping label wasn't facing the camera",
+      "only saw the carrier logo",
+      "barcode was visible but not the sender",
+      "didn't catch the company name",
+      "label was against the table"
+    ]
+  }
+}
