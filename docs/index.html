@@ -231,10 +231,9 @@ ul.bullets li {
         <div class="kicker">v1 &middot; published April 2026</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-            A benchmark for measuring whether multimodal assistants
-            update to current context instead of staying anchored to
-            prior context. Built to support a model-selection decision
-            for a live wearable assistant.
+            Tests whether multimodal assistants follow the situation
+            in front of them or get stuck on the one a turn ago. Built
+            to pick a model for a live wearable assistant.
         </p>
 
         <div class="badges">
@@ -248,11 +247,11 @@ ul.bullets li {
         <section class="row">
             <div class="label">v1 results</div>
             <h2>Leaderboard</h2>
-            <p>Four runs. Primary score is balanced Turn 2 accuracy
-            across <code>current</code> and <code>prior</code> under the
-            <code>baseline</code> prompt condition. All runs use 50
-            scenarios, 3 prompt conditions, 2 trials per cell, 300
-            total cells per run.</p>
+            <p>Four runs. The headline number is balanced Turn 2
+            accuracy under <code>baseline</code>. That's the average
+            of <code>current</code> accuracy and <code>prior</code>
+            accuracy. Every run hit all 50 scenarios across 3 prompt
+            conditions with 2 trials each (300 cells per run).</p>
 
             <table class="leaderboard">
                 <thead>
@@ -304,15 +303,16 @@ ul.bullets li {
 
         <section class="row">
             <div class="label">Cross-family judging correction</div>
-            <h2>Same-family judging inflates scores</h2>
+            <h2>When a model judges itself, it scores higher</h2>
             <div class="callout">
                 <div class="callout-title">Original &rarr; Run A delta</div>
                 <div class="callout-stat">&minus;5.7 pp</div>
-                <p>The same Gemini candidate scores 98.5% when judged
-                by Gemini, and 92.8% when judged by GPT-4o-mini. The
-                difference is the self-preference bias of same-family
-                judging. Cross-family judging is the default in this
-                benchmark for this reason.</p>
+                <p>Same Gemini candidate, two different judges. Gemini
+                judging Gemini gives it 98.5%. GPT-4o-mini judging the
+                same Gemini gives it 92.8%. The 5.7 point gap is a
+                model rating its own family more favorably. Cross-family
+                judging is the default here so this can't happen
+                quietly.</p>
             </div>
         </section>
 
@@ -322,73 +322,70 @@ ul.bullets li {
             <div class="callout">
                 <div class="callout-title">Run A vs Run C delta</div>
                 <div class="callout-stat">&minus;85.6 pp</div>
-                <p>With the camera channel turned off
-                (<code>--no-camera</code>), the same Gemini candidate
-                that scored 92.8% with the camera collapses to 7.2%.
-                The camera channel is doing essentially all the work
-                in this benchmark: the deictic user speech alone is
-                not enough for the model to track context shifts.</p>
+                <p>Turn the camera off and the same Gemini candidate
+                drops from 92.8% to 7.2%. Without the camera, the
+                model has nothing to work with: the user is asking
+                "is this right?" and never says what "this" is. The
+                camera is carrying the test.</p>
             </div>
         </section>
 
         <section class="row">
             <div class="label">Multi-model comparison</div>
-            <h2>GPT-4o-mini outperforms Gemini Flash Lite on this task</h2>
+            <h2>GPT-4o-mini scores higher than Gemini Flash Lite</h2>
             <div class="callout muted">
                 <div class="callout-title">Run A vs Run B</div>
                 <div class="callout-stat">92.8% vs 100.0%</div>
-                <p>Both numbers come from cross-family judging on the
-                same scenario bank. GPT-4o-mini's perfect score
-                suggests the benchmark may not differentiate the
-                strongest current models at the top end. Future
-                versions may add harder scenarios.</p>
+                <p>Both runs use cross-family judging on the same
+                scenarios. GPT-4o-mini got every cell right. Worth
+                flagging: the benchmark might not separate the
+                strongest current models from each other. Harder
+                scenarios are a v2 question.</p>
             </div>
         </section>
 
         <section class="row">
             <div class="label">What this benchmark measures</div>
             <h2>Context tracking under cross-turn context shift</h2>
-            <p>Each scenario is a three-turn conversation. Between
-            Turn 1 and Turn 2 the user's situation changes
-            (object swap, location move, screen content change, and
-            so on). The change is visible only in the camera channel;
-            the user does not announce it. The benchmark measures
-            whether the model resolves the user's reference
-            (their <em>this</em>, <em>that</em>, or <em>it</em>)
-            to the current Turn 2 frame instead of staying anchored to
-            the prior Turn 1 frame.</p>
-            <p>For the full design contract, see
-            <a href="benchmark_spec.html">benchmark_spec</a>. For
-            interpretation guidance and limitations, see
-            <a href="benchmark_notes.html">benchmark_notes</a>. For
-            the one-page summary card, see
-            <a href="benchmark_card.html">benchmark_card</a>
-            (<a href="wearable_assistant_context_card.pdf">PDF</a>).</p>
+            <p>Three-turn conversations. Between Turn 1 and Turn 2
+            the user's situation changes. They swap tools, walk into
+            a different room, switch what's on a screen, that kind of
+            thing. The change shows up in the camera; the user
+            doesn't announce it out loud. When they ask a follow-up
+            like "am I doing this right?", does the model answer
+            about what's in the camera now, or about what was there
+            a turn ago?</p>
+            <p>Design details are in
+            <a href="benchmark_spec.html">benchmark_spec</a>. How to
+            read scores and what's out of scope is in
+            <a href="benchmark_notes.html">benchmark_notes</a>. The
+            one-page summary card is at
+            <a href="benchmark_card.html">benchmark_card</a> or
+            <a href="wearable_assistant_context_card.pdf">PDF</a>.</p>
         </section>
 
         <section class="row">
             <div class="label">What this benchmark does not measure</div>
-            <h2>Scope limits</h2>
+            <h2>What's out of scope</h2>
             <ul class="bullets">
-                <li><strong>Advice quality.</strong> The judge does
-                    not check whether the response is correct, safe,
-                    or domain-appropriate.</li>
-                <li><strong>Real video.</strong> The camera channel
-                    uses scene descriptions in text as a proxy.
-                    Performance here does not guarantee performance on
-                    actual video frames.</li>
+                <li><strong>Advice quality.</strong> The judge doesn't
+                    check whether the answer is correct, safe, or
+                    appropriate to the domain. A confidently wrong
+                    answer can pass.</li>
+                <li><strong>Real video.</strong> The "camera" is text
+                    descriptions of what the camera would see, not
+                    actual frames. A model that does well here might
+                    not do well on real video.</li>
                 <li><strong>Live audio and voice mode.</strong>
-                    The benchmark only scores text outputs. A
-                    candidate must support full omnimodal capability
-                    (vision in, audio in, audio out, real-time
-                    streaming) to be a deployable wearable assistant,
-                    even if this benchmark does not exercise audio
-                    directly.</li>
-                <li><strong>Multi-turn dynamics, proactive
-                    coaching, domain depth, latency, cost,
+                    Scoring is on text. A model that ships in a real
+                    wearable also needs to listen, talk back, and
+                    handle interruptions in real time. None of that
+                    is exercised here.</li>
+                <li><strong>Multi-turn dynamics, proactive coaching,
+                    domain depth, latency, cost, audio perception,
                     speaker attribution, addressee detection,
-                    long-horizon memory.</strong> All out of scope.
-                    Full list in
+                    long-horizon memory.</strong> Out of scope. Full
+                    list in
                     <a href="benchmark_notes.html">benchmark_notes</a>.</li>
             </ul>
         </section>
