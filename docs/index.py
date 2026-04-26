@@ -372,8 +372,8 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">What this benchmark measures</div>
-            <h2>Context tracking under cross-turn context shift</h2>
+            <div class="label">The test, in plain English</div>
+            <h2>Picking the right frame, turn by turn</h2>
             <p>Three-turn conversations. Between Turn 1 and Turn 2
             the user's situation changes. They swap tools, walk into
             a different room, switch what's on a screen, that kind of
@@ -392,8 +392,8 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">What this benchmark does not measure</div>
-            <h2>What's out of scope</h2>
+            <div class="label">What it doesn't test</div>
+            <h2>Out of scope</h2>
             <ul class="bullets">
                 <li><strong>Advice quality.</strong> The judge doesn't
                     check whether the answer is correct, safe, or
