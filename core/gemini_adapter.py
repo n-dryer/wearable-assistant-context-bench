@@ -1,8 +1,9 @@
 """Gemini candidate-model adapter.
 
-Parallel to `core.models.ClaudeAdapter`. Wraps the `google-genai` SDK
-behind the same `query(messages, system, config) -> str` interface so
-the runner can route by family.
+Wraps the `google-genai` SDK behind the same
+`query(messages, system, config) -> str` interface used by the
+LiteLLM adapter, so the runner can route by family without caring
+about the underlying transport.
 """
 
 from __future__ import annotations

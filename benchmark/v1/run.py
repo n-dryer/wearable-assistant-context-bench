@@ -37,7 +37,7 @@ from core.llm_judge import (
 )
 from core.gemini_adapter import GeminiAdapter
 from core.litellm_adapter import LiteLLMAdapter
-from core.models import ClaudeAdapter, ModelConfig
+from core.models import ModelConfig
 from core.report import (
     DEFAULT_RANKING_CONDITION,
     BENCHMARK_VERSION,
@@ -196,14 +196,20 @@ def _current_git_commit() -> str:
 
 
 def _build_adapter(model_id: str) -> Any:
-    """Pick a candidate adapter based on the model string and family."""
+    """Pick a candidate adapter based on the model string and family.
+
+    Bare Gemini model ids route through the native Gemini adapter.
+    Everything else routes through LiteLLM, which handles Claude (via
+    ``openrouter/anthropic/...`` or ``anthropic/...``), OpenAI, and
+    any other provider-qualified id with a slash.
+    """
     family = infer_candidate_family(model_id)
-    if "/" in model_id or family == "openai":
+    if "/" in model_id:
         return LiteLLMAdapter()
-    if family == "claude":
-        return ClaudeAdapter()
     if family == "gemini":
         return GeminiAdapter()
+    if family in ("claude", "openai"):
+        return LiteLLMAdapter()
     raise ValueError(
         f"Unsupported candidate model family for model_id={model_id!r}. "
         "Supported families: claude, gemini, openai, plus provider-qualified "

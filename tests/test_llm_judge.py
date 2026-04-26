@@ -12,7 +12,6 @@ from core.llm_judge import (
     JUDGE_MODEL_ID_GEMINI,
     JUDGE_MODEL_ID_OPENAI,
     JUDGE_SYSTEM_PROMPT,
-    ClaudeJudgeAdapter,
     GeminiJudgeAdapter,
     JudgeAdapterBase,
     LLMJudge,
@@ -231,10 +230,6 @@ def test_build_judge_uses_litellm_for_provider_qualified_models(
 def test_build_judge_rejects_unknown_family() -> None:
     with pytest.raises(ValueError):
         build_judge(family="mistral")
-
-
-def test_claude_judge_adapter_family() -> None:
-    assert ClaudeJudgeAdapter.family == "claude"
 
 
 def test_gemini_judge_adapter_family() -> None:

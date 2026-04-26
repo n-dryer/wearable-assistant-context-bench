@@ -234,6 +234,22 @@ def render_html() -> str:
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Wearable Assistant Context Benchmark</title>
         <meta name="description" content="A benchmark for measuring whether multimodal assistants update to current context instead of staying anchored to prior context.">
+
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Wearable Assistant Context Benchmark">
+        <meta property="og:description" content="50 scenarios. Three-channel design. Cross-family LLM-as-judge. Camera channel ablation. v1.0.0 published April 2026.">
+        <meta property="og:url" content="https://n-dryer.github.io/wearable-assistant-context-bench/">
+        <meta property="og:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="Wearable Assistant Context Benchmark v1.0.0. 50 scenarios, 4 published runs, 3-channel design, MIT license.">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Wearable Assistant Context Benchmark">
+        <meta name="twitter:description" content="50 scenarios. Three-channel design. Cross-family LLM-as-judge. Camera channel ablation. v1.0.0 published April 2026.">
+        <meta name="twitter:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
+        <meta name="twitter:image:alt" content="Wearable Assistant Context Benchmark v1.0.0.">
+
         <style>{CSS}</style>
     </head>
     <body>

@@ -23,10 +23,10 @@ from dataclasses import dataclass
 from typing import Any
 
 from core.litellm_adapter import LiteLLMAdapter
-from core.models import ClaudeAdapter, ModelConfig
+from core.models import ModelConfig
 
 
-JUDGE_MODEL_ID_CLAUDE = "claude-sonnet-4-6"
+JUDGE_MODEL_ID_CLAUDE = "openrouter/anthropic/claude-sonnet-4.6"
 JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
 JUDGE_MODEL_ID_OPENAI = "openai/gpt-4.1-mini"
 JUDGE_TEMPERATURE = 0.0
@@ -92,34 +92,6 @@ class JudgeAdapterBase(ABC):
     @abstractmethod
     def call(self, *, system: str, user: str, model_id: str) -> str:
         """Send a single-shot system+user chat and return raw text."""
-
-
-class ClaudeJudgeAdapter(JudgeAdapterBase):
-    """Claude-backed judge adapter."""
-
-    family = "claude"
-
-    def __init__(
-        self,
-        adapter: ClaudeAdapter | None = None,
-        temperature: float = JUDGE_TEMPERATURE,
-        max_tokens: int = JUDGE_MAX_TOKENS,
-    ) -> None:
-        self._adapter = adapter if adapter is not None else ClaudeAdapter()
-        self._temperature = temperature
-        self._max_tokens = max_tokens
-
-    def call(self, *, system: str, user: str, model_id: str) -> str:
-        config = ModelConfig(
-            model_id=model_id,
-            temperature=self._temperature,
-            max_tokens=self._max_tokens,
-        )
-        return self._adapter.query(
-            messages=[{"role": "user", "content": user}],
-            system=system,
-            config=config,
-        )
 
 
 class GeminiJudgeAdapter(JudgeAdapterBase):
@@ -233,17 +205,20 @@ class LLMJudge:
         """Construct the judge.
 
         Args:
-            adapter: A JudgeAdapterBase instance. Defaults to a Claude
-                judge adapter, matching the historical default. Tests
-                inject a stub adapter.
+            adapter: A JudgeAdapterBase instance. Defaults to a
+                LiteLLM-backed Claude judge via OpenRouter, matching
+                the historical default family. Tests inject a stub
+                adapter.
             model_id: Judge model identifier. Must match the adapter's
                 family; the runner enforces this via `resolve_judge_family`.
             temperature: Sampling temperature.
             max_tokens: Upper bound on judge response length.
         """
         self._adapter: JudgeAdapterBase = (
-            adapter if adapter is not None else ClaudeJudgeAdapter(
-                temperature=temperature, max_tokens=max_tokens
+            adapter if adapter is not None else LiteLLMJudgeAdapter(
+                family="claude",
+                temperature=temperature,
+                max_tokens=max_tokens,
             )
         )
         self._model_id = model_id
@@ -387,10 +362,8 @@ def build_judge(
         resolved_model = model_id or JUDGE_MODEL_ID_CLAUDE
         if adapter is not None:
             adapter_ = adapter
-        elif "/" in resolved_model:
-            adapter_ = LiteLLMJudgeAdapter(family=family)
         else:
-            adapter_ = ClaudeJudgeAdapter()
+            adapter_ = LiteLLMJudgeAdapter(family=family)
     elif family == "gemini":
         resolved_model = model_id or JUDGE_MODEL_ID_GEMINI
         if adapter is not None:
