@@ -312,7 +312,7 @@ def render_html() -> str:
         </div>
 
         <section class="row">
-            <div class="label">The setup</div>
+            <div class="label">Methodology</div>
             <h2>How the test works</h2>
             <p>Picture glasses that see what you see and hear what
             you say. You ask them questions and they answer.</p>
@@ -338,43 +338,15 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">Four runs</div>
-            <h2>Results</h2>
-
-            <p><strong>What the score means.</strong> The headline
-            number is <strong>Balanced Turn 2 accuracy</strong>: how
-            often the model picks the right reference. Half the
-            scenarios are designed so the right answer is
-            <code>current</code> (about the new scene); half so the
-            right answer is <code>prior</code> (about the old one).
-            The score averages how often the model is correct on
-            each. 100% means correct in both directions on every
-            scenario.</p>
-
-            <p><strong>What's in a run.</strong> A run is one model
-            setup tested against all 50 scenarios with the same
-            candidate, the same judge, and the same video setting
-            throughout. Each scenario is repeated under three
-            system prompts (the neutral baseline plus two nudge
-            variants), two trials each. That's 300 calls per run.
-            The judge reads every Turn 2 answer and labels it
-            <code>current</code>, <code>prior</code>,
-            <code>clarify</code>, or <code>abstain</code>; the
-            score is computed from those labels.</p>
-
-            <p><strong>What "same family" vs "cross family" means.</strong>
-            Same family: the candidate model and the judge model
-            come from the same maker (e.g., both Gemini). Cross
-            family: different makers (e.g., a Gemini answer graded
-            by a GPT judge). Cross-family pairings remove
-            <em>self-preference bias</em>, the tendency of a model
-            to grade its own family more favorably.</p>
+            <div class="label">Results</div>
+            <h2>Four experimental runs</h2>
 
             <p>Each row below is a different experiment, not a
-            ranked entry. The rows aren't sorted by score because
-            they're not directly comparable: one is an
-            uncorrected-bias baseline, one is an ablation. Compare
-            within the table by holding the rest constant.</p>
+            ranked entry. The primary metric is
+            <strong>Balanced Turn 2 accuracy</strong> — how often
+            the model picks the right reference (<code>current</code>
+            or <code>prior</code>). Term definitions in the
+            <a href="#glossary">Glossary</a>.</p>
 
             <table class="leaderboard">
                 <thead>
@@ -438,7 +410,7 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">Video ablation</div>
+            <div class="label">Vision ablation</div>
             <h2>Without video, the model can't answer</h2>
             <div class="callout">
                 <div class="callout-title">Same Gemini, video shown vs hidden</div>
@@ -452,7 +424,7 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">Judge bias</div>
+            <div class="label">Evaluation bias</div>
             <h2>When a model judges itself, it scores higher</h2>
             <div class="callout">
                 <div class="callout-title">Same Gemini candidate, judge swapped</div>
@@ -466,7 +438,7 @@ def render_html() -> str:
         </section>
 
         <section class="row">
-            <div class="label">Two candidate models</div>
+            <div class="label">Model comparison</div>
             <h2>GPT-4o-mini scores higher than Gemini Flash Lite</h2>
             <div class="callout muted">
                 <div class="callout-title">Same scenarios, different candidate</div>
@@ -483,7 +455,8 @@ def render_html() -> str:
         </section>
 
         <section class="row" id="out-of-scope">
-            <h2>Out of scope</h2>
+            <div class="label">Limitations</div>
+            <h2>What is out of scope</h2>
 
             <h3>Inputs</h3>
             <ul class="bullets">
