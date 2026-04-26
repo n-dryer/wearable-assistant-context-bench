@@ -150,7 +150,7 @@ def test_public_docs_do_not_present_alternate_path_as_active_surface() -> None:
 
 
 def test_root_agents_is_archival_notice_only() -> None:
-    # AGENTS.md is gitignored (local Claude Code file). Skip gracefully when absent.
+    # AGENTS.md is gitignored (local-only file). Skip gracefully when absent.
     agents_path = REPO_ROOT / "AGENTS.md"
     if not agents_path.exists():
         return
