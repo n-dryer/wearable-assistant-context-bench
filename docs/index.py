@@ -456,20 +456,24 @@ def render_html() -> str:
 
         <section class="row">
             <div class="label">Model comparison</div>
-            <h2>Both models score high — a v1 finding in itself</h2>
+            <h2>Strong models pass v1 — v2 will probe the harder cases</h2>
             <div class="callout muted">
                 <div class="callout-title">Same scenarios, different candidate</div>
                 <div class="callout-stat flow">92.8% (Gemini Flash Lite) vs 100.0% (GPT-4o-mini)</div>
-                <p>Both runs use cross-family judging on the same
-                scenarios. GPT-4o-mini got every cell right; Gemini
-                Flash Lite cleared the bar comfortably too. The
-                7.2-point gap is informative, but the high absolute
-                scores also suggest v1 is approaching its ceiling.
-                v2 likely needs harder scenarios — or richer inputs
-                like real audio and real video frames — to better
-                separate the strongest models. With only 50
-                scenarios and 2 trials per cell, small differences
-                here may also be sampling noise; see
+                <p>Both top models clear the bar: GPT-4o-mini
+                answers every Turn 2 correctly, and Gemini Flash
+                Lite gets there comfortably too. The 7.2-point gap
+                shows the methodology still differentiates at the
+                top. The high absolute scores also tell us
+                something useful: today's strongest models can
+                handle the kind of context shifts v1 tests for.
+                That establishes a clear baseline and points to a
+                v2 roadmap — shifts that span more turns,
+                multi-person scenes, distractors that compete for
+                attention, and richer inputs (real audio for
+                prosody, real video for visual ambiguity). With
+                only 50 scenarios and 2 trials per cell, small
+                differences here may also be sampling noise; see
                 <a href="#out-of-scope">Out of scope</a>.</p>
             </div>
         </section>
