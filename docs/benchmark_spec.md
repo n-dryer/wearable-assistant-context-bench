@@ -12,11 +12,12 @@ situation changes between turns, does the model respond from the
 current situational evidence, or does it stay anchored to the prior
 context?
 
-In standard ML and dialog terminology, the task is **reference
-resolution under cross-turn context shift**. The model has to resolve
-the user's reference (their "this", "that", or "it") to the current
-camera frame instead of staying anchored to an earlier frame. We use
-**context tracking** as the casual shorthand throughout this document.
+The benchmark measures **context tracking**: whether the model
+resolves the user's reference (their "this", "that", or "it") to the
+current camera frame instead of staying anchored to an earlier one.
+(In standard ML and dialog terminology this is reference resolution
+under cross-turn context shift; this document uses **context tracking**
+throughout.)
 
 An in-the-moment multimodal coach lives in a continuous stream. The
 user puts down one object and picks up another. The user moves from
@@ -40,7 +41,7 @@ does not intend to. Evaluate them separately:
 - Latency, cost, and serving characteristics
 - Speaker attribution, addressee detection, ambient audio
 
-**Limitations (v2 follow-ups).** The benchmark could measure these
+**Limitations (future follow-ups).** The benchmark could measure these
 but does not yet, due to resource constraints:
 
 - Human inter-annotator agreement on judge labels (v1 reports
@@ -78,7 +79,7 @@ position, without naming the object directly), not raw video frames;
 the benchmark does not score performance on real video. Both proxies
 are deliberate: they let the benchmark isolate context-tracking
 ability from variability of the perceptual front-end. Raw-audio and
-real-video variants are v2 work.
+real-video variants are future work.
 
 The judge sees the same audio and camera channels plus the
 ground-truth answer keys, which name the actual objects in frame. The

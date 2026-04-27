@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wearable-assistant-context-bench"
 version = "1.0.0"
-description = "Context-tracking benchmark for multimodal AI assistants used actively for advice or coaching — wearable or handheld."
+description = "Context-tracking benchmark for multimodal AI assistants used actively for advice or coaching, wearable or handheld."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"

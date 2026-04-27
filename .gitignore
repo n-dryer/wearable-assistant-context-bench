@@ -31,3 +31,6 @@ audits/
 
 # Claude Code / sibling worktrees (local-only)
 .claude/
+
+# here.now MCP working state (local-only)
+.herenow/

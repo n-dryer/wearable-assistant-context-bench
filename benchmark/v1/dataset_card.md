@@ -34,9 +34,9 @@ The bank ships in three split groups:
 
 | Group | Files | Count | Purpose |
 |---|---|---|---|
-| Canonical | `scenarios.json`, `expected_answers.json` | 50 | Frozen primary bank. The `baseline`, `baseline-alt`, `ablation-no-camera`, `baseline-qwen-cross-family`, and `baseline-deictic-repair` runs evaluate against this. |
+| Scenario Bank | `scenarios.json`, `expected_answers.json` | 50 | Primary bank. The `baseline`, `baseline-alt`, `ablation-no-camera`, `baseline-qwen-cross-family`, and `baseline-deictic-repair` runs evaluate against this. |
 | Adversarial | `scenarios_adversarial.json`, `expected_answers_adversarial.json` | 20 | Distractor-rich scenarios for ceiling-effect probing. Run via `--pack adversarial`. |
-| Hard | `scenarios_v2_candidates.json`, `expected_answers_v2_candidates.json` | 15 | Ceiling-test scenarios (all `difficulty_tier: hard`) targeting cells the canonical bank under-covers. Authored after the empirical-difficulty analysis showed that 36% of the canonical bank is harder than its author tier suggests. Run via `--pack hard`. |
+| Hard | `scenarios_v2_candidates.json`, `expected_answers_v2_candidates.json` | 15 | Ceiling-test scenarios (all `difficulty_tier: hard`) targeting cells the Scenario Bank under-covers. Authored after the empirical-difficulty analysis showed that 36% of the Scenario Bank is harder than its author tier suggests. Run via `--pack hard`. |
 
 There is no train/val/test split. The bank is an evaluation set; all
 85 scenarios are intended for inference and labeling, not training.
@@ -49,7 +49,7 @@ and camera (scene-description) channels; the judge additionally
 receives the answer lists and a ground-truth section naming the
 actual objects in frame.
 
-## Statistics (canonical bank)
+## Statistics (Scenario Bank)
 
 | Statistic | Value |
 |---|---|
@@ -95,7 +95,7 @@ communication. Coverage is broad but shallow.
 
 ## Curation rationale
 
-The 50 canonical scenarios were authored from scratch following the
+The 50 Scenario Bank scenarios were authored from scratch following the
 rules in
 [`../../docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
 Each scenario was written within one of the eight shift-type
@@ -139,16 +139,16 @@ authoring.
 
 ## v1 release runs
 
-v1 publishes six runs across the canonical and adversarial packs.
+v1 publishes six runs across the Scenario Bank and the adversarial pack.
 Each run's full `findings.md` includes the reproducibility manifest.
 
 | Run | Candidate | Judge | Pack | Primary (95% CI) |
 |---|---|---|---|---|
-| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
-| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | canonical 50 | 77.7% (71.3–84.0) |
-| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | canonical 50 | 14.4% (9.1–19.7) |
-| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | canonical 50 | 54.2% (50.7–57.7) |
-| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
+| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
+| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | Scenario Bank | 77.7% (71.3–84.0) |
+| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | Scenario Bank | 14.4% (9.1–19.7) |
+| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | Scenario Bank | 54.2% (50.7–57.7) |
+| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
 | `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
 For the full per-class breakdown, see
@@ -157,7 +157,7 @@ For the full per-class breakdown, see
 ### Methodology features exercised
 
 - **Cross-family judging.** `baseline-qwen-cross-family` and
-  `adversarial`. The three Gemini canonical runs are same-family
+  `adversarial`. The four Gemini Scenario Bank runs are same-family
   (see Caveats).
 - **Fixed ranking judge** (`--ranking-judge-family`). Demonstrated
   on `adversarial` with `claude-haiku-4.5`. Rolling out to all
@@ -193,34 +193,34 @@ The benchmark does not measure these and does not intend to:
 
 ### Caveats on published v1 runs
 
-- **Same-family judging on four of five canonical runs.** API
+- **Same-family judging on four of five Scenario Bank runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Inference
   Providers Pro) was exhausted mid-effort, leaving Gemini-direct via
   LiteLLM as the only viable transport. Gemini-Flash-Lite judging
   Gemini-Flash-Lite (and Gemini-Flash) admits self-preference bias.
   `baseline-qwen-cross-family` is the cross-family integrity
-  reference for the canonical bank.
-- **Two model-config families across v1.** Five canonical runs use
+  reference for the Scenario Bank.
+- **Two model-config families across v1.** Five Scenario Bank runs use
   Gemini-direct + DashScope-International transports; `adversarial`
   uses an OpenRouter setup. Each `findings.md` manifest carries
   full identifiers.
 
 ### v1.0.x follow-ups
 
-- Re-run the canonical bank with a single fixed ranking judge held
+- Re-run the Scenario Bank with a single fixed ranking judge held
   constant across all candidates so cross-candidate ranking is
   apples-to-apples.
-- Re-run `adversarial` under the same Gemini setup as the canonical
-  bank so the model-config story across all six runs is consistent.
+- Re-run `adversarial` under the same Gemini setup as the Scenario
+  Bank so the model-config story across all six runs is consistent.
 
-### v2 follow-ups
+### Future follow-ups
 
 - **Human inter-annotator agreement.** v1 reports cross-LLM judge
   agreement only. Human IAA on a 25% sample with Cohen's kappa is
-  the highest-priority v2 follow-up.
+  the highest-priority future follow-up.
 - **Real-video validation.** The camera channel uses text scene
   descriptions as a stand-in for actual video. Held-out video
-  validation on a representative sample is v2 work.
+  validation on a representative sample is future work.
 - **Raw-audio validation.** v1 represents the user's spoken turns as
   text transcripts.
 - **Beyond-5-trial multi-seed generalization.**

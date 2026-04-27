@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Model Evaluation for an AI Wearable Device</title>
+    <meta name="description" content="A PM case study on the Wearable Assistant Context Benchmark: why I built it, the design tradeoffs, what it found, and where it falls short. Built to answer a real model-selection question for multimodal coaching assistants.">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="PM Case Study: Wearable Assistant Context Benchmark">
+    <meta property="og:description" content="Why I built a multimodal model-selection benchmark, the four decisions that made it shippable, what it found, and the limits I chose to live with.">
+
+    <style>
+@import url('https://rsms.me/inter/inter.css');
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    color: #2b2118;
+    background: radial-gradient(circle at 30% 20%, #fffaf4 0%, #f6f1ea 100%);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: #b14f31; text-decoration: none; border-bottom: 1px solid rgba(177, 79, 49, 0.25); }
+a:hover { border-bottom-color: #b14f31; }
+
+code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 0.92em;
+}
+
+.page {
+    max-width: 1100px;
+    margin: 36px auto;
+    background: #fffaf4;
+    border-radius: 28px;
+    padding: 56px 64px 48px;
+    box-shadow: 0 20px 60px rgba(43, 33, 24, 0.08);
+}
+
+.kicker {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #b14f31;
+    background: #f4dfd5;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 100px;
+}
+
+h1 {
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin: 18px 0 12px 0;
+    color: #2b2118;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #5b4a3d;
+    max-width: 760px;
+    margin: 0 0 22px 0;
+}
+
+.badges {
+    margin-top: 18px;
+    margin-bottom: 4px;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: #f0e8dd;
+    color: #5b4a3d;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e3d8c8;
+}
+
+section.row {
+    margin-top: 36px;
+    border-top: 1px solid #e9dfce;
+    padding-top: 28px;
+}
+
+section.row .label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #6b5a4d;
+    margin-bottom: 12px;
+}
+
+section.row h2 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px 0;
+    color: #2b2118;
+}
+
+section.row h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b14f31;
+    margin: 24px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+}
+
+section.row p { max-width: 800px; }
+
+.failure-block {
+    background: #faf5ee;
+    border-left: 3px solid #b14f31;
+    border-radius: 8px;
+    padding: 16px 22px;
+    margin: 14px 0;
+    font-size: 15.5px;
+    color: #3d2f23;
+}
+
+.failure-block strong { color: #2b2118; }
+
+.callout {
+    background: #f0e8dd;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-top: 18px;
+}
+
+.callout.muted { background: #faf5ee; }
+
+.callout .callout-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #b14f31;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.callout .callout-stat {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #2b2118;
+    margin-bottom: 6px;
+}
+
+.callout p {
+    margin: 0;
+    font-size: 15px;
+    color: #5b4a3d;
+}
+
+ul.bullets, ol.numbered {
+    margin: 8px 0 0 0;
+    padding-left: 22px;
+    max-width: 800px;
+}
+
+ul.bullets li, ol.numbered li {
+    margin-bottom: 10px;
+}
+
+.decision-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.decision-card {
+    background: #faf5ee;
+    border: 1px solid #e9dfce;
+    border-radius: 14px;
+    padding: 18px 22px;
+}
+
+.decision-card .decision-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #b14f31;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.decision-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #2b2118;
+    line-height: 1.3;
+}
+
+.decision-card p {
+    margin: 0;
+    font-size: 14.5px;
+    color: #5b4a3d;
+    line-height: 1.55;
+}
+
+@media (max-width: 720px) {
+    .decision-grid { grid-template-columns: 1fr; }
+}
+
+table.leaderboard {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0 8px 0;
+    font-size: 15px;
+}
+
+table.leaderboard th, table.leaderboard td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e9dfce;
+}
+
+table.leaderboard th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b5a4d;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+table.leaderboard td.score {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+table.leaderboard tr.highlight td {
+    background: #fff4ea;
+}
+
+.per-class {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.per-class-cell {
+    background: #faf5ee;
+    border: 1px solid #e9dfce;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.per-class-cell .pc-model {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2b2118;
+    margin-bottom: 6px;
+}
+
+.per-class-cell .pc-numbers {
+    font-size: 22px;
+    font-weight: 800;
+    color: #b14f31;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+}
+
+.per-class-cell .pc-label {
+    font-size: 12.5px;
+    color: #6b5a4d;
+    line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+    .per-class { grid-template-columns: 1fr; }
+}
+
+.signature {
+    margin-top: 26px;
+    padding: 20px 22px;
+    background: #fff4ea;
+    border-radius: 14px;
+    border-left: 3px solid #b14f31;
+}
+
+.signature p { margin: 0; font-size: 15.5px; color: #3d2f23; }
+
+.footer {
+    margin-top: 48px;
+    padding-top: 22px;
+    border-top: 1px solid #e9dfce;
+    font-size: 13px;
+    color: #6b5a4d;
+}
+
+.footer .links { margin-top: 10px; }
+.footer .links a { margin-right: 18px; }
+
+.footer .links-label {
+    display: inline-block;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+    color: #6b5a4d;
+    margin-right: 14px;
+}
+
+@media (max-width: 720px) {
+    .page { padding: 32px 22px; margin: 12px; }
+}
+    </style>
+</head>
+<body>
+<main class="page">
+
+    <div class="kicker">PM Case Study &middot; 2026</div>
+    <h1>Model Evaluation for an AI Wearable Device</h1>
+    <p class="subtitle">
+        How I built the <strong>Wearable Assistant Context Benchmark</strong> to
+        answer a real product question (which multimodal model do we ship when
+        the user's situation keeps changing) and the four decisions that made
+        the answer defensible.
+    </p>
+
+    <div class="badges">
+        <span class="badge">50-scenario Scenario Bank</span>
+        <span class="badge">8 shift types</span>
+        <span class="badge">6 published runs</span>
+        <span class="badge">SHA256 manifest lock</span>
+    </div>
+
+    <section class="row">
+        <div class="label">The problem</div>
+        <h2>The user's situation keeps changing. The model doesn't follow.</h2>
+        <p>Two failures, both observed in product testing of multimodal coaching
+        assistants:</p>
+
+        <div class="failure-block">
+            <strong>Tool swap.</strong> A user asks about a hammer they're holding.
+            They put it down, pick up a screwdriver, then ask, <em>"how do I use
+            this?"</em> The assistant answers about the hammer.
+        </div>
+
+        <div class="failure-block">
+            <strong>Room change.</strong> A user asks about the bedroom walls.
+            They walk into the kitchen and ask about the walls again. The
+            assistant answers as if the user is still in the bedroom.
+        </div>
+
+        <p>The pattern: the user's situation changed between turns. The assistant
+        didn't follow. The user has to restate context the assistant should have
+        inferred from what it can see and hear.</p>
+
+        <p>This is a model-selection problem, not a prompting problem. Some models
+        stay anchored to the prior context; some update; the gap between them is
+        product-defining for an in-the-moment coaching assistant. One-off
+        vibes-checks across two or three models on two or three demos isn't enough
+        to make a buying call. Every candidate needs to be tested on the same
+        scenarios, with the same prompt conditions, the same judge rules, and a
+        saved run record.</p>
+
+        <p><strong>So I built one.</strong></p>
+    </section>
+
+    <section class="row">
+        <div class="label">Approach</div>
+        <h2>Why a benchmark, and why this one</h2>
+        <p>Existing multimodal benchmarks measure perception or reasoning in
+        isolation. They don't measure whether a model re-grounds after a situation
+        shift, which is the failure mode that breaks coaching assistants in the
+        wild. I needed a controlled comparison surface I could re-run on every
+        candidate: a fixed-content scenario bank, deterministic by construction
+        and reproducible from the manifest.</p>
+
+        <p>The constraint: I'm a PM, not a research lab. The benchmark had to
+        be small enough to author with editorial control and narrow enough to
+        defend. The numbers had to be sharp enough to act on.</p>
+
+        <h3>What that meant</h3>
+        <ul class="bullets">
+            <li>A 50-scenario bank, hand-authored to a 10-point checklist plus
+            four programmatic validation checks (token leakage, object-name
+            leakage, schema, duplication) and locked by SHA256 manifest.</li>
+            <li>Three turns per scenario: Turn 1 establishes the situation, Turn 2
+            fires after a shift, scoring is on Turn 2.</li>
+            <li>An LLM judge (different family from the candidate by default)
+            labels each Turn 2 response as <code>current</code> (right frame),
+            <code>prior</code> (wrong frame), <code>clarify</code>, or
+            <code>abstain</code>.</li>
+            <li>The primary score is balanced accuracy across <code>current</code>
+            and <code>prior</code>, macro-averaged so a model that always
+            answers from the latest frame can't game the headline.</li>
+        </ul>
+    </section>
+
+    <section class="row">
+        <div class="label">Measurement</div>
+        <h2>How it measures what it measures</h2>
+
+        <p>The construct is <strong>context tracking</strong>: whether the model
+        uses the latest situational evidence visible in the camera channel, or
+        stays anchored to an earlier frame. The scenario format encodes the
+        construct directly.</p>
+
+        <h3>Three turns, scored on the second</h3>
+        <p>Each scenario has Turn 1 (initial question grounded in scene A), Turn 2
+        (follow-up after a context shift to scene B, visible only in the camera
+        channel), and an optional Turn 3 (a repair line that fires only when Turn 2
+        misses). The scored turn is Turn 2: the model has to register the
+        change in the user's situation and answer about the new frame, not the
+        old one.</p>
+
+        <h3>Four labels, two scored classes</h3>
+        <p>The judge labels each Turn 2 response as <code>current</code>,
+        <code>prior</code>, <code>clarify</code>, or <code>abstain</code>.
+        <code>current</code> and <code>prior</code> are the scored classes;
+        <code>clarify</code> and <code>abstain</code> are auxiliary; with only 3
+        and 2 of them in the bank, per-class accuracy is too noisy to be
+        ranking-grade.</p>
+
+        <h3>Balanced, not raw, accuracy</h3>
+        <p>The bank is 33 <code>current</code> scenarios and 12 <code>prior</code>.
+        A simple hit rate would let a model that always answers from the latest
+        frame score &ge;66% by ignoring the <code>prior</code> class entirely.
+        That's exactly the failure mode the benchmark exists to detect.
+        Balancing forces the candidate to handle both classes.</p>
+
+        <div class="callout">
+            <div class="callout-title">Camera-channel ablation</div>
+            <div class="callout-stat">60.6% &rarr; 14.4% (46.2 pp drop)</div>
+            <p>Same candidate (Gemini Flash-Lite), same judge, camera channel
+            stripped out. Rules out one alternative reading: that the model is
+            solving the task through question-phrasing patterns or memorized
+            priors. It isn't. The camera channel is doing the work.</p>
+        </div>
+
+        <p style="margin-top: 18px;">Combined with the per-class breakdown
+        (87.9% on <code>current</code>, 33.3% on <code>prior</code> for the same
+        candidate), the picture is clear: the model uses the camera, but it
+        disproportionately grounds in the latest frame and struggles to re-anchor
+        on an earlier one. That's the capability gap the benchmark targets.</p>
+    </section>
+
+    <section class="row">
+        <div class="label">Decisions</div>
+        <h2>The four decisions that made it shippable</h2>
+        <p>A benchmark is the sum of its load-bearing tradeoffs. The decisions log
+        in the repo has eleven of these. These four carry the most weight.</p>
+
+        <div class="decision-grid">
+            <div class="decision-card">
+                <div class="decision-num">Decision 1</div>
+                <h4>50 scenarios, not 5,000</h4>
+                <p>Authoring is the bottleneck. Every scenario passes a 10-point
+                checklist plus four programmatic checks. Editorial control over
+                statistical scale. The minimum detectable effect at this N is
+                ~13 pp at 80% power; smaller deltas are inside the noise floor.</p>
+            </div>
+
+            <div class="decision-card">
+                <div class="decision-num">Decision 2</div>
+                <h4>Class-balanced primary metric across <code>current</code> and <code>prior</code> only</h4>
+                <p>The bank skews 33:12 toward <code>current</code>. A model that
+                ignores <code>prior</code> entirely would score 66% on a hit-rate
+                metric (high enough to look fine in a product context) but
+                fail the exact behavior I care about. Macro-averaging refuses
+                to let that happen.</p>
+            </div>
+
+            <div class="decision-card">
+                <div class="decision-num">Decision 3</div>
+                <h4>Text proxies for audio and video, not raw audio and real video</h4>
+                <p>The most-questioned design choice and the most defensible one.
+                Real audio and video introduce variability in the perceptual
+                front-end that obscures the context-tracking signal. Proxies
+                isolate the measurement. If a model fails on text descriptions, it
+                will fail on real video. Floor, not ceiling.</p>
+            </div>
+
+            <div class="decision-card">
+                <div class="decision-num">Decision 4</div>
+                <h4>Cross-family judging by default + a fixed ranking judge</h4>
+                <p>Same-family judges show self-preference bias
+                (<a href="https://arxiv.org/abs/2410.12784">JudgeBench</a>,
+                <a href="https://arxiv.org/abs/2306.05685">MT-Bench</a>).
+                Cross-family judging removes it within each run. A fixed
+                ranking judge held constant across candidates handles
+                cross-run comparability. Two layers, not one.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="row">
+        <div class="label">Findings</div>
+        <h2>What the benchmark found</h2>
+        <p>Six runs across four candidate configurations on the Scenario Bank
+        (50 scenarios) plus a 20-scenario adversarial pack.</p>
+
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th>Run</th>
+                    <th>Candidate</th>
+                    <th>Judge</th>
+                    <th>Primary (95% CI)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="highlight">
+                    <td><strong>baseline-alt</strong></td>
+                    <td><code>gemini-2.5-flash</code></td>
+                    <td><code>gemini-2.5-flash-lite</code> <em>(same-family)</em></td>
+                    <td class="score">77.7% (71.3&ndash;84.0)</td>
+                </tr>
+                <tr class="highlight">
+                    <td><strong>baseline</strong></td>
+                    <td><code>gemini-2.5-flash-lite</code></td>
+                    <td><code>gemini-2.5-flash-lite</code> <em>(same-family)</em></td>
+                    <td class="score">60.6% (54.1&ndash;67.1)</td>
+                </tr>
+                <tr>
+                    <td><strong>baseline-qwen-cross-family</strong></td>
+                    <td><code>qwen3-vl-plus</code></td>
+                    <td><code>gemini-2.5-flash-lite</code> <em>(cross-family)</em></td>
+                    <td class="score">54.2% (50.7&ndash;57.7)</td>
+                </tr>
+                <tr>
+                    <td><strong>ablation-no-camera</strong></td>
+                    <td><code>gemini-2.5-flash-lite</code>, no camera</td>
+                    <td><code>gemini-2.5-flash-lite</code></td>
+                    <td class="score">14.4% (9.1&ndash;19.7)</td>
+                </tr>
+                <tr>
+                    <td><strong>baseline-deictic-repair</strong></td>
+                    <td><code>gemini-2.5-flash-lite</code>, deictic repair</td>
+                    <td><code>gemini-2.5-flash-lite</code> <em>(same-family)</em></td>
+                    <td class="score">60.6% (54.1&ndash;67.1)</td>
+                </tr>
+                <tr>
+                    <td><strong>adversarial</strong></td>
+                    <td><code>gemini-2.5-flash-lite</code> (OpenRouter)</td>
+                    <td><code>gpt-4o-mini</code> <em>(cross-family)</em></td>
+                    <td class="score">67.3% (55.5&ndash;79.1)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>The product-relevant signal isn't the headline</h3>
+        <p>The per-class breakdown is what an integrating PM would actually use.
+        The same headline accuracy can hide very different failure profiles:</p>
+
+        <div class="per-class">
+            <div class="per-class-cell">
+                <div class="pc-model">Qwen3-VL-Plus</div>
+                <div class="pc-numbers">100% / 8.3%</div>
+                <div class="pc-label">Locks in the latest frame, never updates back to <code>prior</code>.</div>
+            </div>
+            <div class="per-class-cell">
+                <div class="pc-model">Gemini Flash-Lite</div>
+                <div class="pc-numbers">87.9% / 33.3%</div>
+                <div class="pc-label">Updates sometimes; still leans toward recent frames over <code>prior</code>.</div>
+            </div>
+            <div class="per-class-cell">
+                <div class="pc-model">Gemini Flash-Lite, no camera</div>
+                <div class="pc-numbers">12.1% / 16.7%</div>
+                <div class="pc-label">Without the camera channel, neither <code>current</code> nor <code>prior</code> recovers from the words alone.</div>
+            </div>
+        </div>
+
+        <p style="margin-top: 22px;"><strong>What v1 actually shows:</strong>
+        Gemini Flash beats Gemini Flash-Lite on context tracking
+        (<a href="https://arxiv.org/abs/2503.01747">McNemar</a> p = 0.0012,
+        17.1 pp gap, clears the noise floor). Qwen3-VL-Plus locks onto the
+        latest frame so hard (<code>prior</code> 8.3%) that it isn't viable
+        for context tracking in this setup. The Flash-Lite vs Qwen 6.4 pp gap
+        does not clear the noise floor and is also confounded by judge
+        family.</p>
+    </section>
+
+    <section class="row">
+        <div class="label">Limits</div>
+        <h2>What this benchmark does <em>not</em> measure</h2>
+        <p>I'd rather surface the limits in my own voice than wait for a reviewer
+        to find them.</p>
+
+        <h3>Same-family judging on four of five Scenario Bank runs</h3>
+        <p>API budget across providers (OpenRouter, OpenAI direct, HF Inference Pro)
+        was exhausted mid-effort. Gemini-direct via LiteLLM was the only viable
+        transport for the bulk of the Scenario Bank runs. Self-preference bias
+        likely inflates the Gemini Scenario Bank scores by ~6 pp. <strong>The
+        cross-family Qwen run is the integrity reference for the Scenario
+        Bank.</strong> Re-running with a fixed ranking judge across all
+        candidates is a v1.0.x follow-up.</p>
+
+        <h3>Real video is approximated by text scene descriptions</h3>
+        <p>Performance on text descriptions is not a guarantee of performance on
+        actual video. Real-video correlation on a held-out subset is acknowledged
+        future work.</p>
+
+        <h3>Audio is text transcripts, not raw audio</h3>
+        <p>That means none of the things real audio would let the model do
+        &mdash; recognizing voices, hearing who's speaking to whom, picking
+        up background sounds &mdash; get exercised.</p>
+
+        <h3>Bank size and depth</h3>
+        <p>50 scenarios across 16 activity domains. Coverage is broad but shallow.
+        A model that crushes cooking but fails woodworking would be
+        under-discriminated.</p>
+
+        <h3>No human inter-annotator agreement</h3>
+        <p>v1 reports cross-LLM judge agreement (Cohen's kappa = 0.443 on the
+        adversarial run). A second human rater on a 25% sample is the
+        strongest improvement still on the table, and the top future
+        follow-up.</p>
+
+        <div class="callout muted">
+            <div class="callout-title">Out of scope by design</div>
+            <p>Coaching advice quality, multi-turn dynamics past three turns,
+            proactive coaching, domain depth, latency, cost, long-horizon memory.
+            A model that passes this benchmark still needs separate evaluation
+            for everything in that list.</p>
+        </div>
+    </section>
+
+    <section class="row">
+        <div class="label">Roadmap</div>
+        <h2>What I'd do next, in priority order</h2>
+        <ol class="numbered">
+            <li><strong>Human inter-annotator agreement</strong> on a 25% sample.
+            The strongest improvement still on the table.</li>
+            <li><strong>Real-video validation subset.</strong> Hold out a small
+            representative sample, render to actual video frames, score end-to-end.
+            Establish whether text-proxy ranking holds.</li>
+            <li><strong>Bank growth from 50 to ~150 scenarios</strong> with the
+            same authoring discipline. Tighter CIs, deeper per-domain coverage.</li>
+            <li><strong>Full omnimodal-stack variant</strong> with live audio I/O,
+            real-time streaming, voice-mode output. Decision-grade for deployment
+            readiness, not just for context tracking.</li>
+        </ol>
+
+        <div class="signature">
+            <p>I built this to answer a question I was actually facing: which
+            model do we ship. The structure of that answer ended up being a
+            benchmark. The construct mapping, the metric design, the
+            same-family-judging tradeoff, the decision to use text proxies, and
+            the future-work roadmap are PM artifacts, not researcher artifacts.
+            The benchmark itself runs, the bank is locked by content hashes, the
+            runner ships with CI hash-drift gates, and the findings are
+            reproducible from the manifest.</p>
+        </div>
+    </section>
+
+    <div class="footer">
+        <span class="links-label">Read more</span>
+        <div class="links">
+            <a href="https://github.com/n-dryer/wearable-assistant-context-bench">GitHub repository</a>
+            <a href="https://n-dryer.github.io/wearable-assistant-context-bench/">Benchmark landing page</a>
+            <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/decisions.md">Design decisions log</a>
+            <a href="https://github.com/n-dryer/wearable-assistant-context-bench/blob/main/docs/benchmark_spec.md">Measurement contract</a>
+        </div>
+        <p style="margin-top: 18px;">Nate Dryer &middot; April 2026 &middot; MIT License on the benchmark</p>
+    </div>
+
+</main>
+</body>
+</html>

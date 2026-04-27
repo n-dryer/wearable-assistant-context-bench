@@ -187,8 +187,8 @@ the prompt conditions are all content-hashed in two places:
   by `scripts/validate_scenarios.py` so silent mutations between
   releases fail CI.
 
-Beyond-5-trial multi-seed generalization studies remain a v2
-follow-up.
+Beyond-5-trial multi-seed generalization studies remain future
+work.
 
 ## What this benchmark does not measure
 
@@ -219,46 +219,47 @@ version.
 
 ## What v1 ships
 
-v1 publishes six runs across two scenario packs (50 canonical + 20
-adversarial). Each `findings.md` carries its full reproducibility
-manifest; the table below is the headline only.
+v1 publishes six runs across two scenario packs (the 50-scenario
+Scenario Bank + the 20-scenario adversarial pack). Each
+`findings.md` carries its full reproducibility manifest; the
+table below is the headline only.
 
 | Run | Candidate | Judge | Pack | Primary (95% CI) |
 |---|---|---|---|---|
-| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
-| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | canonical 50 | 77.7% (71.3–84.0) |
-| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | canonical 50 | 14.4% (9.1–19.7) |
-| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | canonical 50 | 54.2% (50.7–57.7) |
-| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
+| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
+| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | Scenario Bank | 77.7% (71.3–84.0) |
+| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | Scenario Bank | 14.4% (9.1–19.7) |
+| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | Scenario Bank | 54.2% (50.7–57.7) |
+| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
 | `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
 ### Methodology features in v1
 
 - **Cross-family judging.** Two of six runs ship cross-family
   (judge family different from candidate family):
-  `baseline-qwen-cross-family` and `adversarial`. The three Gemini
-  canonical runs are same-family; see Caveats below.
+  `baseline-qwen-cross-family` and `adversarial`. The four Gemini
+  Scenario Bank runs are same-family; see Caveats below.
 - **Cross-LLM judge agreement.** Cohen's kappa across two
   cross-family judges is reported on the `adversarial` run
   (kappa = 0.443 across `gpt-4o-mini` and `claude-haiku-4.5`,
   observed agreement 63.3%, 110/300 trials in disagreement). The
-  canonical runs use a single judge each; their findings render the
-  inter-judge section as a placeholder pointing at this v1.0.x
+  Scenario Bank runs use a single judge each; their findings render
+  the inter-judge section as a placeholder pointing at this v1.0.x
   follow-up.
 - **Adversarial subset.** 20 distractor-rich scenarios separately
-  tagged from the canonical 50; each passes the same 10-point
+  tagged from the Scenario Bank; each passes the same 10-point
   checklist + programmatic validator checks.
-- **Deictic and named repair lines.** Visible-referent canonical
+- **Deictic and named repair lines.** Visible-referent Scenario Bank
   scenarios ship two Turn 3 repair anchors: the named anchor (`"I
   mean the soldering iron I just picked up, not the multimeter
   probe"`) measuring floor recoverability, and a deictic anchor
   (`"no, this, what I'm holding now"`) measuring realistic recovery.
-  Five canonical runs use the named anchor;
+  Five Scenario Bank runs use the named anchor;
   `baseline-deictic-repair` ablates the deictic anchor on the same
   candidate as `baseline` for direct comparison.
 - **Variance reporting.** `--trials 5` per cell with 95% Wilson CIs
   per class and 95% normal-approximation CIs on the balanced mean.
-- **Frozen scenario bank with static lockfile.** SHA256 hashes of
+- **Lockfile-pinned scenario bank.** SHA256 hashes of
   `scenarios.json`, `expected_answers.json`, `interventions.json`,
   the adversarial bank, and the judge-prompt template are committed
   to `benchmark/v1/MANIFEST.lock.json`; CI fails on drift without a
@@ -291,7 +292,7 @@ manifest; the table below is the headline only.
   targets.
 - **Bigger Gemini sibling helps** within the family:
   `baseline` (Flash-Lite) 60.6% → `baseline-alt` (Flash) 77.7%.
-- **Cross-family vs same-family on the canonical bank.**
+- **Cross-family vs same-family on the Scenario Bank.**
   `baseline-qwen-cross-family` (cross-family) 54.2% vs `baseline`
   (same-family Gemini-on-Gemini) 60.6%, a 6.4 pp gap consistent
   with self-preference bias in the same-family numbers, though
@@ -311,14 +312,14 @@ manifest; the table below is the headline only.
 
 `scripts/analyze_runs.py` regenerates the per-run statistics from the
 published JSONL transcripts. The findings below come from running it
-on the canonical 50-scenario runs at v1 release.
+on the Scenario Bank runs at v1 release.
 
 **McNemar paired test (`baseline` vs `baseline-alt`).** Same scenario
 bank, same condition, different candidate models: Gemini Flash-Lite
 vs Gemini Flash. 250 paired observations under `baseline`. 55
 discordant pairs (40 favoring Flash, 15 favoring Flash-Lite),
 chi-squared (continuity-corrected) = 10.47, p = 0.0012. The bigger
-sibling is statistically better on the canonical bank. Reference:
+sibling is statistically better on the Scenario Bank. Reference:
 McNemar's test is the standard paired comparison for binary outcomes
 on the same items; see Bowyer et al. (2025, arXiv:2503.01747) for the
 benchmark-evaluation framing.
@@ -348,29 +349,29 @@ labels; v1 reports the single available cross-family run.
 
 ### Caveats
 
-- **Same-family judging on four of five canonical runs.** API
+- **Same-family judging on four of five Scenario Bank runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Inference
   Providers Pro) was exhausted mid-effort, leaving Gemini-direct
   via LiteLLM as the only viable transport for the bulk of the
-  canonical runs. Gemini-Flash-Lite judges Gemini-Flash-Lite and
-  Gemini-Flash on `baseline`, `baseline-alt`,
+  Scenario Bank runs. Gemini-Flash-Lite judges Gemini-Flash-Lite
+  and Gemini-Flash on `baseline`, `baseline-alt`,
   `ablation-no-camera`, and `baseline-deictic-repair`, which admits
   self-preference bias. The `baseline-qwen-cross-family` run is the
-  cross-family integrity reference for the canonical bank.
-- **Two model-config families across v1.** The five canonical runs
-  use Gemini-direct + DashScope-International transports. The
+  cross-family integrity reference for the Scenario Bank.
+- **Two model-config families across v1.** The five Scenario Bank
+  runs use Gemini-direct + DashScope-International transports. The
   `adversarial` run uses an OpenRouter setup with a Claude-Haiku
   ranking judge. Each `findings.md` manifest names the candidate
   and judge identifiers; comparing within a single run is fully
   apples-to-apples.
 - **`baseline-qwen-cross-family` cannot yet be ranked head-to-head
-  against the Gemini canonical runs.** Cross-candidate ranking
+  against the Gemini Scenario Bank runs.** Cross-candidate ranking
   requires a fixed ranking judge held constant across candidates;
   v1 demonstrates that mechanism on the adversarial run only.
-  Re-running the canonical bank with a fixed ranking judge across
+  Re-running the Scenario Bank with a fixed ranking judge across
   all candidates is a v1.0.x follow-up.
 
-## Open limitations (v2 follow-ups)
+## Open limitations (future follow-ups)
 
 Real limitations that affect how the v1 results should be
 interpreted. These are not "out of scope"; they are work the
@@ -380,7 +381,7 @@ benchmark could do but does not yet.
   cross-LLM judge agreement (Cohen's kappa across two cross-family
   judges) as a substitute. A second human rater labeling 25% of
   judge outputs, with kappa reported, remains the strongest
-  defensibility move and is the highest-priority v2 follow-up.
+  defensibility move and is the highest-priority future follow-up.
 - **Real video is approximated by scene descriptions in text.** The
   camera channel uses scene descriptions ("Hand wrapped around a
   long wooden handle. Heavy metal head at the top...") as a proxy
@@ -388,16 +389,16 @@ benchmark could do but does not yet.
   camera frame. Performance on text scene descriptions is not a
   guarantee of performance on actual video. Validation against
   held-out video footage on a representative sample is acknowledged
-  as v2 work.
+  as future work.
 - **The audio channel is text, not raw acoustic.** v1 represents
   the user's spoken turns as text transcripts, not raw audio. The
   benchmark therefore does not test acoustic grounding, speaker
-  attribution, addressee detection, or ambient audio cues. A v2
+  attribution, addressee detection, or ambient audio cues. A
   variant with raw audio input remains future work.
 - **Beyond-5-trial generalization is not measured.** Each cell runs
   with `--trials 5` and CIs are reported. Multi-seed runs at higher
   trial counts to characterize the long-tail noise floor remain a
-  v2 follow-up.
+  future follow-up.
 - **The benchmark does not exercise the full omnimodal stack the
   product requires, but candidates should still meet that bar.** A
   deployable in-the-moment multimodal coach (wearable or handheld)
@@ -411,7 +412,7 @@ benchmark could do but does not yet.
   can't physically run in production is wasted work, even if the
   benchmark mechanics would let it through. As of April 2026, Google
   (Gemini Live) and OpenAI (Realtime API) families meet this bar;
-  Anthropic Claude does not yet have native audio output. A v2
+  Anthropic Claude does not yet have native audio output. A
   benchmark variant that exercises live audio and streaming directly
   is acknowledged as future work.
 
@@ -586,7 +587,7 @@ Quick reference for the abbreviated forms used throughout these docs:
   per class and 95% normal-approximation CIs on the balanced mean.
 - **IAA.** Inter-annotator agreement (the standard measure of label
   reliability across human annotators). v1 reports cross-LLM
-  agreement as an automated substitute; human IAA is v2 work.
+  agreement as an automated substitute; human IAA is future work.
 - **Turn 1 / Turn 2 / Turn 3.** The three conversation turns. Turn 1
   establishes initial context; Turn 2 fires after the context shift
   and is the scored turn; Turn 3 fires only when Turn 2 misses, as
