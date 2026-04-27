@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
-
 import pytest
 
 from core.scoring import (
@@ -11,7 +9,6 @@ from core.scoring import (
     extract_entities,
     fuzzy_match,
     has_prior,
-    has_stale,
     score_response,
     substring_match,
 )
@@ -75,19 +72,6 @@ def test_has_prior_delegates_to_fuzzy_match() -> None:
         "The meeting ran long today.",
         prior_answers=["Friday afternoon"],
     )
-
-
-def test_has_stale_is_deprecated_alias_for_has_prior() -> None:
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        result = has_stale(
-            "The meeting ran long on Monday morning.",
-            stale_answers=["Monday"],
-        )
-    assert result is True
-    assert any(
-        issubclass(w.category, DeprecationWarning) for w in caught
-    ), "has_stale must emit DeprecationWarning"
 
 
 def test_score_response_pass_case() -> None:
@@ -166,14 +150,16 @@ def test_score_response_has_abstain_signal() -> None:
     assert result["has_clarify"] is False
 
 
-def test_score_response_stale_keys_mirror_prior_keys_for_back_compat() -> None:
+def test_score_response_does_not_emit_legacy_stale_keys() -> None:
     result = score_response(
         response="Earlier there were 12 photos; now there are 13",
         current_answers=["13"],
         prior_answers=["12"],
     )
-    assert result["has_stale"] == result["has_prior"]
-    assert result["has_stale_raw"] == result["has_prior_raw"]
+    assert "has_stale" not in result
+    assert "has_stale_raw" not in result
+    assert "has_prior" in result
+    assert "has_prior_raw" in result
 
 
 def test_score_response_token_length_estimate_is_positive_integer() -> None:

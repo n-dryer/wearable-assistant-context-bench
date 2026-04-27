@@ -87,6 +87,44 @@ def test_check_6_duplication_passes(scenarios) -> None:
     )
 
 
+def test_check_7_lockfile_drift_passes(monkeypatch) -> None:
+    """The committed lockfile must match computed hashes."""
+    monkeypatch.chdir(REPO_ROOT)
+    fails = validate_scenarios.check_7_lockfile_drift()
+    assert not fails, (
+        f"check_7_lockfile_drift produced {len(fails)} failure(s):\n"
+        f"{_format_fails(fails)}"
+    )
+
+
+def test_check_7_lockfile_drift_detects_mutation(monkeypatch, tmp_path) -> None:
+    """If a scenario file is mutated without bumping benchmark_version,
+    the lockfile check must fail."""
+    monkeypatch.chdir(REPO_ROOT)
+    # Build a parallel repo layout in a tmp dir with a mutated scenarios file.
+    fake_root = tmp_path
+    (fake_root / "benchmark" / "v1").mkdir(parents=True)
+    original_scenarios = (REPO_ROOT / "benchmark" / "v1" / "scenarios.json").read_bytes()
+    (fake_root / "benchmark" / "v1" / "scenarios.json").write_bytes(
+        original_scenarios + b"\n"  # add a single newline; trailing whitespace is enough to flip the hash
+    )
+    (fake_root / "benchmark" / "v1" / "expected_answers.json").write_bytes(
+        (REPO_ROOT / "benchmark" / "v1" / "expected_answers.json").read_bytes()
+    )
+    (fake_root / "benchmark" / "v1" / "interventions.json").write_bytes(
+        (REPO_ROOT / "benchmark" / "v1" / "interventions.json").read_bytes()
+    )
+    (fake_root / "benchmark" / "v1" / "MANIFEST.lock.json").write_bytes(
+        (REPO_ROOT / "benchmark" / "v1" / "MANIFEST.lock.json").read_bytes()
+    )
+    monkeypatch.chdir(fake_root)
+    fails = validate_scenarios.check_7_lockfile_drift()
+    assert any(f["check"] == "lockfile" and "scenarios_sha256" in f["detail"] for f in fails), (
+        "expected a scenarios_sha256 mismatch when scenarios.json is mutated, "
+        f"got: {fails}"
+    )
+
+
 def test_validator_main_returns_zero(monkeypatch, capsys) -> None:
     """Smoke-test the CLI entry point: `main()` must exit 0 against the
     scenario bank and print a success line."""

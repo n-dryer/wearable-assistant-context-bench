@@ -99,14 +99,43 @@ Before submitting any change to scenarios or answer keys, run:
 python scripts/validate_scenarios.py
 ```
 
-This runs four programmatic checks (token leakage, object name
-leakage, schema validation, cross-scenario duplication) over the
-scenario bank. Two additional semantic checks (human identification
-of image descriptions, semantic leakage isolation test) run during
-scenario authoring rather than in CI.
+This runs five programmatic checks (token leakage, object name
+leakage, schema validation, cross-scenario duplication, and lockfile
+drift) over the scenario bank. Two additional semantic checks
+(human identification of image descriptions, semantic leakage
+isolation test) run during scenario authoring rather than in CI.
 
 The full 10-point validation checklist is in
 [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md).
+
+### Static asset lockfile
+
+`benchmark/v1/MANIFEST.lock.json` pins SHA256 hashes of the scenario
+bank, expected answers, prompt conditions, and the judge-prompt
+template alongside the benchmark and judge-prompt versions. The
+validator's lockfile check fails if any of those drift. After a
+deliberate, coordinated content change (with a corresponding
+`BENCHMARK_VERSION` or `JUDGE_PROMPT_VERSION` bump in code), regenerate
+the lockfile:
+
+```bash
+python scripts/regen_manifest_lock.py
+```
+
+This is the only sanctioned way to update the lockfile.
+
+## Setup
+
+The one-step setup script creates a venv, installs pinned
+dependencies, and downloads the spaCy `en_core_web_sm` model:
+
+```bash
+./scripts/setup.sh
+. .venv/bin/activate
+```
+
+Override the Python interpreter with `PYTHON=python3.13
+./scripts/setup.sh`. CI tests Python 3.11–3.14.
 
 ## Test requirements
 
@@ -129,6 +158,23 @@ without API access. CI runs both commands on every PR.
 - No bare `except:` clauses
 - Preserve the runner CLI contract unless a change is explicitly
   needed and reviewed
+
+## Build / packaging
+
+The project ships both a top-level `requirements.txt` (direct deps,
+pinned for human readability and CI install) and a `pyproject.toml`
+(PEP 621 metadata for tooling that prefers it). For full
+reproducibility the resolved environment is captured in
+`requirements.lock`:
+
+```bash
+# Refresh the lock from a clean install:
+python -m pip install -r requirements.txt
+python -m pip freeze | sort > requirements.lock
+```
+
+The lockfile is regenerated on intentional dependency bumps; do not
+edit it by hand.
 
 ## PR process
 

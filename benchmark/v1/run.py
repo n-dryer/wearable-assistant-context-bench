@@ -25,6 +25,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+try:
+    from dotenv import load_dotenv as _load_dotenv
+
+    _load_dotenv()  # idempotent; reads .env in cwd if present
+except ImportError:
+    # python-dotenv is in requirements.txt; this branch only fires in
+    # slimmed environments. Keys must come from the shell in that case.
+    pass
+
 from core.interventions import PromptCondition, load_prompt_conditions
 from core.llm_judge import (
     JUDGE_PROMPT_VERSION,
@@ -39,8 +48,9 @@ from core.gemini_adapter import GeminiAdapter
 from core.litellm_adapter import LiteLLMAdapter
 from core.models import ModelConfig
 from core.report import (
-    DEFAULT_RANKING_CONDITION,
     BENCHMARK_VERSION,
+    DEFAULT_RANKING_CONDITION,
+    SCHEMA_REVISION,
     render_findings_markdown,
 )
 from core.scoring import score_response
@@ -50,17 +60,55 @@ DEFAULT_OUTPUT_DIR = EXP_DIR / "runs" / "latest"
 SCENARIOS_PATH = EXP_DIR / "scenarios.json"
 EXPECTED_ANSWERS_PATH = EXP_DIR / "expected_answers.json"
 INTERVENTIONS_PATH = EXP_DIR / "interventions.json"
+ADVERSARIAL_SCENARIOS_PATH = EXP_DIR / "scenarios_adversarial.json"
+ADVERSARIAL_ANSWERS_PATH = EXP_DIR / "expected_answers_adversarial.json"
+
+
+def _scenarios_path_for_pack(pack: str) -> Path:
+    if pack == "canonical":
+        return SCENARIOS_PATH
+    if pack == "adversarial":
+        return ADVERSARIAL_SCENARIOS_PATH
+    raise ValueError(f"unknown scenario pack {pack!r}")
+
+
+def _answers_path_for_pack(pack: str) -> Path:
+    if pack == "canonical":
+        return EXPECTED_ANSWERS_PATH
+    if pack == "adversarial":
+        return ADVERSARIAL_ANSWERS_PATH
+    raise ValueError(f"unknown scenario pack {pack!r}")
 
 
 CONFIG: dict[str, Any] = {
     "model_id": "claude-sonnet-4-6",
     "judge_model_id": None,
     "judge_family": "auto",
+    # Optional second judge used for cross-candidate ranking comparability.
+    # The auto-resolved judge handles per-run integrity (cross-family,
+    # self-preference-free). When `ranking_judge_family` is set, every
+    # trial is also labeled by this fixed judge so the ranking metric is
+    # constant across candidates. Cohen's kappa across the two judges is
+    # then reported as cross-LLM inter-judge agreement.
+    "ranking_judge_family": None,
+    "ranking_judge_model_id": None,
     "temperature": 0.0,
-    "trials_per_cell": 2,
+    "trials_per_cell": 5,
     "output_dir": str(DEFAULT_OUTPUT_DIR),
     "ranking_condition": DEFAULT_RANKING_CONDITION,
     "no_camera": False,
+    # `named` uses scenario.turn_3_repair_anchor (canonical floor
+    # metric: maximally specific user correction). `deictic` uses
+    # scenario.turn_3_repair_anchor_deictic when populated and falls
+    # back to named for scenarios where a deictic gesture cannot
+    # resolve the reference (absent_referent, pre_conversation_recall,
+    # target_context != current).
+    "repair_style": "named",
+    # Scenario pack to evaluate. `canonical` is the frozen 50-scenario
+    # bank; `adversarial` is a separately-tagged 20-scenario pack of
+    # distractor-rich scenarios published to discriminate at the top
+    # of the score range.
+    "pack": "canonical",
 }
 
 
@@ -81,7 +129,11 @@ class Scenario:
         turn_1_user: str
         turn_2_image: str          # camera description at T2
         turn_2_user: str
-        turn_3_repair_anchor: str
+        turn_3_repair_anchor: str  # named repair (canonical floor metric)
+        turn_3_repair_anchor_deictic: str | None  # deictic-only repair
+            for visible-referent scenarios; None when a deictic gesture
+            wouldn't resolve the reference (absent_referent,
+            pre_conversation_recall, target_context other than current)
         notes: str (optional)
     """
 
@@ -99,6 +151,7 @@ class Scenario:
     context_image: str | None = None
     time_gap_bucket: str | None = None
     notes: str = ""
+    turn_3_repair_anchor_deictic: str | None = None
 
 
 @dataclass
@@ -144,6 +197,9 @@ def load_scenarios(path: Path) -> list[Scenario]:
                 context_image=entry.get("context_image"),
                 time_gap_bucket=entry.get("time_gap_bucket"),
                 notes=entry.get("notes", ""),
+                turn_3_repair_anchor_deictic=entry.get(
+                    "turn_3_repair_anchor_deictic"
+                ),
             )
         )
     return scenarios
@@ -222,6 +278,7 @@ def _build_manifest(
     effective_config: dict[str, Any],
     resolved_judge: LLMJudge,
     judge_resolution_mode: str,
+    ranking_judge: LLMJudge | None = None,
 ) -> dict[str, Any]:
     """Construct the reproducibility manifest dict."""
     warnings: list[str] = []
@@ -236,13 +293,18 @@ def _build_manifest(
         JUDGE_SYSTEM_PROMPT.encode("utf-8")
     ).hexdigest()
 
+    pack = effective_config.get("pack", "canonical")
+    scenarios_path = _scenarios_path_for_pack(pack)
+    answers_path = _answers_path_for_pack(pack)
+
     manifest: dict[str, Any] = {
         "benchmark_version": BENCHMARK_VERSION,
-        "schema_revision": 2,
+        "schema_revision": SCHEMA_REVISION,
+        "pack": pack,
         "camera_injection": not bool(effective_config.get("no_camera", False)),
-        "scenarios_sha256": _sha_or_warn(SCENARIOS_PATH, "scenarios_sha256"),
+        "scenarios_sha256": _sha_or_warn(scenarios_path, "scenarios_sha256"),
         "expected_answers_sha256": _sha_or_warn(
-            EXPECTED_ANSWERS_PATH, "expected_answers_sha256"
+            answers_path, "expected_answers_sha256"
         ),
         "interventions_sha256": _sha_or_warn(
             INTERVENTIONS_PATH, "interventions_sha256"
@@ -253,6 +315,12 @@ def _build_manifest(
         "judge_model": resolved_judge.model_id,
         "judge_family": resolved_judge.family,
         "judge_family_resolution": judge_resolution_mode,
+        "ranking_judge_model": (
+            ranking_judge.model_id if ranking_judge is not None else None
+        ),
+        "ranking_judge_family": (
+            ranking_judge.family if ranking_judge is not None else None
+        ),
         "trials": int(effective_config["trials_per_cell"]),
         "temperature": float(effective_config["temperature"]),
         "ranking_condition": effective_config["ranking_condition"],
@@ -270,6 +338,7 @@ def run(
     adapter: Any | None = None,
     judge: LLMJudge | None = None,
     config: dict[str, Any] | None = None,
+    ranking_judge: LLMJudge | None = None,
 ) -> list[dict]:
     """Run the full benchmark and return the per-trial result list.
 
@@ -282,14 +351,21 @@ def run(
         judge: `LLMJudge`. Defaults to the auto resolution against
             `CONFIG["model_id"]`.
         config: Overrides for CONFIG. Unrecognized keys are ignored.
+        ranking_judge: Optional second `LLMJudge` used for
+            cross-candidate ranking comparability. When provided, every
+            trial is also labeled by this fixed judge and the result
+            dict carries both verdicts. Defaults to the family resolved
+            from `ranking_judge_family` / `ranking_judge_model_id`
+            config keys; ``None`` if those are unset.
 
     Returns:
         Per-trial result dicts ready for `core.report` aggregation.
     """
     effective_config = {**CONFIG, **(config or {})}
 
-    scenarios = load_scenarios(SCENARIOS_PATH)
-    answers_by_id = load_expected_answers(EXPECTED_ANSWERS_PATH)
+    pack = effective_config.get("pack", "canonical")
+    scenarios = load_scenarios(_scenarios_path_for_pack(pack))
+    answers_by_id = load_expected_answers(_answers_path_for_pack(pack))
     conditions = load_prompt_conditions(INTERVENTIONS_PATH)
 
     model_config = ModelConfig(
@@ -313,6 +389,13 @@ def run(
         judge_ = judge
         resolution_mode = "explicit"
 
+    ranking_judge_ = ranking_judge
+    if ranking_judge_ is None and effective_config.get("ranking_judge_family"):
+        ranking_judge_ = build_judge(
+            family=effective_config["ranking_judge_family"],
+            model_id=effective_config.get("ranking_judge_model_id"),
+        )
+
     output_dir = Path(effective_config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
     transcript_path = output_dir / "transcripts.jsonl"
@@ -330,27 +413,21 @@ def run(
                         trial=trial,
                         adapter=adapter_,
                         judge=judge_,
+                        ranking_judge=ranking_judge_,
                         model_config=model_config,
                         no_camera=bool(effective_config.get("no_camera", False)),
+                        repair_style=effective_config.get("repair_style", "named"),
                     )
                     results.append(result)
                     transcript_file.write(
-                        json.dumps(
-                            {
-                                **result,
-                                "turn_2_code_signals": _public_code_signals(
-                                    result["turn_2_code_signals"]
-                                ),
-                            },
-                            ensure_ascii=False,
-                        )
-                        + "\n"
+                        json.dumps(result, ensure_ascii=False) + "\n"
                     )
 
     manifest = _build_manifest(
         effective_config=effective_config,
         resolved_judge=judge_,
         judge_resolution_mode=resolution_mode,
+        ranking_judge=ranking_judge_,
     )
 
     findings = render_findings_markdown(
@@ -365,6 +442,22 @@ def run(
 
     return results
 
+def _resolve_repair_anchor(
+    scenario: Scenario, repair_style: str
+) -> tuple[str, str]:
+    """Return ``(anchor_text, resolved_style)`` for the Turn 3 repair.
+
+    ``repair_style="named"`` always uses ``scenario.turn_3_repair_anchor``.
+    ``repair_style="deictic"`` uses ``scenario.turn_3_repair_anchor_deictic``
+    when populated and falls back to the named anchor otherwise (for
+    scenarios where a deictic gesture cannot resolve the reference,
+    e.g. absent_referent or pre_conversation_recall).
+    """
+    if repair_style == "deictic" and scenario.turn_3_repair_anchor_deictic:
+        return scenario.turn_3_repair_anchor_deictic, "deictic"
+    return scenario.turn_3_repair_anchor, "named"
+
+
 def _run_one_trial(
     *,
     scenario: Scenario,
@@ -375,6 +468,8 @@ def _run_one_trial(
     judge: LLMJudge,
     model_config: ModelConfig,
     no_camera: bool = False,
+    ranking_judge: LLMJudge | None = None,
+    repair_style: str = "named",
 ) -> dict:
     """Run one (scenario, condition, trial) cell end-to-end.
 
@@ -417,11 +512,7 @@ def _run_one_trial(
         abstain_indicators=answers.abstain_indicators,
     )
 
-    scenario_description = (
-        f"Turn 1 context:\n{scenario.turn_1_user}\n\n"
-        f"Between Turn 1 and Turn 2 the user's context changes; "
-        f"the target context for Turn 2 is `{scenario.target_context}`."
-    )
+    scenario_description = _build_scenario_description(scenario)
 
     ground_truth_context = _build_ground_truth_context(scenario)
 
@@ -438,24 +529,40 @@ def _run_one_trial(
 
     turn_2_passed = judge_verdict.selected_policy == scenario.target_context
 
+    turn_2_ranking_verdict: JudgeVerdict | None = None
+    if ranking_judge is not None:
+        turn_2_ranking_verdict = ranking_judge.label(
+            response=turn_2_response,
+            scenario_description=scenario_description,
+            turn_2_user=scenario.turn_2_user,
+            current_answers=answers.current_answers,
+            prior_answers=answers.prior_answers,
+            clarify_indicators=answers.clarify_indicators,
+            abstain_indicators=answers.abstain_indicators,
+            ground_truth_context=ground_truth_context,
+        )
+
     turn_3_response: str | None = None
     turn_3_verdict: JudgeVerdict | None = None
     turn_3_passed: bool | None = None
     repair_attempted = False
+    turn_3_ranking_verdict: JudgeVerdict | None = None
+
+    repair_anchor_text, resolved_repair_style = _resolve_repair_anchor(
+        scenario, repair_style
+    )
 
     if not turn_2_passed:
         repair_attempted = True
         messages.append({"role": "assistant", "content": turn_2_response})
-        messages.append(
-            {"role": "user", "content": scenario.turn_3_repair_anchor}
-        )
+        messages.append({"role": "user", "content": repair_anchor_text})
         turn_3_response = adapter.query(
             messages=messages, system=condition.system_prompt, config=model_config
         )
         turn_3_verdict = judge.label(
             response=turn_3_response,
             scenario_description=scenario_description,
-            turn_2_user=scenario.turn_3_repair_anchor,
+            turn_2_user=repair_anchor_text,
             current_answers=answers.current_answers,
             prior_answers=answers.prior_answers,
             clarify_indicators=answers.clarify_indicators,
@@ -463,8 +570,19 @@ def _run_one_trial(
             ground_truth_context=ground_truth_context,
         )
         turn_3_passed = turn_3_verdict.selected_policy == scenario.target_context
+        if ranking_judge is not None:
+            turn_3_ranking_verdict = ranking_judge.label(
+                response=turn_3_response,
+                scenario_description=scenario_description,
+                turn_2_user=repair_anchor_text,
+                current_answers=answers.current_answers,
+                prior_answers=answers.prior_answers,
+                clarify_indicators=answers.clarify_indicators,
+                abstain_indicators=answers.abstain_indicators,
+                ground_truth_context=ground_truth_context,
+            )
 
-    return {
+    result: dict[str, Any] = {
         "scenario_id": scenario.scenario_id,
         "condition": condition.name,
         "trial": trial,
@@ -485,7 +603,10 @@ def _run_one_trial(
         "turn_2_passed": turn_2_passed,
         "turn_3_repair_attempted": repair_attempted,
         "turn_3_repair_anchor": (
-            scenario.turn_3_repair_anchor if repair_attempted else None
+            repair_anchor_text if repair_attempted else None
+        ),
+        "turn_3_repair_style": (
+            resolved_repair_style if repair_attempted else None
         ),
         "turn_3_response": turn_3_response,
         "turn_3_judge_policy": (
@@ -496,36 +617,76 @@ def _run_one_trial(
         ),
         "turn_3_repair_passed": turn_3_passed,
     }
+    if ranking_judge is not None:
+        result["turn_2_ranking_judge_policy"] = (
+            turn_2_ranking_verdict.selected_policy
+            if turn_2_ranking_verdict
+            else None
+        )
+        result["turn_2_ranking_judge_rationale"] = (
+            turn_2_ranking_verdict.rationale if turn_2_ranking_verdict else None
+        )
+        result["turn_2_ranking_passed"] = (
+            (
+                turn_2_ranking_verdict.selected_policy
+                == scenario.target_context
+            )
+            if turn_2_ranking_verdict
+            else None
+        )
+        result["turn_3_ranking_judge_policy"] = (
+            turn_3_ranking_verdict.selected_policy
+            if turn_3_ranking_verdict
+            else None
+        )
+        result["turn_3_ranking_judge_rationale"] = (
+            turn_3_ranking_verdict.rationale if turn_3_ranking_verdict else None
+        )
+        result["turn_3_ranking_repair_passed"] = (
+            (
+                turn_3_ranking_verdict.selected_policy
+                == scenario.target_context
+            )
+            if turn_3_ranking_verdict
+            else None
+        )
+    return result
 
 
-def _public_code_signals(signals: dict[str, Any]) -> dict[str, Any]:
-    """Return the code-signal subset suitable for shipped transcripts."""
-    return {
-        key: value
-        for key, value in signals.items()
-        if key not in {"has_stale", "has_stale_raw"}
-    }
+def _build_scenario_description(scenario: Scenario) -> str:
+    """Construct the scenario description shown to the judge.
+
+    Names neither the target_context nor the cue_type. Both would
+    leak the answer the judge is being asked to produce. The judge
+    is pointed at the Turn 2 user message and camera frame as the
+    perceptual fields that determine what the assistant should now
+    be answering about.
+    """
+    return (
+        f"Turn 1 context:\n{scenario.turn_1_user}\n\n"
+        f"Between Turn 1 and Turn 2 the user's context shifts. "
+        f"The Turn 2 user message and camera frame describe what "
+        f"the assistant should now be answering about."
+    )
 
 
 def _build_ground_truth_context(scenario: Scenario) -> str:
     """Construct the judge-only ground-truth description.
 
     The candidate model sees perceptual camera descriptions only (no
-    object names). The judge sees this richer ground-truth description
-    so it can determine whether the response reflects T2 or T1 context.
+    object names). The judge sees the perceptual T1/T2 frames plus
+    the activity domain so it can determine whether the response
+    reflects T2 or T1 context.
+
+    Deliberately omits target_context, cue_type, and authoring notes.
+    Those would either name or category-hint the answer the judge is
+    being asked to produce.
     """
-    parts: list[str] = []
-    parts.append(
-        f"Cue type: {scenario.cue_type}. "
-        f"Target context: {scenario.target_context}. "
-        f"Activity domain: {scenario.activity_domain}."
-    )
+    parts: list[str] = [f"Activity domain: {scenario.activity_domain}."]
     if scenario.context_image:
         parts.append(f"Pre-conversation camera state: {scenario.context_image}")
     parts.append(f"Turn 1 camera state: {scenario.turn_1_image}")
     parts.append(f"Turn 2 camera state: {scenario.turn_2_image}")
-    if scenario.notes:
-        parts.append(f"Authoring notes: {scenario.notes}")
     return "\n\n".join(parts)
 
 
@@ -601,6 +762,28 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--ranking-judge-family",
+        dest="ranking_judge_family",
+        default=None,
+        choices=["claude", "gemini", "openai"],
+        help=(
+            "Optional second judge family used for cross-candidate ranking "
+            "comparability. When set, every trial is also labeled by this "
+            "fixed judge so candidate quality is isolated from judge "
+            "strictness when comparing two candidates. Cohen's kappa across "
+            "the two judges is reported as cross-LLM inter-judge agreement."
+        ),
+    )
+    parser.add_argument(
+        "--ranking-judge-model",
+        dest="ranking_judge_model",
+        default=None,
+        help=(
+            "Optional ranking-judge model id; defaults to the family-specific "
+            "default judge model from core.llm_judge."
+        ),
+    )
+    parser.add_argument(
         "--trials",
         dest="trials",
         type=int,
@@ -631,6 +814,35 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "comparing the score against a normal run with the same model."
         ),
     )
+    parser.add_argument(
+        "--pack",
+        dest="pack",
+        choices=["canonical", "adversarial"],
+        default=None,
+        help=(
+            "Scenario pack to run. `canonical` is the frozen 50-scenario "
+            "bank; `adversarial` is the separately-tagged 20-scenario "
+            "distractor-rich pack published to discriminate at the top of "
+            "the score range. Defaults to canonical."
+        ),
+    )
+    parser.add_argument(
+        "--repair-style",
+        dest="repair_style",
+        choices=["named", "deictic"],
+        default=None,
+        help=(
+            "Turn 3 repair anchor style. `named` (default, canonical floor "
+            "metric) uses the explicit repair line that names both the "
+            "intended and the wrong objects. `deictic` uses the "
+            "deictic-only anchor when populated and falls back to named "
+            "for scenarios where a deictic gesture cannot resolve the "
+            "reference (e.g. absent_referent, pre_conversation_recall, "
+            "target_context != current). Compare runs across both styles "
+            "to read the gap between floor recoverability and realistic "
+            "user-correction recovery."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -642,12 +854,20 @@ def _config_overrides_from_args(args: argparse.Namespace) -> dict[str, Any]:
         overrides["judge_model_id"] = args.judge_model
     if args.judge_family is not None:
         overrides["judge_family"] = args.judge_family
+    if getattr(args, "ranking_judge_family", None) is not None:
+        overrides["ranking_judge_family"] = args.ranking_judge_family
+    if getattr(args, "ranking_judge_model", None) is not None:
+        overrides["ranking_judge_model_id"] = args.ranking_judge_model
     if args.trials is not None:
         overrides["trials_per_cell"] = args.trials
     if args.output_dir is not None:
         overrides["output_dir"] = args.output_dir
     if getattr(args, "no_camera", False):
         overrides["no_camera"] = True
+    if getattr(args, "repair_style", None) is not None:
+        overrides["repair_style"] = args.repair_style
+    if getattr(args, "pack", None) is not None:
+        overrides["pack"] = args.pack
     return overrides
 
 

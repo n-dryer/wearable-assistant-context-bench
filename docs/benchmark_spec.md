@@ -2,51 +2,57 @@
 
 ## Overview
 
-The Wearable Assistant Context Benchmark tests one specific failure mode
-of multimodal wearable assistants: when the user's situation changes
-between turns, does the model respond from the current situational
-evidence, or does it stay anchored to the prior context?
+The Wearable Assistant Context Benchmark tests one specific failure
+mode of multimodal AI assistants the user is actively engaging with
+for advice or coaching. Form factors covered include wearable (smart
+glasses, ear-worn devices) and handheld (phone-as-coach apps, AR/MR
+devices held in hand), with audio/video/text input and audio/text
+output. When the user's
+situation changes between turns, does the model respond from the
+current situational evidence, or does it stay anchored to the prior
+context?
 
 In standard ML and dialog terminology, the task is **reference
 resolution under cross-turn context shift**. The model has to resolve
 the user's reference (their "this", "that", or "it") to the current
 camera frame instead of staying anchored to an earlier frame. We use
 **context tracking** as the casual shorthand throughout this document.
-Both terms point to the same task.
 
-A wearable assistant lives in a continuous stream. The user puts down
-one object and picks up another. The user moves from the workbench to
-the kitchen. The pan was empty a minute ago and now holds simmering
-sauce. Each turn is a new chance for the model to either update or stay
-stuck.
+An in-the-moment multimodal coach lives in a continuous stream. The
+user puts down one object and picks up another. The user moves from
+the workbench to the kitchen. The pan was empty a minute ago and now
+holds simmering sauce. Each turn is a new chance for the model to
+either update or stay stuck.
 
-This benchmark is narrow on purpose. It does not measure whether the
-assistant's coaching advice is correct, safe, or domain-appropriate.
-It does not measure multi-turn conversation dynamics beyond three
-turns. It does not measure performance on real video frames.
-It does not measure proactive coaching. A model that fails this
-benchmark is unlikely to be viable as a wearable assistant. A model
-that passes still needs separate evaluation for everything this
-benchmark does not measure.
+This benchmark is narrow on purpose. A model that fails it cannot
+serve as an in-the-moment multimodal assistant; a model that passes
+still needs separate evaluation for everything below.
 
-## Related work
+## Scope boundaries: out-of-scope by design vs. limitations
 
-This benchmark borrows two design moves from recent multimodal
-benchmarks. The semantic leakage check (Check 5 in the validator) is
-adapted from MMStar (Chen et al., NeurIPS 2024), which proposed
-running questions through text-only models to filter items that don't
-actually require vision. The audio/camera channel separation is
-adapted from VLSBench (Hu et al., ACL 2025), which showed that text
-queries often leak the visual content of an image; we apply the same
-separation principle to context cues. The non-labeled scene
-description style follows Ego4D narrations (Grauman et al., CVPR
-2022).
+**Out of scope by design.** The benchmark does not measure these and
+does not intend to. Evaluate them separately:
 
-Compared to those benchmarks, this one is narrower (50 scenarios,
-single failure mode) and product-focused (model selection for a
-specific wearable assistant), where they are research benchmarks at
-scale. They establish methods; this is a working evaluation built
-around a specific product question.
+- Coaching advice quality (correctness, safety, domain appropriateness)
+- Multi-turn conversation dynamics beyond three turns
+- Proactive coaching (assistance offered without a direct question)
+- Domain expertise depth
+- Latency, cost, and serving characteristics
+- Speaker attribution, addressee detection, ambient audio
+
+**Limitations (v2 follow-ups).** The benchmark could measure these
+but does not yet, due to resource constraints:
+
+- Human inter-annotator agreement on judge labels (v1 reports
+  cross-LLM judge agreement only)
+- Real-video validation on a held-out sample (v1 uses scene
+  descriptions in text as a proxy)
+- Raw-audio validation (v1 uses text transcripts as a proxy)
+- Generalization beyond 5 trials per cell
+- Full omnimodal stack (live audio I/O, real-time streaming, voice
+  output)
+
+See [`benchmark_notes.md`](benchmark_notes.md) for priority ranking.
 
 ## The three-channel design
 
@@ -61,11 +67,22 @@ different content and is visible to a different audience.
 
 The candidate model sees what a wearable would see: the user's spoken
 words, plus a scene description of the camera frame at each turn.
-Scene descriptions are what a vision system would say about a camera
-frame: shape, material, color, motion, position, without naming the
-object directly. The judge sees the same thing plus the ground-truth
-answer keys, which name the actual objects in frame. The candidate
-never sees the answer keys.
+
+In v1, both perceptual channels are text proxies. The user's spoken
+turns are represented as **text transcripts**, not raw audio; the
+benchmark does not test acoustic grounding, speaker attribution,
+addressee detection, or ambient audio cues. The camera channel is
+represented as **scene descriptions in text** (what a vision system
+would say about a camera frame: shape, material, color, motion,
+position, without naming the object directly), not raw video frames;
+the benchmark does not score performance on real video. Both proxies
+are deliberate: they let the benchmark isolate context-tracking
+ability from variability of the perceptual front-end. Raw-audio and
+real-video variants are v2 work.
+
+The judge sees the same audio and camera channels plus the
+ground-truth answer keys, which name the actual objects in frame. The
+candidate never sees the answer keys.
 
 This separation is the point of the benchmark. The candidate has to
 infer from scene cues alone (shape, motion, material, position) which
@@ -136,6 +153,9 @@ is stored as the `cue_type` field in the data files.
 | `screen_content` | Both Turn 1 and Turn 2 are looking at a screen; the screen content has changed. |
 | `pre_conversation_recall` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
 
+In prose throughout the docs we call these "shift types" or
+"scenario categories." The data field name is `cue_type`.
+
 ## Target context labels
 
 Each scenario carries a `target_context` field naming the correct
@@ -176,18 +196,27 @@ label.
 
 A second LLM acts as the judge. The judge sees:
 
-1. A short scenario description (shift type, target context, activity
-   domain).
+1. A neutral scenario description naming the Turn 1 user message and
+   stating only that the user's context shifts between turns. It does
+   not name the target label, the shift type, or the authoring notes;
+   those would tell the judge the answer it is being asked to
+   produce.
 2. The Turn 2 user message.
 3. The candidate's Turn 2 response.
 4. The four answer lists for the scenario.
-5. A **ground-truth context section** that names the objects in the
-   Turn 1 and Turn 2 frames in plain language.
+5. A **ground-truth context section** containing the activity domain
+   and plain-language descriptions of the Turn 1 and Turn 2 (and
+   optional pre-conversation) camera frames. This is the perceptual
+   information the judge needs to determine whether the response
+   reflects the current or prior frame.
 
 The judge emits a JSON verdict naming one of the four labels and a
 one-sentence rationale. See `core/llm_judge.py` for the prompt and
 parsing logic. The judge prompt is versioned (`JUDGE_PROMPT_VERSION`)
-and hashed into the run manifest.
+and hashed into the run manifest. The privileged-field constraint
+(no `target_context`, no `cue_type`, no authoring `notes` in the
+rendered judge prompt) is enforced by
+`tests/test_judge_prompt_constraints.py`.
 
 ### Cross-family default
 
@@ -238,6 +267,32 @@ Two runs with the same `scenarios_sha256`,
 `expected_answers_sha256`, and `judge_prompt_sha256` evaluate against
 the same benchmark content. Comparison across runs is meaningful when
 those hashes match.
+
+In addition to the per-run manifest, the repo commits
+`benchmark/v1/MANIFEST.lock.json` with the canonical SHA256 hashes of
+the scenario bank, expected answers, prompt conditions, and judge
+prompt template. `scripts/validate_scenarios.py` checks computed
+hashes against this lockfile; CI fails if they drift without a
+coordinated `BENCHMARK_VERSION` bump. This catches silent mutations
+of the bank between releases.
+
+## Related work
+
+This benchmark borrows two design moves from recent multimodal
+benchmarks. The semantic-leakage check (Check 5 in the validator) is
+adapted from MMStar (Chen et al., NeurIPS 2024), which proposed
+running questions through text-only models to filter items that don't
+actually require vision. The audio/camera channel separation is
+adapted from VLSBench (Hu et al., ACL 2025), which showed that text
+queries often leak the visual content of an image; we apply the same
+separation principle to context cues. The non-labeled scene
+description style follows Ego4D narrations (Grauman et al., CVPR
+2022).
+
+This benchmark is narrower (50 scenarios, single failure mode) and
+product-focused, where the cited benchmarks operate at research
+scale. They establish methods; this is a working evaluation built
+around a specific product question.
 
 ## Reference
 

@@ -48,10 +48,11 @@ balanced mean. Read each one separately:
   scenarios where the judge labeled the response `abstain`. Auxiliary;
   not in the primary score.
 
-Auxiliary classes are reported because `clarify` and `abstain` failures
-have different product implications than `current`/`prior` failures.
-A model that hallucinates rather than abstaining is a different
-problem than a model that picks the wrong frame.
+Auxiliary diagnostics report `clarify` and `abstain` accuracy
+separately from the headline score because those failures reveal
+different capability gaps than `current`/`prior` misses. A model
+that hallucinates rather than abstaining is a different problem
+than a model that picks the wrong frame.
 
 The bank is dominated by `current` (33 scenarios) and `prior` (12).
 With only 3 `clarify` and 2 `abstain` scenarios, those per-class
@@ -142,40 +143,52 @@ runner CLI).
 
 | Run | Video | Primary score (`baseline`) | `current` accuracy | `prior` accuracy |
 |-----|-------|----------------------------|---------------------|-------------------|
-| Run A | shown | 92.8% | 93.9% | 91.7% |
-| Run C | hidden (`--no-camera`) | 7.2% | 6.1% | 8.3% |
-| **Delta** | | **85.6 pp** | **87.8 pp** | **83.4 pp** |
+| `baseline` | shown | 60.6% | 87.9% | 33.3% |
+| `ablation-no-camera` | hidden (`--no-camera`) | 14.4% | 12.1% | 16.7% |
+| **Delta** | | **46.2 pp** | **75.8 pp** | **16.6 pp** |
 
-Without the video channel, the same model collapses from 92.8%
-balanced accuracy to 7.2%, a drop of 85.6 percentage points. The
-video channel is doing essentially all the work in this benchmark.
-The deictic user speech alone is not enough for the model to track
-context shifts.
+What the ablation shows: take the camera description away and the
+model can't get the answers from the user's words alone. That rules
+out one alternative reading of the headline numbers, namely that the
+model is solving the task through question-phrasing patterns or
+memorized priors. It can't.
 
-One interesting condition-sensitivity finding: under `condition_b`
-(the pre-answer scaffold that asks the model to identify the
-relevant context before answering), the no-camera score recovers to
-65.5%. The scaffold compensates partially for missing visual context
-by forcing explicit context selection in text. Even so, the model
-without camera input cannot recover its with-camera performance.
+What the ablation does not show on its own: that the model is doing
+"context tracking" in a deep sense. A simpler reading consistent
+with the same data is that the model grounds in whatever the camera
+most recently described, without any explicit notion of "this is
+the current context vs. the prior context." The per-class breakdown
+fills that in: the `current` class is where the model looks strong
+(87.9%); the `prior` class is where it falls apart (33.3%). The
+combined picture (reliance on camera input, high `current` accuracy,
+low `prior` accuracy) reveals the capability gap the benchmark
+targets.
 
 The ablation methodology is reproducible. The `--no-camera` flag in
 the runner strips every `[Camera: ...]` block from user messages and
 skips injecting `context_image`. The candidate sees only the user's
-spoken text. The same flag can be used for any future candidate
-model.
+text-transcript speech. The same flag can be used for any future
+candidate model.
 
 ## Variance and reproducibility
 
-Each (scenario, condition) cell is run with `--trials 2`. The judge
-prompt and scenario file are content-hashed in the run manifest so two
-runs with the same hashes evaluate identical content.
+Each (scenario, condition) cell is run with `--trials 5`. Findings
+report 95% confidence intervals (Wilson) on every score so deltas
+can be interpreted against sampling noise rather than a hand-waved
+"3 pp guard band."
 
-Formal variance estimation across multi-seed reruns is not yet
-measured. As a rough guide on this 50-scenario bank, treat score
-deltas under approximately 3 percentage points with caution until
-variance is bounded. Multi-seed variance estimation is acknowledged
-as future work.
+The judge prompt template, the scenario bank, the answer keys, and
+the prompt conditions are all content-hashed in two places:
+
+- Per-run, in `findings.md`'s reproducibility manifest, alongside the
+  runner's git commit. Two runs with matching manifest hashes
+  evaluate identical content.
+- At the repo level, in `benchmark/v1/MANIFEST.lock.json`, checked
+  by `scripts/validate_scenarios.py` so silent mutations between
+  releases fail CI.
+
+Beyond-5-trial multi-seed generalization studies remain a v2
+follow-up.
 
 ## What this benchmark does not measure
 
@@ -204,83 +217,169 @@ absolute values. The number itself is meaningful only relative to
 other runs on the same scenario bank with the same judge prompt
 version.
 
-## Known v1 limitations and future work
+## What v1 ships
 
-These are real limitations of the v1 release that affect how the
-results should be interpreted. They are not "out of scope". The
-benchmark could measure them but does not yet. Future versions are
-expected to address them.
+v1 publishes five runs across two scenario packs (50 canonical + 20
+adversarial). Each `findings.md` carries its full reproducibility
+manifest; the table below is the headline only.
 
-- **Repair-line style is named, not deictic.** The Turn 3 repair line
-  explicitly names both the right and the wrong objects (for example,
-  *"I mean the soldering iron I just picked up, not the multimeter
-  probe"*). This measures floor recoverability. Given a maximally
-  specific user correction, can the model recover? It is not a model
-  of realistic user correction behavior, where users typically start
-  with deictic emphasis (*"no, this, what I'm holding now"*) and only
-  escalate to explicit naming after the deictic attempt fails. Future
-  versions may add deictic-only repair lines for visible-referent
-  scenarios to better isolate camera channel attentiveness from
-  word-matching recovery.
+| Run | Candidate | Judge | Pack | Primary (95% CI) |
+|---|---|---|---|---|
+| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
+| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | canonical 50 | 77.7% (71.3–84.0) |
+| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | canonical 50 | 14.4% (9.1–19.7) |
+| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | canonical 50 | 54.2% (50.7–57.7) |
+| `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
+
+### Methodology features in v1
+
+- **Cross-family judging.** Two of five runs ship cross-family
+  (judge family different from candidate family):
+  `baseline-qwen-cross-family` and `adversarial`. The three Gemini
+  canonical runs are same-family; see Caveats below.
+- **Cross-LLM judge agreement.** Cohen's kappa across two
+  cross-family judges is reported on the `adversarial` run
+  (kappa = 0.443 across `gpt-4o-mini` and `claude-haiku-4.5`,
+  observed agreement 63.3%, 110/300 trials in disagreement). The
+  canonical runs use a single judge each; their findings render the
+  inter-judge section as a placeholder pointing at this v1.0.x
+  follow-up.
+- **Adversarial subset.** 20 distractor-rich scenarios separately
+  tagged from the canonical 50; each passes the same 10-point
+  checklist + programmatic validator checks.
+- **Deictic and named repair lines.** Visible-referent canonical
+  scenarios ship two Turn 3 repair anchors: the named anchor (`"I
+  mean the soldering iron I just picked up, not the multimeter
+  probe"`) measuring floor recoverability, and a deictic anchor
+  (`"no, this, what I'm holding now"`) measuring realistic recovery.
+  The named repair is what the five published runs use; an explicit
+  `--repair-style deictic` ablation across the bank is a v1.0.x
+  follow-up.
+- **Variance reporting.** `--trials 5` per cell with 95% Wilson CIs
+  per class and 95% normal-approximation CIs on the balanced mean.
+- **Frozen scenario bank with static lockfile.** SHA256 hashes of
+  `scenarios.json`, `expected_answers.json`, `interventions.json`,
+  the adversarial bank, and the judge-prompt template are committed
+  to `benchmark/v1/MANIFEST.lock.json`; CI fails on drift without a
+  coordinated `BENCHMARK_VERSION` bump.
+- **Optional fixed ranking judge for cross-candidate comparison**
+  (CLI: `--ranking-judge-family`). When set, every trial is also
+  labeled by the fixed second judge. Demonstrated on the
+  `adversarial` run with `claude-haiku-4.5` as the ranking judge
+  alongside the auto-resolved cross-family judge.
+- **Robust transient-error retry** in the LiteLLM transport
+  (`core.litellm_adapter._call_with_retry`). Gemini 503/UNAVAILABLE,
+  rate-limit, and timeout-style messages retry with exponential
+  backoff (4 attempts, base 2s). Across the five published runs the
+  retry wrapper absorbed 16 transient errors.
+
+### What the runs show
+
+- **The model is leaning heavily on the camera input.** Same
+  candidate and judge, only the camera description toggled:
+  `baseline` 60.6% → `ablation-no-camera` 14.4%. A 46.2 percentage
+  point gap. This eliminates one alternative hypothesis: the
+  model uses question-phrasing patterns instead of visual
+  grounding. It does not on its own prove deeper context tracking
+  (see Video ablation above for the longer treatment).
+- **The model handles "current" but stumbles on "prior".**
+  `baseline-qwen-cross-family` is the clearest example: 100% on
+  `current`, 8.3% on `prior`. The model grounds in the latest
+  visual input and struggles to refer back. Together with the
+  camera ablation, this is the capability gap the benchmark
+  targets.
+- **Bigger Gemini sibling helps** within the family:
+  `baseline` (Flash-Lite) 60.6% → `baseline-alt` (Flash) 77.7%.
+- **Cross-family vs same-family on the canonical bank.**
+  `baseline-qwen-cross-family` (cross-family) 54.2% vs `baseline`
+  (same-family Gemini-on-Gemini) 60.6%, a 6.4 pp gap consistent
+  with self-preference bias in the same-family numbers, though
+  candidate quality also differs between the two runs.
+- **Deictic vs named repair.** `baseline-deictic-repair` uses the
+  deictic anchor (`"no, this, what I'm holding now"`) on the 31
+  visible-referent `current`-target scenarios and falls back to the
+  named anchor on the rest. Repair recovery: deictic 50/50 (100%),
+  named-fallback 30/100 (30%). Compared to `baseline` (named only,
+  80/150 = 53.3% overall), the deictic ablation has the same overall
+  recovery rate but concentrates the recoveries on scenarios where a
+  pointing gesture can resolve the reference. On `prior`, `clarify`,
+  and `abstain`-target scenarios, where deixis cannot point at the
+  intended referent, verbal clarification rarely recovers the miss.
+
+### Caveats
+
+- **Same-family judging on three of four canonical runs.** API
+  budget across providers (OpenRouter, OpenAI direct, HF Inference
+  Providers Pro) was exhausted mid-effort, leaving Gemini-direct
+  via LiteLLM as the only viable transport for the bulk of the
+  canonical runs. Gemini-Flash-Lite judges Gemini-Flash-Lite (and
+  Gemini-Flash) on those three runs, which admits self-preference
+  bias. The `baseline-qwen-cross-family` run is the cross-family
+  integrity reference for the canonical bank.
+- **Two model-config families across v1.** The four canonical runs
+  use Gemini-direct + DashScope-International transports. The
+  `adversarial` run uses an OpenRouter setup with a Claude-Haiku
+  ranking judge. Each `findings.md` manifest names the candidate
+  and judge identifiers; comparing within a single run is fully
+  apples-to-apples.
+- **`baseline-qwen-cross-family` cannot yet be ranked head-to-head
+  against the Gemini canonical runs.** Cross-candidate ranking
+  requires a fixed ranking judge held constant across candidates;
+  v1 demonstrates that mechanism on the adversarial run only.
+  Re-running the canonical bank with a fixed ranking judge across
+  all candidates is a v1.0.x follow-up.
+
+## Open limitations (v2 follow-ups)
+
+Real limitations that affect how the v1 results should be
+interpreted. These are not "out of scope"; they are work the
+benchmark could do but does not yet.
+
+- **Human inter-annotator agreement is not measured.** v1 reports
+  cross-LLM judge agreement (Cohen's kappa across two cross-family
+  judges) as a substitute. A second human rater labeling 25% of
+  judge outputs, with kappa reported, remains the strongest
+  defensibility move and is the highest-priority v2 follow-up.
 - **Real video is approximated by scene descriptions in text.** The
   camera channel uses scene descriptions ("Hand wrapped around a
   long wooden handle. Heavy metal head at the top...") as a proxy
   for what a real wearable's vision system would produce from a
   camera frame. Performance on text scene descriptions is not a
-  guarantee of performance on actual video. Validation against held
-  out video footage is acknowledged as future work.
-- **Inter-annotator agreement is not measured.** Inter-annotator
-  agreement is when two or more people independently label the same
-  item and you measure how often they agree. It's the standard way to
-  confirm that labels reflect shared understanding rather than one
-  person's opinion. All 50 scenarios were written and reviewed by
-  one person, against a written checklist of authoring rules.
-  Multi-rater validation is acknowledged as future work.
-- **The v1 baseline run uses same-family judging.** The committed
-  baseline at `benchmark/v1/runs/baseline/` runs Gemini as both the
-  candidate model and the judge. Same-family judging can introduce
-  self-preference bias, where a model rates outputs from its own
-  family more favorably than outputs from other families. A
-  cross-family judge run (for example, Gemini candidate with a Claude
-  judge) is the recommended next baseline and is acknowledged as
-  future work.
-- **The v1 baseline tests only one candidate model.** The benchmark's
-  stated purpose is model selection. With only one candidate run, no
-  comparative claim can be made yet. Multi-model comparison across
-  several candidates is acknowledged as future work.
-- **Camera-channel ablation has not been performed.** The benchmark
-  asserts that the camera channel matters, but the design has not
-  been tested by running the same scenarios with the camera blocks
-  stripped to quantify how much the channel contributes to the
-  primary score. A controlled ablation comparing with-camera vs.
-  without-camera runs is acknowledged as future work.
-- **No formal variance estimation.** Each cell runs with
-  `--trials 2`. Multi-seed reruns to formally bound score noise have
-  not been performed. As a rough guide, treat score deltas under
-  approximately 3 percentage points on this 50-scenario bank with
-  caution until variance is measured.
-- **The benchmark does not exercise the full omnimodal stack a
-  wearable requires, but candidates should still meet that bar.** A
-  deployable wearable assistant needs live audio input, voice-mode
-  output, real-time streaming, and interruption handling. This
-  benchmark uses text proxies for both vision and audio, and only
-  scores text outputs, so the test mechanics only require a candidate
-  with vision support. Candidate selection should still require the
-  full deployable stack (vision in, audio in, audio out, real-time)
-  because the goal is model selection for a real wearable. Picking a
-  candidate that can't physically run in production is wasted work,
-  even if the benchmark mechanics would let it through. As of April
-  2026, Google (Gemini Live) and OpenAI (Realtime API) families meet
-  this bar; Anthropic Claude does not yet have native audio output.
-  A future benchmark version that exercises live audio and streaming
-  directly is acknowledged as future work.
+  guarantee of performance on actual video. Validation against
+  held-out video footage on a representative sample is acknowledged
+  as v2 work.
+- **The audio channel is text, not raw acoustic.** v1 represents
+  the user's spoken turns as text transcripts, not raw audio. The
+  benchmark therefore does not test acoustic grounding, speaker
+  attribution, addressee detection, or ambient audio cues. A v2
+  variant with raw audio input remains future work.
+- **Beyond-5-trial generalization is not measured.** Each cell runs
+  with `--trials 5` and CIs are reported. Multi-seed runs at higher
+  trial counts to characterize the long-tail noise floor remain a
+  v2 follow-up.
+- **The benchmark does not exercise the full omnimodal stack the
+  product requires, but candidates should still meet that bar.** A
+  deployable in-the-moment multimodal coach (wearable or handheld)
+  needs live audio input, voice-mode output, real-time streaming,
+  and interruption handling. This benchmark uses text proxies for
+  both vision and audio, and only scores text outputs, so the test
+  mechanics only require a candidate with vision support. Candidate
+  selection should still require the full deployable stack (vision
+  in, audio in, audio out, real-time) because the goal is model
+  selection for a live coaching product. Picking a candidate that
+  can't physically run in production is wasted work, even if the
+  benchmark mechanics would let it through. As of April 2026, Google
+  (Gemini Live) and OpenAI (Realtime API) families meet this bar;
+  Anthropic Claude does not yet have native audio output. A v2
+  benchmark variant that exercises live audio and streaming directly
+  is acknowledged as future work.
 
 ## When to use this benchmark vs. when to do separate evaluation
 
-Use this benchmark when:
+Use this benchmark to:
 
-- You are choosing between candidate models for a wearable or
-  multimodal assistant product
+- Compare candidate models on context tracking for deployed wearable
+  or multimodal assistants
 - You need to verify that a new model release has not regressed on
   context tracking
 - You want comparable numbers across models on the same scenario set
@@ -317,13 +416,13 @@ in the evaluation pipeline that fits your product.
   (follow-up after the situation has changed), and an optional Turn 3
   (a clarifying repair line, fired only when the model gets Turn 2
   wrong).
-- **Shift type.** Project-specific label for the kind of context
-  change between Turn 1 and Turn 2. The benchmark covers eight:
-  object swap, object state change, sequential task step, location,
-  attention shift, absent referent, screen content, and
-  pre-conversation recall. Stored in the data files as `cue_type`.
-  Not a standardized ML benchmark term; closest standard alternative
-  would be "scenario category."
+- **Shift type** (stored as `cue_type`). Scenario category describing
+  the shape of the context shift between Turn 1 and Turn 2. The 8
+  values (`object_in_hand`, `object_state`, `sequential_task`,
+  `location`, `object_in_view`, `absent_referent`, `screen_content`,
+  `pre_conversation_recall`) are listed in
+  [`benchmark_spec.md`](benchmark_spec.md#the-8-shift-type-categories).
+  Closest standard term is "condition type" or "scenario category."
 - **Context shift.** A meaningful change between Turn 1 and Turn 2
   in what the user is showing, holding, doing, or referring to.
   Examples: putting down a hammer and picking up a screwdriver,
@@ -426,3 +525,34 @@ in the evaluation pipeline that fits your product.
   conversations or sessions, not just within a single conversation.
   A wearable might remember last week's project state when the user
   picks it back up; this benchmark does not test that.
+
+## Acronyms and project terminology
+
+Quick reference for the abbreviated forms used throughout these docs:
+
+- **LLM judge.** A large language model used to label model outputs.
+  Distinct from a human judge or annotator (see "Inter-annotator
+  agreement").
+- **Macro average.** The mean of per-class scores, weighting each
+  class equally. The primary score uses macro-averaged accuracy
+  across `current` and `prior`.
+- **Balanced accuracy.** In this benchmark, the macro-average of
+  `current` and `prior` accuracy.
+- **Auxiliary diagnostic.** A metric reported alongside the primary
+  score but not folded into it (e.g., `clarify` and `abstain` class
+  accuracy).
+- **CI.** Confidence interval. The benchmark reports 95% Wilson CIs
+  per class and 95% normal-approximation CIs on the balanced mean.
+- **IAA.** Inter-annotator agreement (the standard measure of label
+  reliability across human annotators). v1 reports cross-LLM
+  agreement as an automated substitute; human IAA is v2 work.
+- **Turn 1 / Turn 2 / Turn 3.** The three conversation turns. Turn 1
+  establishes initial context; Turn 2 fires after the context shift
+  and is the scored turn; Turn 3 fires only when Turn 2 misses, as
+  a repair attempt.
+- **pp.** Percentage points (used for score-delta differences, e.g.,
+  "a 46.2 pp drop").
+- **Cross-family judge.** A judge whose model family differs from
+  the candidate's, used to reduce self-preference bias within a run.
+- **Fixed ranking judge.** A single judge held constant across runs,
+  used to compare candidates apples-to-apples.

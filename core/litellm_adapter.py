@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
+import time
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable
@@ -18,8 +20,75 @@ from typing import Any, Callable
 from core.models import ModelConfig
 
 
+_logger = logging.getLogger(__name__)
+
 DEFAULT_LITELLM_CACHE_DIR = Path(".cache/litellm_models")
 DEFAULT_LITELLM_TIMEOUT_SECONDS = 120
+DEFAULT_LITELLM_RETRY_ATTEMPTS = 4
+# Exponential backoff base (seconds): 2, 4, 8, 16 by default.
+DEFAULT_LITELLM_RETRY_BASE_SECONDS = 2.0
+
+# Substrings in exception messages that signal a transient server-side
+# condition worth retrying with backoff. Anything not matching falls
+# through immediately so genuine errors (auth, missing model, etc.)
+# don't waste retries.
+_TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
+    "503",
+    "unavailable",
+    "high demand",
+    "rate limit",
+    "rate_limit",
+    "ratelimit",
+    "overloaded",
+    "service_unavailable",
+    "internal server error",
+    "502",
+    "504",
+    "timeout",
+    "timed out",
+)
+
+
+def _is_transient_error(exc: BaseException) -> bool:
+    text = (str(exc) + " " + type(exc).__name__).lower()
+    return any(marker in text for marker in _TRANSIENT_ERROR_MARKERS)
+
+
+# Custom-endpoint prefix routing. Each entry maps a virtual model-id
+# prefix to (litellm_model_prefix, api_base, env_var_for_api_key).
+# This keeps the CLI ergonomic for OpenAI-compatible endpoints whose
+# default LiteLLM provider points at the wrong region or schema.
+_CUSTOM_ENDPOINT_ROUTES: dict[str, tuple[str, str, str]] = {
+    # Alibaba Cloud Model Studio — Singapore region (DashScope
+    # International). OpenAI-compatible endpoint; key in DASHSCOPE_API_KEY.
+    "dashscope-intl/": (
+        "openai/",
+        "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        "DASHSCOPE_API_KEY",
+    ),
+}
+
+
+def _resolve_custom_endpoint(model_id: str) -> dict[str, Any] | None:
+    """If ``model_id`` carries a custom-endpoint prefix, return the
+    extra kwargs LiteLLM needs (rewritten ``model``, ``api_base``,
+    ``api_key``). Returns ``None`` for ordinary provider-qualified
+    ids that LiteLLM can route on its own."""
+    import os
+
+    for prefix, (litellm_prefix, api_base, env_var) in _CUSTOM_ENDPOINT_ROUTES.items():
+        if model_id.startswith(prefix):
+            api_key = os.environ.get(env_var)
+            if not api_key:
+                raise RuntimeError(
+                    f"{prefix!r} model requires {env_var} env var to be set"
+                )
+            return {
+                "model": litellm_prefix + model_id[len(prefix):],
+                "api_base": api_base,
+                "api_key": api_key,
+            }
+    return None
 
 
 class LiteLLMAdapter:
@@ -93,18 +162,54 @@ class LiteLLMAdapter:
                 *payload_messages,
             ]
 
-        response = self.client(
-            model=config.model_id,
-            messages=payload_messages,
-            temperature=config.temperature,
-            max_tokens=config.max_tokens,
-            timeout=DEFAULT_LITELLM_TIMEOUT_SECONDS,
-            stream=False,
-        )
+        call_kwargs: dict[str, Any] = {
+            "model": config.model_id,
+            "messages": payload_messages,
+            "temperature": config.temperature,
+            "max_tokens": config.max_tokens,
+            "timeout": DEFAULT_LITELLM_TIMEOUT_SECONDS,
+            "stream": False,
+        }
+        custom = _resolve_custom_endpoint(config.model_id)
+        if custom is not None:
+            call_kwargs.update(custom)
+        response = self._call_with_retry(**call_kwargs)
 
         text = _extract_text(response)
         self._store_cached(cache_key, text)
         return text
+
+    def _call_with_retry(self, **kwargs: Any) -> Any:
+        """Call ``self.client`` with exponential backoff on transient errors.
+
+        Retries on 5xx, rate-limit, and timeout-style messages. Other
+        exceptions (auth, model-not-found, malformed request) re-raise
+        immediately. After the final attempt, the original exception
+        propagates.
+        """
+        last_exc: BaseException | None = None
+        for attempt in range(DEFAULT_LITELLM_RETRY_ATTEMPTS):
+            try:
+                return self.client(**kwargs)
+            except Exception as exc:  # noqa: BLE001 - we re-raise non-transient
+                if not _is_transient_error(exc):
+                    raise
+                last_exc = exc
+                if attempt == DEFAULT_LITELLM_RETRY_ATTEMPTS - 1:
+                    break
+                sleep_for = DEFAULT_LITELLM_RETRY_BASE_SECONDS * (2 ** attempt)
+                _logger.warning(
+                    "litellm transient error on attempt %d/%d (%s): %.150s; "
+                    "sleeping %.1fs",
+                    attempt + 1,
+                    DEFAULT_LITELLM_RETRY_ATTEMPTS,
+                    type(exc).__name__,
+                    str(exc),
+                    sleep_for,
+                )
+                time.sleep(sleep_for)
+        assert last_exc is not None  # only reachable after a transient failure
+        raise last_exc
 
 
 def _extract_text(response: Any) -> str:

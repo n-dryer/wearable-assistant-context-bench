@@ -13,7 +13,8 @@
     "turn_2_image": "Right hand wrapped around a black molded handle attached to a long flat triangular blade with a sharpened edge. Blade is resting on a flat raised wooden slab next to a halved yellow onion. Knuckles tucked inward.",
     "turn_2_user": "Is my grip okay for this?",
     "turn_3_repair_anchor": "I mean the chef's knife I'm holding now, not the wooden spoon I was stirring with.",
-    "notes": "Stir to chop swap. T2 deictic asks about grip on the new object."
+    "notes": "Stir to chop swap. T2 deictic asks about grip on the new object.",
+    "turn_3_repair_anchor_deictic": "I mean this thing in my hand right now."
   },
   {
     "scenario_id": "sc-02",
@@ -29,7 +30,8 @@
     "turn_2_image": "Right hand holding a slim cylindrical tool by its rubberized blue grip. A thin metal shaft extends from the front, ending in a wedge-shaped tip glowing faint orange. A wisp of pale smoke rises from the tip. A coil of thin silver wire sits on the bench beside an open spool.",
     "turn_2_user": "What temperature should this be at?",
     "turn_3_repair_anchor": "I mean the soldering iron I just picked up, not the multimeter probe.",
-    "notes": "Diagnostic to repair workflow swap. T2 asks about temp of new tool."
+    "notes": "Diagnostic to repair workflow swap. T2 asks about temp of new tool.",
+    "turn_3_repair_anchor_deictic": "I mean the one I'm holding right now."
   },
   {
     "scenario_id": "sc-03",
@@ -45,7 +47,8 @@
     "turn_2_image": "Gloved right hand squeezing red rubber-coated handles that pivot around a central bolt. Two curved blades meet at a point — one thicker with a flat edge, the other thin and sharpened. Blades are open around a slim green stem about a quarter-inch thick on a rose bush.",
     "turn_2_user": "Where exactly do I cut?",
     "turn_3_repair_anchor": "I mean the pruning shears I'm holding now, not the trowel I was digging with.",
-    "notes": "Plant to prune swap. T2 deictic about cut placement."
+    "notes": "Plant to prune swap. T2 deictic about cut placement.",
+    "turn_3_repair_anchor_deictic": "I mean what I've got in my hand at this moment."
   },
   {
     "scenario_id": "sc-04",
@@ -77,7 +80,8 @@
     "turn_2_image": "Right hand pressing a long aluminum rectangular bar flat on top of a partially framed wall stud. Three small glass tubes are set into the bar, each containing a yellow-green liquid with a single bubble. Center tube bubble is sitting just left of two etched lines.",
     "turn_2_user": "What does this tell me?",
     "turn_3_repair_anchor": "I mean the level I'm holding now, not the tape measure I had before.",
-    "notes": "Measure to plumb-check swap. Distractor objects on bench. T2 asks about reading."
+    "notes": "Measure to plumb-check swap. Distractor objects on bench. T2 asks about reading.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm holding now."
   },
   {
     "scenario_id": "sc-06",
@@ -93,7 +97,8 @@
     "turn_2_image": "Two hands pressing down on a long smooth wooden cylinder with tapered ends. Cylinder is rolling across a flattened circle of pale dough on a floured marble countertop. Flour dusts the wood.",
     "turn_2_user": "Am I pushing too hard?",
     "turn_3_repair_anchor": "I mean the rolling pin I'm using now, not the whisk I had in the bowl.",
-    "notes": "Whip to roll swap. Easy single-referent."
+    "notes": "Whip to roll swap. Easy single-referent.",
+    "turn_3_repair_anchor_deictic": "I mean the one I'm using right now."
   },
   {
     "scenario_id": "sc-07",
@@ -109,7 +114,8 @@
     "turn_2_image": "Both hands holding two short red foam handles. A thin black braided cord loops down from each handle, sweeping past the user's feet on a rubber gym floor. The cord blurs at the bottom of its arc. Mirror on the wall behind.",
     "turn_2_user": "What's a good pace for this?",
     "turn_3_repair_anchor": "I mean the jump rope I'm using now, not the racket from earlier.",
-    "notes": "Court to gym swap, time gap minutes. T2 about pacing."
+    "notes": "Court to gym swap, time gap minutes. T2 about pacing.",
+    "turn_3_repair_anchor_deictic": "I mean the one I'm using now."
   },
   {
     "scenario_id": "sc-08",
@@ -125,7 +131,8 @@
     "turn_2_image": "Right hand gripping a long chrome handle with a knurled ring near the head. Square drive at the end is seated into a deep socket placed over a lug nut on the same alloy rim. A tick mark on the handle barrel sits beside printed numbers.",
     "turn_2_user": "How tight do I need to go?",
     "turn_3_repair_anchor": "I mean the torque wrench I'm using now, not the pressure gauge from before.",
-    "notes": "Pressure check to lug tightening swap. Hard, distractor present."
+    "notes": "Pressure check to lug tightening swap. Hard, distractor present.",
+    "turn_3_repair_anchor_deictic": "I mean what's in my hand right now."
   },
   {
     "scenario_id": "sc-09",
@@ -157,7 +164,8 @@
     "turn_2_image": "Right hand high on a long aluminum pole, left hand lower. At the bottom, a thick pad of damp blue twisted strands sits in a pool of soapy water on the same tile floor. A yellow bucket with a wringer attachment is two steps away.",
     "turn_2_user": "How wet should this be?",
     "turn_3_repair_anchor": "I mean the mop I have now, not the broom from before.",
-    "notes": "Sweep to mop sequence swap. T2 deictic about saturation."
+    "notes": "Sweep to mop sequence swap. T2 deictic about saturation.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm holding right now."
   },
   {
     "scenario_id": "sc-11",
@@ -173,7 +181,8 @@
     "turn_2_image": "Right hand pinching a soft gray lump shaped like a flattened pyramid. Surface is smudged darker on the working face. Lump is pressed against the sketch paper, lifting away faint gray marks. Crumbs of darker material flake off where it touched.",
     "turn_2_user": "How do I use this without messing up the page?",
     "turn_3_repair_anchor": "I mean the kneaded eraser I'm holding, not the pencil.",
-    "notes": "Draw to lift swap. T2 deictic."
+    "notes": "Draw to lift swap. T2 deictic.",
+    "turn_3_repair_anchor_deictic": "I mean what's between my fingers right now."
   },
   {
     "scenario_id": "sc-12",
@@ -205,7 +214,8 @@
     "turn_2_image": "Tall stainless steel cylindrical vessel with a thin handle on the same black glass cooktop. Surface of the liquid churning with large bubbles breaking continuously across the entire surface. Dense steam rising in a thick column. Droplets visible on the inside of the rim.",
     "turn_2_user": "Can I add the noodles yet?",
     "turn_3_repair_anchor": "I mean right now, looking at what's happening in the vessel in front of me.",
-    "notes": "Water heating from quiet to a full rolling boil. T2 user asks about adding pasta or eggs without naming the change."
+    "notes": "Water heating from quiet to a full rolling boil. T2 user asks about adding pasta or eggs without naming the change.",
+    "turn_3_repair_anchor_deictic": "I mean right now, what I'm looking at."
   },
   {
     "scenario_id": "sc-14",
@@ -221,7 +231,8 @@
     "turn_2_image": "Same black plastic twelve-cell tray under the same clip-on grow light. Pale green stems roughly an inch tall rising out of most cells, each topped by two narrow oval leaves. A couple of cells show stems bent sideways and leaning toward the light source. Soil surface dimpled where stems emerged.",
     "turn_2_user": "Should I move the lamp?",
     "turn_3_repair_anchor": "I'm asking about what I can see right now in the tray, with what's coming up.",
-    "notes": "Seeds in soil have germinated and now show seedlings with cotyledons. T2 question is about leggy growth toward the light."
+    "notes": "Seeds in soil have germinated and now show seedlings with cotyledons. T2 question is about leggy growth toward the light.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm seeing in front of me right now."
   },
   {
     "scenario_id": "sc-15",
@@ -237,7 +248,8 @@
     "turn_2_image": "Same rectangular wooden panel on the same drop cloth. Surface now matte and uniform, with the foam-applicator ridges still faintly visible but no longer reflective. The pooled edge has flattened. A fingertip pressed lightly at one corner leaves no print.",
     "turn_2_user": "Can I do another pass?",
     "turn_3_repair_anchor": "I mean as it is now, looking at how the surface feels at this point.",
-    "notes": "Latex or alkyd paint has dried from wet glossy to matte tack-free. T2 question is about recoating."
+    "notes": "Latex or alkyd paint has dried from wet glossy to matte tack-free. T2 question is about recoating.",
+    "turn_3_repair_anchor_deictic": "I mean as it is now, what I'm looking at."
   },
   {
     "scenario_id": "sc-16",
@@ -269,7 +281,8 @@
     "turn_2_image": "Same white cylindrical wax shape in the same clear glass holder on the same wooden side table. A small steady teardrop flame at the top of the cotton string, which is now blackened and curled at the tip. A shallow circular pool of clear melted wax surrounds the string, extending almost to the outer edge.",
     "turn_2_user": "Is it good to leave for now?",
     "turn_3_repair_anchor": "Looking at it as it is right now, with what's happening at the top, can I leave it?",
-    "notes": "Candle unlit with full straight wick vs lit candle with full melt pool. T2 asks if it can be left burning unattended or extinguished."
+    "notes": "Candle unlit with full straight wick vs lit candle with full melt pool. T2 asks if it can be left burning unattended or extinguished.",
+    "turn_3_repair_anchor_deictic": "I mean what it looks like right now."
   },
   {
     "scenario_id": "sc-18",
@@ -285,7 +298,8 @@
     "turn_2_image": "Same black rubber circular form in the same arched body cutout, same low angle. Sidewall now visibly bulged outward at the bottom, with a noticeable curve where the rubber meets the pavement. Contact patch widened, tread blocks splayed. The brass valve stem is at an angle, cap missing. A faint hissing sound suggested by a thin trail of dust drifting near the valve.",
     "turn_2_user": "What do I do here?",
     "turn_3_repair_anchor": "Looking at the wheel right now, what should I actually do?",
-    "notes": "Tire properly inflated vs significantly underinflated/leaking. Hard because T1 already discusses pressure, so the model must catch the visible state shift to underinflation/leak."
+    "notes": "Tire properly inflated vs significantly underinflated/leaking. Hard because T1 already discusses pressure, so the model must catch the visible state shift to underinflation/leak.",
+    "turn_3_repair_anchor_deictic": "I mean as it is right now, what I'm seeing."
   },
   {
     "scenario_id": "sc-19",
@@ -317,7 +331,8 @@
     "turn_2_image": "Same canvas-covered rotating disc, same wire tool and wooden rib beside the splash basin. The form now stands upright as a tall narrow vessel with even walls, no longer glossy but uniformly matte gray. Surface holds a fingerprint without smearing. A faint hairline visible at the rim. Slight cool sheen rather than wet shine.",
     "turn_2_user": "Time to bring out the trimming tool?",
     "turn_3_repair_anchor": "I'm asking based on what it's like to the touch right now, not how it was earlier.",
-    "notes": "Clay freshly centered and wet vs leather-hard, ready to trim. Hard tier because both states involve clay vocabulary in adjacent stages."
+    "notes": "Clay freshly centered and wet vs leather-hard, ready to trim. Hard tier because both states involve clay vocabulary in adjacent stages.",
+    "turn_3_repair_anchor_deictic": "I mean as it stands right now, what I'm seeing."
   },
   {
     "scenario_id": "sc-21",
@@ -333,7 +348,8 @@
     "turn_2_image": "Same pine board on the same sawhorses, the surface now uniformly even and dust-free. A flat row of stiff bristles attached to a wooden handle dipped into an open metal can of dark amber liquid. The bristled tool pulled across the board lengthwise, a glistening trail following behind it, the wood turning a richer brown tone where the liquid has been laid down.",
     "turn_2_user": "Am I doing this evenly enough?",
     "turn_3_repair_anchor": "I mean what I'm putting on the wood right now, not the smoothing I did before.",
-    "notes": "Sequential workshop task. T1 sanding step. T2 staining/finishing step. Same board, different step."
+    "notes": "Sequential workshop task. T1 sanding step. T2 staining/finishing step. Same board, different step.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm doing on it right now."
   },
   {
     "scenario_id": "sc-22",
@@ -349,7 +365,8 @@
     "turn_2_image": "A wide round metal vessel with a flat bottom and low sloping sides, sitting on a lit gas ring with blue flames visible underneath. Translucent slices spread across the bottom in a thin layer of shimmering oil, edges starting to soften and turn golden in spots. A long wooden utensil with a flat angled end pushing the pieces around inside.",
     "turn_2_user": "Am I keeping it moving enough?",
     "turn_3_repair_anchor": "I mean what's on the heat right now, not the cutting before.",
-    "notes": "Sequential kitchen task. T1 dicing onion. T2 sautéing onion. Same ingredient, next step."
+    "notes": "Sequential kitchen task. T1 dicing onion. T2 sautéing onion. Same ingredient, next step.",
+    "turn_3_repair_anchor_deictic": "I mean what's happening right now."
   },
   {
     "scenario_id": "sc-23",
@@ -365,7 +382,8 @@
     "turn_2_image": "Same garden bed, the opening now a clean rounded cavity. A small leafy green shoot with white roots wrapped in a tangled clump of dirt held just above the cavity, hand cradling the root mass from below. Loose soil piled to one side.",
     "turn_2_user": "Am I positioning this right?",
     "turn_3_repair_anchor": "I mean what I'm holding now, not the part before with the dirt.",
-    "notes": "Sequential garden task. T1 digging the hole. T2 placing the seedling. Same bed, sequential step."
+    "notes": "Sequential garden task. T1 digging the hole. T2 placing the seedling. Same bed, sequential step.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm doing right now."
   },
   {
     "scenario_id": "sc-24",
@@ -397,7 +415,8 @@
     "turn_2_image": "Same sedan, same side. A red squat mechanical device with a flat saddle on top, positioned under a reinforced metal seam along the underside of the car behind the front arched body cutout, a long thin rod extending out from the body of the device. Hand pumping the rod up and down. The car's body visibly lifted a few inches above the concrete on this side, the rubber-treaded ring just barely touching the surface. The hexagonal fasteners on the spinning hub now loose in their seats but still threaded.",
     "turn_2_user": "Am I getting this in the right spot?",
     "turn_3_repair_anchor": "I mean what's lifting the car now, not the loosening part before.",
-    "notes": "Sequential automotive task. T1 breaking lug nuts loose with breaker bar while wheel on ground. T2 raising the car with a floor jack. Same wheel/car, sequential step. Distractor: lug nuts still visible in T2 image but not the focus."
+    "notes": "Sequential automotive task. T1 breaking lug nuts loose with breaker bar while wheel on ground. T2 raising the car with a floor jack. Same wheel/car, sequential step. Distractor: lug nuts still visible in T2 image but not the focus.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm doing now."
   },
   {
     "scenario_id": "sc-26",
@@ -413,7 +432,8 @@
     "turn_2_image": "Same gym, mat now empty. The same long metal rod with weighted disks on each end now lifted off the stand, resting across the upper back of the shoulders just below the neck. Feet planted slightly wider than hip-width on the floor, knees bent outward over the toes, the lower body sunk down so the upper thighs are roughly horizontal. Torso angled forward, spine straight. The rod visibly bowing slightly under the load on each end.",
     "turn_2_user": "Does this look like the right position?",
     "turn_3_repair_anchor": "I mean what I'm doing under the bar right now, not the floor work before.",
-    "notes": "Sequential fitness task. T1 hamstring stretch as warmup. T2 weighted back squat. Same workout sequence, progressed step."
+    "notes": "Sequential fitness task. T1 hamstring stretch as warmup. T2 weighted back squat. Same workout sequence, progressed step.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm doing right now under it."
   },
   {
     "scenario_id": "sc-27",
@@ -429,7 +449,8 @@
     "turn_2_image": "Wide view of a smaller room with bright overhead fluorescent lighting. Glossy tiled walls in pale blue. A deep ceramic basin set into a long counter with a tall arched metal spout. A wide rectangular reflective panel above the counter. A folded white cloth hangs from a metal rod on the side wall. Floor of small mosaic tiles.",
     "turn_2_user": "Should I open the window in here for a bit?",
     "turn_3_repair_anchor": "I mean the room I'm standing in right now, not the one with the bed.",
-    "notes": "Bedroom -> bathroom shift. Same ventilation question, but answer depends on current humid tiled space."
+    "notes": "Bedroom -> bathroom shift. Same ventilation question, but answer depends on current humid tiled space.",
+    "turn_3_repair_anchor_deictic": "I mean here, where I am right now."
   },
   {
     "scenario_id": "sc-28",
@@ -445,7 +466,8 @@
     "turn_2_image": "Indoor wide view. Concrete floor with oil stains. Pegboard wall with hanging metal hand tools in silhouette. A long workbench with a heavy metal clamping fixture — two parallel jaws and a horizontal screw handle — mounted at one end. A vehicle's front bumper visible at the right edge of frame. Single bare bulb overhead. Daylight only weakly entering through a small high window.",
     "turn_2_user": "Is it a good time to be doing this?",
     "turn_3_repair_anchor": "I mean the work I'd be doing in here, not the gardening outside.",
-    "notes": "Garden -> garage workshop. Question about timing transfers; current answer concerns indoor work conditions, prior concerns outdoor sun."
+    "notes": "Garden -> garage workshop. Question about timing transfers; current answer concerns indoor work conditions, prior concerns outdoor sun.",
+    "turn_3_repair_anchor_deictic": "I mean in here, what I'm about to do."
   },
   {
     "scenario_id": "sc-29",
@@ -461,7 +483,8 @@
     "turn_2_image": "Interior view of a different room. A long rectangular wooden table on a sisal rug. Six high-backed chairs evenly spaced. A glass-fronted cabinet on the far wall with stacks of plates and stemmed glasses. A chandelier with multiple small bulbs casting soft light. No food, no countertops visible.",
     "turn_2_user": "Where should I set things up?",
     "turn_3_repair_anchor": "I mean for serving in this room, not for prep back where I was cooking.",
-    "notes": "Cooking space -> dining space. The question about setup transfers; correct answer is about table layout for service."
+    "notes": "Cooking space -> dining space. The question about setup transfers; correct answer is about table layout for service.",
+    "turn_3_repair_anchor_deictic": "I mean in this room here."
   },
   {
     "scenario_id": "sc-30",
@@ -477,7 +500,8 @@
     "turn_2_image": "Wide indoor view. Concrete floor with a yellow painted line. A large vehicle raised on a hydraulic lift several feet off the ground. Metal toolboxes on rolling carts. A coiled black flexible air line hanging from a ceiling reel. Single high-bay lamp casting a pool of bright white light directly under the lifted vehicle. Most of the surrounding floor in shadow.",
     "turn_2_user": "Is the lighting alright for what I need to check?",
     "turn_3_repair_anchor": "I mean for the inspection I'm doing right here in this spot, not the place I was at before.",
-    "notes": "Retail floor -> automotive service bay. Same lighting question, but the inspection task changes; current answer focuses on under-vehicle visibility."
+    "notes": "Retail floor -> automotive service bay. Same lighting question, but the inspection task changes; current answer focuses on under-vehicle visibility.",
+    "turn_3_repair_anchor_deictic": "I mean here where I'm standing right now."
   },
   {
     "scenario_id": "sc-31",
@@ -525,7 +549,8 @@
     "turn_2_image": "Same flat raised wooden slab, camera now tilted toward an oblong fruit lying on it. Bright yellow skin freckled with brown spots, a curved stem at one end. The round green-skinned fruit visible at the edge of the frame. The same long flat broad-bladed cutting tool, colander, and row of spice jars in the background.",
     "turn_2_user": "Is this ripe enough yet?",
     "turn_3_repair_anchor": "I mean the speckled yellow one I'm looking at now, not the avocado.",
-    "notes": "Same cutting board scene, attention shifts from avocado to banana. Identical question."
+    "notes": "Same cutting board scene, attention shifts from avocado to banana. Identical question.",
+    "turn_3_repair_anchor_deictic": "I mean the one I'm looking at right now."
   },
   {
     "scenario_id": "sc-34",
@@ -541,7 +566,8 @@
     "turn_2_image": "Same workbench with the same clamps and pegboard wall behind. Camera now panned left to a long flat sheet of paper-backed abrasive folded around a felt-covered block, held in a hand. Visible scratch pattern on a small offcut beside it. A coiled black power cord lies on the bench at the far edge of the frame.",
     "turn_2_user": "What should I be using here for this stage?",
     "turn_3_repair_anchor": "I mean the block I'm sanding by hand with now, not the orbital.",
-    "notes": "Workbench scene, attention shifts from random orbital sander to hand sanding block. Same question."
+    "notes": "Workbench scene, attention shifts from random orbital sander to hand sanding block. Same question.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm using right now."
   },
   {
     "scenario_id": "sc-35",
@@ -557,7 +583,8 @@
     "turn_2_image": "Same raised bed, same dark soil and drip line, same wooden stake. Camera now angled toward a tall plant with feathery, finely divided leaves on slender stems, small yellow flowers just starting to open at the tips. A few broad crinkled leaves of another plant visible at the frame edge.",
     "turn_2_user": "When should I pull this?",
     "turn_3_repair_anchor": "I mean the one with the lacy leaves and yellow flowers, not the kale.",
-    "notes": "Raised bed scene, attention shifts from kale to dill. Same question."
+    "notes": "Raised bed scene, attention shifts from kale to dill. Same question.",
+    "turn_3_repair_anchor_deictic": "I mean the one I'm pointing at."
   },
   {
     "scenario_id": "sc-36",
@@ -573,7 +600,8 @@
     "turn_2_image": "Same engine bay, same black intake manifold and red reservoir cap visible at the edges. Camera now shifted right toward a translucent plastic container with horizontal molded lines on its side and a thin bluish liquid visible inside, the fluid surface sitting between two of the marked lines. A yellow loop sticking up from a black tube visible at the far edge of the frame.",
     "turn_2_user": "What level should this be at?",
     "turn_3_repair_anchor": "I mean the windshield washer tank I'm looking at now, not the dipstick.",
-    "notes": "Engine bay scene, attention shifts from oil dipstick to washer fluid reservoir. Both visible across frames. Distractor present."
+    "notes": "Engine bay scene, attention shifts from oil dipstick to washer fluid reservoir. Both visible across frames. Distractor present.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm looking at right now."
   },
   {
     "scenario_id": "sc-37",
@@ -685,7 +713,8 @@
     "turn_2_image": "View of the same handheld backlit rectangular display, now showing a white compose window. A subject line field near the top, a recipient address with an at-symbol visible, and a long block of paragraph text in the body. Formatting controls along the bottom edge with a paperclip icon. The header strip shows folder labels rather than a single name.",
     "turn_2_user": "How should I respond to this?",
     "turn_3_repair_anchor": "I mean the email draft I'm looking at right now, not the text thread.",
-    "notes": "Screen swap from a casual chat thread to a long-form email draft. Reply guidance differs by register and length."
+    "notes": "Screen swap from a casual chat thread to a long-form email draft. Reply guidance differs by register and length.",
+    "turn_3_repair_anchor_deictic": "I mean what's on the screen right now."
   },
   {
     "scenario_id": "sc-44",
@@ -701,7 +730,8 @@
     "turn_2_image": "View of the same handheld backlit rectangular display, now showing a large circular chart split into colored wedges with percentages overlaid. Below the circle, a vertical legend with category labels and dollar totals. A month selector at the top with arrow buttons on either side. A horizontal bar across the middle showing budget remaining versus spent.",
     "turn_2_user": "Anything I should be worried about here?",
     "turn_3_repair_anchor": "I mean the budget breakdown I'm looking at now, not the transaction list.",
-    "notes": "Screen swap from transaction list to budget pie chart. Concerns differ: outliers/fraud vs. category overspend."
+    "notes": "Screen swap from transaction list to budget pie chart. Concerns differ: outliers/fraud vs. category overspend.",
+    "turn_3_repair_anchor_deictic": "I mean what I'm looking at right now."
   },
   {
     "scenario_id": "sc-45",
@@ -717,7 +747,8 @@
     "turn_2_image": "View of the same hinged clamshell device's upper display, now showing a dense grid of cells filled with numbers. Several columns shaded in alternating bands of pale blue. A long formula visible in a bar above the grid referencing multiple cell ranges. Tab strip at the bottom with five labeled sheets. A frozen header row in bold with column letters above.",
     "turn_2_user": "Is there too much going on for one minute?",
     "turn_3_repair_anchor": "I mean the spreadsheet I'm looking at now, not the slide.",
-    "notes": "Screen swap from a presentation slide to a dense spreadsheet. Pacing advice differs sharply: slide simplification vs. data-walkthrough chunking. Distractor: thumbnail strip on T1 could pull toward deck-level advice."
+    "notes": "Screen swap from a presentation slide to a dense spreadsheet. Pacing advice differs sharply: slide simplification vs. data-walkthrough chunking. Distractor: thumbnail strip on T1 could pull toward deck-level advice.",
+    "turn_3_repair_anchor_deictic": "I mean what's on screen right now."
   },
   {
     "scenario_id": "sc-46",

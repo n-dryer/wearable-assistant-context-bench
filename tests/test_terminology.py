@@ -55,16 +55,20 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
 
 def test_public_docs_use_v1_framing() -> None:
     """The four main framing docs must carry the v1 framing language:
-    the wearable use case, the camera channel with scene descriptions,
-    and the four judge labels (`current`, `prior`, `clarify`,
-    `abstain`).
 
-    This is a positive check — if a future edit reverts to a different
-    framing (drops the camera channel, drops the four-label vocabulary,
-    drops the wearable framing), this test fails.
+    - The product scope is a multimodal AI assistant the user is
+      actively engaging with for advice or coaching — wearable OR
+      handheld (not just smart glasses).
+    - The camera channel uses scene descriptions.
+    - The four judge labels (`current`, `prior`, `clarify`, `abstain`).
+
+    This is a positive check — if a future edit reverts to a
+    glasses-only framing or drops the camera channel / four-label
+    vocabulary, this test fails.
     """
     required = (
         "wearable",
+        "handheld",
         "camera",
         "scene description",
         "current",
@@ -82,18 +86,30 @@ def test_public_docs_use_v1_framing() -> None:
         lowered = _read(path).lower()
         for phrase in required:
             assert phrase in lowered, f"{path} is missing required phrase {phrase!r}"
+        # At least one of the active-use framing terms must appear so
+        # the reader knows this is for in-the-moment advice or
+        # coaching, not background or passive assistants.
+        active_use_terms = ("advice or coaching", "advice or coach", "in-the-moment", "actively")
+        assert any(term in lowered for term in active_use_terms), (
+            f"{path} is missing an active-use framing term "
+            f"(one of {active_use_terms!r})"
+        )
 
 
 def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
-    """Public docs must state two things plainly:
+    """Public docs must state three things plainly:
 
     1. The product purpose — this is a model-selection benchmark for a
        wearable assistant. Tested via per-file required phrases below.
-    2. The proxy scope — the camera channel uses perceptual text
-       descriptions as a stand-in for real video, and real video is
-       explicitly outside what the benchmark measures.
+    2. The video-proxy scope — the camera channel uses perceptual
+       text descriptions as a stand-in for real video, and real video
+       is explicitly outside what the benchmark measures.
+    3. The audio-proxy scope — the user's spoken turns are
+       represented as text transcripts, not raw audio. Acoustic
+       grounding, speaker attribution, and ambient audio cues are
+       out of scope.
 
-    Per-file phrase sets are used because the docs split these two
+    Per-file phrase sets are used because the docs split these
     topics across different surfaces (README and card lead with
     purpose; notes and spec carry the proxy/non-goal language).
     """
@@ -105,12 +121,16 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
             "scene description",
             "as a proxy",
             "real video",
+            "text transcripts",
+            "raw audio",
         ),
         "docs/benchmark_spec.md": (
             "wearable",
             "scene description",
             "real video",
             "does not measure",
+            "text transcripts",
+            "raw audio",
         ),
         "docs/benchmark_notes.md": (
             "wearable",
@@ -119,6 +139,8 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
             "as a proxy",
             "real video",
             "does not measure",
+            "text transcripts",
+            "raw audio",
         ),
         "docs/benchmark_card.html": (
             "wearable",
@@ -127,6 +149,7 @@ def test_public_docs_state_product_purpose_and_transcript_proxy_scope() -> None:
             "scene description",
             "as a proxy",
             "real video",
+            "text transcripts",
         ),
     }
     for path, phrases in purpose_and_proxy.items():

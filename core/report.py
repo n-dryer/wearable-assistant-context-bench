@@ -33,11 +33,39 @@ Expected per-trial result dict keys:
 from __future__ import annotations
 
 import json
+import math
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-from core.statistics import wilson_ci
+
+# 95% normal-distribution z-score for Wilson score interval
+WILSON_Z_95: float = 1.959964
+
+
+def wilson_interval(passed: int, total: int, z: float = WILSON_Z_95) -> tuple[float, float, float] | None:
+    """Wilson score interval for a binomial proportion.
+
+    Returns ``(rate, lo, hi)`` or ``None`` when ``total == 0``. The
+    Wilson interval is preferred over the normal approximation for
+    small N because it stays within [0, 1] and degrades gracefully
+    at extremes.
+    """
+    if total <= 0:
+        return None
+    rate = passed / total
+    denom = 1.0 + (z * z) / total
+    center = (rate + (z * z) / (2 * total)) / denom
+    margin = (
+        z
+        * math.sqrt(
+            (rate * (1.0 - rate) / total) + (z * z) / (4 * total * total)
+        )
+        / denom
+    )
+    lo = max(0.0, center - margin)
+    hi = min(1.0, center + margin)
+    return rate, lo, hi
 
 
 POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
@@ -50,14 +78,11 @@ AUXILIARY_POLICY_NOTE: str = (
 BENCHMARK_NAME: str = "Wearable Assistant Context Benchmark"
 BENCHMARK_VERSION: str = "v1"
 BENCHMARK_LABEL: str = (
-    "context-tracking benchmark for multimodal wearable assistants"
+    "context-tracking benchmark for multimodal AI assistants used "
+    "actively for advice or coaching (wearable or handheld)"
 )
+SCHEMA_REVISION: int = 3
 DEFAULT_RANKING_CONDITION: str = "baseline"
-
-# Kept for backwards compatibility with older call sites and tests.
-BENCHMARK_SLICE: str = BENCHMARK_LABEL
-DIAGNOSTIC_POLICY_NOTE: str = AUXILIARY_POLICY_NOTE
-UNSCORED_POLICY_NOTE: str = AUXILIARY_POLICY_NOTE
 
 
 @dataclass
@@ -160,12 +185,16 @@ def class_accuracy_under_condition(
     return out
 
 
-def _class_counts_under_condition(
+def class_accuracy_with_ci_under_condition(
     results: list[dict],
     condition: str,
-) -> dict[str, dict[str, int]]:
-    """Return per-class trial counts (k passed, n total) under one condition."""
-    out: dict[str, dict[str, int]] = {}
+) -> dict[str, tuple[float, float, float] | None]:
+    """Per-class Turn 2 accuracy under one condition, with 95% Wilson CIs.
+
+    Returns a dict keyed on `current` and `prior` mapping to
+    ``(rate, lo, hi)`` tuples or ``None`` when no trials exist.
+    """
+    out: dict[str, tuple[float, float, float] | None] = {}
     for policy in SCORED_POLICIES:
         total = 0
         passed = 0
@@ -177,7 +206,7 @@ def _class_counts_under_condition(
             total += 1
             if bool(trial["turn_2_passed"]):
                 passed += 1
-        out[policy] = {"k": passed, "n": total}
+        out[policy] = wilson_interval(passed, total)
     return out
 
 
@@ -203,6 +232,48 @@ def balanced_accuracy_under_condition(
     return sum(usable) / len(usable)
 
 
+def balanced_accuracy_with_ci_under_condition(
+    results: list[dict],
+    condition: str,
+    z: float = WILSON_Z_95,
+) -> tuple[float, float, float] | None:
+    """Balanced accuracy with a 95% normal-approximation CI on the mean.
+
+    The mean of two independent binomial proportions has variance
+    ``(p1(1-p1)/n1 + p2(1-p2)/n2) / 4``. We use the normal approximation
+    on that variance to bound the balanced-accuracy point estimate.
+    Per-class point estimates use the same formulas as
+    :func:`class_accuracy_under_condition`.
+
+    Returns ``(mean, lo, hi)`` or ``None`` if any scored class has no
+    trials in this condition.
+    """
+    n_passed: dict[str, int] = {}
+    n_total: dict[str, int] = {}
+    for policy in SCORED_POLICIES:
+        n_passed[policy] = 0
+        n_total[policy] = 0
+    for trial in results:
+        if trial["condition"] != condition:
+            continue
+        policy = trial["target_context"]
+        if policy not in SCORED_POLICIES:
+            continue
+        n_total[policy] += 1
+        if bool(trial["turn_2_passed"]):
+            n_passed[policy] += 1
+    if any(n_total[p] == 0 for p in SCORED_POLICIES):
+        return None
+    rates = {p: n_passed[p] / n_total[p] for p in SCORED_POLICIES}
+    mean = sum(rates.values()) / len(rates)
+    var_sum = sum(
+        rates[p] * (1.0 - rates[p]) / n_total[p] for p in SCORED_POLICIES
+    )
+    se = math.sqrt(var_sum) / len(SCORED_POLICIES)
+    margin = z * se
+    return mean, max(0.0, mean - margin), min(1.0, mean + margin)
+
+
 def simulated_repair_rate_by_condition(
     results: list[dict],
 ) -> dict[str, RepairRateCell]:
@@ -223,6 +294,85 @@ def simulated_repair_rate_by_condition(
                 repaired += 1
         out[condition] = RepairRateCell(repaired=repaired, failures=failures)
     return out
+
+
+def cohens_kappa(labels_a: list[str], labels_b: list[str]) -> float | None:
+    """Cohen's kappa for two equal-length sequences of categorical labels.
+
+    Returns ``None`` when fewer than 2 paired observations are present
+    or when expected agreement equals 1 (single-class degenerate case,
+    where kappa is undefined).
+    """
+    if len(labels_a) != len(labels_b):
+        raise ValueError(
+            f"cohens_kappa requires equal-length sequences; "
+            f"got {len(labels_a)} vs {len(labels_b)}"
+        )
+    n = len(labels_a)
+    if n < 2:
+        return None
+    classes = set(labels_a) | set(labels_b)
+    matches = sum(1 for a, b in zip(labels_a, labels_b) if a == b)
+    p_observed = matches / n
+    p_expected = 0.0
+    for c in classes:
+        marginal_a = sum(1 for x in labels_a if x == c) / n
+        marginal_b = sum(1 for x in labels_b if x == c) / n
+        p_expected += marginal_a * marginal_b
+    if p_expected >= 1.0:
+        return None
+    return (p_observed - p_expected) / (1.0 - p_expected)
+
+
+def inter_judge_agreement_summary(
+    results: list[dict],
+) -> dict[str, Any] | None:
+    """Compute Cohen's kappa across primary and ranking-judge labels.
+
+    Returns ``None`` when no trials carry the optional
+    ``turn_2_ranking_judge_policy`` field. Otherwise returns a dict
+    with ``kappa``, ``observed_agreement``, ``trials``, and per-class
+    ``confusion`` counts.
+    """
+    paired_a: list[str] = []
+    paired_b: list[str] = []
+    for trial in results:
+        primary = trial.get("turn_2_judge_policy")
+        ranking = trial.get("turn_2_ranking_judge_policy")
+        if primary is None or ranking is None:
+            continue
+        paired_a.append(str(primary))
+        paired_b.append(str(ranking))
+    if not paired_a:
+        return None
+    confusion: dict[tuple[str, str], int] = defaultdict(int)
+    for a, b in zip(paired_a, paired_b):
+        confusion[(a, b)] += 1
+    matches = sum(1 for a, b in zip(paired_a, paired_b) if a == b)
+    return {
+        "kappa": cohens_kappa(paired_a, paired_b),
+        "observed_agreement": matches / len(paired_a),
+        "trials": len(paired_a),
+        "confusion": {f"{a}->{b}": count for (a, b), count in confusion.items()},
+    }
+
+
+def inter_judge_disagreement_by_scenario(
+    results: list[dict],
+) -> dict[str, int]:
+    """Per-scenario count of trials where the two judges disagreed.
+
+    Only counts trials that carry both judge labels.
+    """
+    counts: dict[str, int] = defaultdict(int)
+    for trial in results:
+        primary = trial.get("turn_2_judge_policy")
+        ranking = trial.get("turn_2_ranking_judge_policy")
+        if primary is None or ranking is None:
+            continue
+        if primary != ranking:
+            counts[trial["scenario_id"]] += 1
+    return dict(counts)
 
 
 def code_judge_disagreement_by_scenario(results: list[dict]) -> dict[str, int]:
@@ -308,14 +458,21 @@ def render_findings_markdown(
     disagreements = code_judge_disagreement_by_scenario(results)
     matrix = scenario_by_condition_matrix(results)
     conditions = _sorted_conditions(results)
+    inter_judge_summary = inter_judge_agreement_summary(results)
+    inter_judge_disagreements = (
+        inter_judge_disagreement_by_scenario(results)
+        if inter_judge_summary is not None
+        else {}
+    )
 
-    primary_score = balanced_accuracy_under_condition(
+    primary_score_ci = balanced_accuracy_with_ci_under_condition(
         results, ranking_condition
     )
-    class_accs = class_accuracy_under_condition(results, ranking_condition)
-    class_counts = _class_counts_under_condition(results, ranking_condition)
-    per_condition_balanced = {
-        condition: balanced_accuracy_under_condition(results, condition)
+    class_accs_ci = class_accuracy_with_ci_under_condition(
+        results, ranking_condition
+    )
+    per_condition_balanced_ci = {
+        condition: balanced_accuracy_with_ci_under_condition(results, condition)
         for condition in conditions
     }
 
@@ -327,12 +484,11 @@ def render_findings_markdown(
         "## Benchmark summary",
         "",
         _render_benchmark_summary(
-            benchmark_slice=BENCHMARK_LABEL,
+            benchmark_label=BENCHMARK_LABEL,
             ranking_condition=ranking_condition,
-            primary_score=primary_score,
-            class_accs=class_accs,
-            per_condition_balanced=per_condition_balanced,
-            class_counts=class_counts,
+            primary_score_ci=primary_score_ci,
+            class_accs_ci=class_accs_ci,
+            per_condition_balanced_ci=per_condition_balanced_ci,
         ),
         "",
         "## Per-class pass rate by condition",
@@ -346,6 +502,10 @@ def render_findings_markdown(
         "## Code-judge disagreement by scenario",
         "",
         _render_disagreement_list(disagreements),
+        "",
+        "## Inter-judge agreement (cross-LLM)",
+        "",
+        _render_inter_judge_section(inter_judge_summary, inter_judge_disagreements),
         "",
         "## Scenario-by-condition matrix",
         "",
@@ -361,44 +521,43 @@ def render_findings_markdown(
 
 def _render_benchmark_summary(
     *,
-    benchmark_slice: str,
+    benchmark_label: str,
     ranking_condition: str,
-    primary_score: float | None,
-    class_accs: dict[str, float | None],
-    per_condition_balanced: dict[str, float | None],
-    class_counts: dict[str, dict[str, int]] | None = None,
+    primary_score_ci: tuple[float, float, float] | None,
+    class_accs_ci: dict[str, tuple[float, float, float] | None],
+    per_condition_balanced_ci: dict[str, tuple[float, float, float] | None],
 ) -> str:
     def _pct(value: float | None) -> str:
         if value is None:
             return "n/a"
         return f"{value * 100:.1f}%"
 
+    def _ci(triple: tuple[float, float, float] | None) -> str:
+        if triple is None:
+            return "n/a"
+        rate, lo, hi = triple
+        return f"{_pct(rate)} (95% CI {_pct(lo)}–{_pct(hi)})"
+
     lines: list[str] = [
-        f"- **Benchmark**: {benchmark_slice}",
+        f"- **Benchmark**: {benchmark_label}",
         f"- **Default comparison condition**: `{ranking_condition}`",
-        f"- **Primary score** (balanced Turn 2 accuracy): **{_pct(primary_score)}**",
+        f"- **Primary score** (balanced Turn 2 accuracy): **{_ci(primary_score_ci)}**",
         "- **How to read this run**: compare candidate models on the "
         f"`{ranking_condition}` score below; treat the other conditions as "
-        "diagnostic sensitivity checks.",
-        f"- **Per-class accuracy under `{ranking_condition}`** (95% Wilson CI):",
+        "diagnostic sensitivity checks. CIs are 95% Wilson per class and "
+        "95% normal-approximation on the balanced mean.",
+        f"- **Per-class accuracy under `{ranking_condition}`**:",
     ]
     for policy in SCORED_POLICIES:
-        acc = class_accs.get(policy)
-        ci_str = ""
-        if acc is not None and class_counts is not None:
-            counts = class_counts.get(policy)
-            if counts:
-                ci = wilson_ci(counts["k"], counts["n"])
-                ci_str = f" [{ci.lower * 100:.1f}–{ci.upper * 100:.1f}]"
-        lines.append(f"    - `{policy}`: {_pct(acc)}{ci_str}")
+        lines.append(f"    - `{policy}`: {_ci(class_accs_ci.get(policy))}")
     lines.append("")
     lines.append("Condition sensitivity (balanced Turn 2 accuracy):")
     lines.append("")
-    lines.append("| Condition | Balanced Turn 2 accuracy |")
+    lines.append("| Condition | Balanced Turn 2 accuracy (95% CI) |")
     lines.append("| --- | --- |")
-    for condition, score in per_condition_balanced.items():
+    for condition, ci in per_condition_balanced_ci.items():
         marker = " (default)" if condition == ranking_condition else ""
-        lines.append(f"| {condition}{marker} | {_pct(score)} |")
+        lines.append(f"| {condition}{marker} | {_ci(ci)} |")
     return "\n".join(lines)
 
 
@@ -421,17 +580,26 @@ def _render_policy_grid(
                     cells.append("-")
                 else:
                     cells.append(AUXILIARY_POLICY_NOTE)
-            elif cell.rate is None:
+                continue
+            if cell.rate is None:
                 cells.append("-")
-            else:
-                pct = cell.rate * 100 if cell.rate is not None else 0.0
+                continue
+            ci = wilson_interval(cell.passed, cell.total)
+            pct = cell.rate * 100
+            if ci is None:
                 cells.append(f"{pct:.1f}% ({cell.passed}/{cell.total})")
+            else:
+                _, lo, hi = ci
+                cells.append(
+                    f"{pct:.1f}% [95% CI {lo * 100:.1f}–{hi * 100:.1f}] "
+                    f"({cell.passed}/{cell.total})"
+                )
         rows.append("| " + " | ".join(cells) + " |")
     return "\n".join(rows)
 
 
 def _render_repair_table(repair: dict[str, RepairRateCell]) -> str:
-    header = "| Condition | Repair rate (repaired / failures) |"
+    header = "| Condition | Repair rate (95% CI) |"
     separator = "| --- | --- |"
     rows = [header, separator]
     for condition, cell in repair.items():
@@ -439,9 +607,17 @@ def _render_repair_table(repair: dict[str, RepairRateCell]) -> str:
             rows.append(f"| {condition} | no Turn 2 failures |")
             continue
         pct = cell.rate * 100 if cell.rate is not None else 0.0
-        rows.append(
-            f"| {condition} | {pct:.1f}% ({cell.repaired} / {cell.failures}) |"
-        )
+        ci = wilson_interval(cell.repaired, cell.failures)
+        if ci is None:
+            rows.append(
+                f"| {condition} | {pct:.1f}% ({cell.repaired} / {cell.failures}) |"
+            )
+        else:
+            _, lo, hi = ci
+            rows.append(
+                f"| {condition} | {pct:.1f}% [95% CI {lo * 100:.1f}–{hi * 100:.1f}] "
+                f"({cell.repaired} / {cell.failures}) |"
+            )
     return "\n".join(rows)
 
 
@@ -453,6 +629,47 @@ def _render_disagreement_list(disagreements: dict[str, int]) -> str:
         lines.append(
             f"- {scenario_id}: {disagreements[scenario_id]} trial(s) "
             "with code/judge disagreement"
+        )
+    return "\n".join(lines)
+
+
+def _render_inter_judge_section(
+    summary: dict[str, Any] | None,
+    disagreements: dict[str, int],
+) -> str:
+    """Render the cross-LLM inter-judge agreement section.
+
+    When no ranking-judge labels are present, render a placeholder
+    explaining that this run did not pair a second judge.
+    """
+    if summary is None:
+        return (
+            "_No ranking-judge labels in this run. To enable cross-LLM "
+            "inter-judge agreement, pass `--ranking-judge-family` to the "
+            "runner so every trial is also labeled by a fixed second judge._"
+        )
+    kappa = summary["kappa"]
+    observed = summary["observed_agreement"]
+    trials = summary["trials"]
+    lines: list[str] = [
+        f"- **Trials with both judge labels**: {trials}",
+        f"- **Observed agreement**: {observed * 100:.1f}%",
+    ]
+    if kappa is None:
+        lines.append("- **Cohen's kappa**: undefined (single-class degenerate case)")
+    else:
+        lines.append(f"- **Cohen's kappa**: {kappa:.3f}")
+    lines.append("")
+    lines.append("Per-scenario disagreement counts (where the two judges differ):")
+    if not disagreements:
+        lines.append("")
+        lines.append("_No disagreements recorded._")
+        return "\n".join(lines)
+    lines.append("")
+    for scenario_id in sorted(disagreements.keys()):
+        lines.append(
+            f"- {scenario_id}: {disagreements[scenario_id]} trial(s) where "
+            "primary and ranking judges disagreed"
         )
     return "\n".join(lines)
 

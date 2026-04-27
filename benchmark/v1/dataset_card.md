@@ -1,52 +1,54 @@
 # Dataset Card: Wearable Assistant Context Benchmark v1
 
-## Dataset description
+## Dataset summary
 
-The Wearable Assistant Context Benchmark is a context-tracking
-evaluation set for multimodal wearable assistants. It tests one
-specific failure mode: when the user's situation changes between
-turns, does the model respond from the current situational evidence,
-or does it stay anchored to the prior context?
+A context-tracking evaluation set for multimodal AI assistants used
+actively for advice or coaching (wearable or handheld). Each
+scenario is a three-turn conversation with a deliberate context
+shift between Turn 1 and Turn 2 visible only in the camera channel.
+The model must integrate scene descriptions with deictic user speech
+to determine which context the question refers to.
 
-Each scenario is a three-turn conversation with a deliberate context
-shift between Turn 1 and Turn 2. The shift is visible only in the
-camera channel; the user does not announce it in speech. The model
-has to integrate scene descriptions with deictic user speech to
-determine which context the question refers to. Scene descriptions
-are what a vision system would say about a camera frame: shape,
-material, color, motion, position, without naming the object
-directly.
+For product motivation and quickstart, see
+[`README.md`](../../README.md). For the full benchmark contract, see
+[`docs/benchmark_spec.md`](../../docs/benchmark_spec.md).
 
-This is not a coaching benchmark. It does not measure advice quality,
-domain expertise, or any aspect of the response other than which
-context the model grounded in. See `docs/benchmark_notes.md` for the
-full limitations list.
+## Supported tasks
+
+- **Reference resolution under cross-turn context shift.** The
+  primary task. The judge labels each Turn 2 response as `current`,
+  `prior`, `clarify`, or `abstain`.
+- **Model selection** for deployed multimodal coaching assistants.
+  Use score deltas between candidate models on the same release as
+  the comparison signal.
 
 ## Languages
 
 English.
 
-## Intended use
+## Dataset structure
 
-Model selection for multimodal wearable assistants. Specifically,
-comparing candidate models on context tracking under situational
-change between turns.
+### Data files
 
-## Data fields
+The bank ships in two split groups:
 
-See [`docs/schema.md`](../../docs/schema.md) for the full field
-reference. The bank consists of two files:
+| Group | Files | Count | Purpose |
+|---|---|---|---|
+| Canonical | `scenarios.json`, `expected_answers.json` | 50 | Frozen primary bank. The `baseline`, `baseline-alt`, `ablation-no-camera`, `baseline-qwen-cross-family`, and `baseline-deictic-repair` runs evaluate against this. |
+| Adversarial | `scenarios_adversarial.json`, `expected_answers_adversarial.json` | 20 | Distractor-rich scenarios for ceiling-effect probing. Run via `--pack adversarial`. |
 
-- `scenarios.json`: a flat array of 50 scenario objects with audio
-  and camera channel content, plus metadata
-- `expected_answers.json`: a dict keyed by `scenario_id`, each value
-  containing four answer lists used by the judge
+There is no train/val/test split. The bank is an evaluation set; all
+70 scenarios are intended for inference and labeling, not training.
 
-The candidate model receives the audio and camera channels; the
-judge additionally receives the answer lists and a ground-truth
-section naming the actual objects in frame.
+### Data fields
 
-## Statistics
+See [`../../docs/schema.md`](../../docs/schema.md) for the full field
+reference. The candidate model receives the audio (text-transcript)
+and camera (scene-description) channels; the judge additionally
+receives the answer lists and a ground-truth section naming the
+actual objects in frame.
+
+## Statistics (canonical bank)
 
 | Statistic | Value |
 |---|---|
@@ -88,28 +90,29 @@ section naming the actual objects in frame.
 The bank spans 16 distinct activity domains, including kitchen,
 workshop, garden, art and craft, automotive, electronics, sports,
 fitness, music, household, office, navigation, finance, and
-communication. Coverage is broad but shallow. The benchmark does not
-measure domain expertise.
+communication. Coverage is broad but shallow.
 
-## Data creation
+## Curation rationale
 
-The 50 scenarios were authored from scratch following the rules in
-[`docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
+The 50 canonical scenarios were authored from scratch following the
+rules in
+[`../../docs/scenario_authoring_rules.md`](../../docs/scenario_authoring_rules.md).
 Each scenario was written within one of the eight shift-type
-categories and validated against the six checks below before
-inclusion.
+categories and validated against six checks before inclusion. The
+20 adversarial scenarios were authored as a separate pack to
+discriminate at the top of the score range; same authoring rules,
+same validator.
 
-The audio channel (user speech) uses natural deictic language without
-naming objects, describing visible properties, or announcing context
-shifts. The camera channel (image descriptions) describes scene-level
-features: shape, material, color, motion, position, without object
-names or technique evaluation. The ground-truth channel (answer keys)
-is judge-only and uses object names, technique vocabulary, and state
-descriptors freely.
+The audio channel uses natural deictic language without naming
+objects, describing visible properties, or announcing context shifts.
+The camera channel describes scene-level features (shape, material,
+color, motion, position) without object names or technique
+evaluation. The ground-truth channel (judge-only) uses object names,
+technique vocabulary, and state descriptors freely.
 
-## Validation
+## Annotations and validation
 
-Every scenario passed six validation checks before being committed:
+Every scenario passes six validation checks before being committed:
 
 1. **Token-leakage scan.** Programmatic word-boundary check that no
    `current_answers` or `prior_answers` token appears in any
@@ -125,71 +128,106 @@ Every scenario passed six validation checks before being committed:
    to a fresh reader.
 5. **Semantic-leakage isolation test.** Semantic check that the
    Turn 2 image plus Turn 2 user speech alone (without Turn 1
-   context) is not sufficient to answer the question correctly. If a
-   scenario passes without Turn 1 context, it is not actually testing
-   context tracking.
+   context) is not sufficient to answer the question correctly.
 6. **Cross-scenario duplication check.** Programmatic textual and
    structural overlap scan to surface near-duplicates.
 
-Checks 1, 2, 3, and 6 are run on every PR via
-`scripts/validate_scenarios.py`. Checks 4 and 5 are run during
+Checks 1, 2, 3, and 6 run on every PR via
+`scripts/validate_scenarios.py`. Checks 4 and 5 run during
 authoring.
 
-## What this benchmark does not measure
+## v1 release runs
 
-The benchmark is narrow on purpose. The following are out of scope by
-design:
+v1 publishes six runs across the canonical and adversarial packs.
+Each run's full `findings.md` includes the reproducibility manifest.
 
-- **Advice quality.** The judge does not check whether the response
-  is correct, safe, or domain-appropriate.
-- **Multi-turn dynamics.** The conversation is 3 turns. Long
-  conversations and branching dialogue are out of scope.
-- **Proactive coaching.** The benchmark only scores responses to
-  direct questions.
-- **Domain knowledge depth.** Coverage spans 16 domains but is broad
-  rather than deep.
-- **Latency, cost, audio perception, speaker attribution, addressee
-  detection, long-horizon memory.** All out of scope.
+| Run | Candidate | Judge | Pack | Primary (95% CI) |
+|---|---|---|---|---|
+| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
+| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | canonical 50 | 77.7% (71.3–84.0) |
+| `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | canonical 50 | 14.4% (9.1–19.7) |
+| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | canonical 50 | 54.2% (50.7–57.7) |
+| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
+| `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
-## Known v1 limitations and future work
+For the full per-class breakdown, see
+[`README.md#results`](../../README.md#results).
 
-These are real limitations of the v1 release that affect how the
-results should be interpreted. Future versions are expected to
-address them.
+### Methodology features exercised
 
-- **Repair-line style is named, not deictic.** The Turn 3 repair line
-  explicitly names both the right and the wrong objects. This
-  measures floor recoverability, not realistic user correction
-  behavior. Future versions may add deictic-only repair lines.
-- **Real video is approximated by scene descriptions in text.** The
-  camera channel uses text scene descriptions as a stand-in for
-  actual video frames. Validation against held-out video footage is
-  future work.
-- **Inter-annotator agreement is not measured.** All 50 scenarios
-  were written and reviewed by one person, against a written
-  checklist of authoring rules. Inter-annotator agreement is when
-  two or more people independently label the same item and you
-  measure how often they agree; it's the standard way to confirm
-  that labels reflect shared understanding rather than one person's
-  opinion. Multi-rater validation is future work.
-- **The v1 baseline run uses same-family judging.** The committed
-  baseline runs Gemini as both candidate and judge. Same-family
-  judging can introduce self-preference bias. A cross-family judge
-  run is recommended as the next baseline.
-- **Single-candidate baseline.** Only one candidate model has been
-  run. Multi-model comparison is future work.
-- **No camera channel ablation.** The contribution of the camera
-  channel to the primary score has not been quantified by running a
-  controlled with-camera vs. without-camera comparison.
-- **No formal variance estimation.** Multi-seed reruns to bound score
-  noise have not been performed. Treat score deltas under
-  approximately 3 percentage points with caution.
+- **Cross-family judging.** `baseline-qwen-cross-family` and
+  `adversarial`. The three Gemini canonical runs are same-family
+  (see Caveats).
+- **Fixed ranking judge** (`--ranking-judge-family`). Demonstrated
+  on `adversarial` with `claude-haiku-4.5`. Rolling out to all
+  candidates is a v1.0.x follow-up.
+- **Cross-LLM judge agreement.** Cohen's kappa = 0.443 on
+  `adversarial` (`gpt-4o-mini` vs `claude-haiku-4.5`).
+- **Camera-channel ablation.** `ablation-no-camera`. The 46.2 pp
+  drop from `baseline` is reported in
+  [`../../docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
+- **Deictic vs named repair anchors.** `baseline-deictic-repair`
+  pairs against `baseline` for Turn 3 recovery comparison.
+- **Adversarial subset.** 20 distractor-rich scenarios.
+- **Variance reporting.** 5 trials per cell, 95% Wilson CIs per
+  class, 95% normal-approximation CIs on the balanced mean.
+- **Static lockfile.** `MANIFEST.lock.json` pins asset hashes; CI
+  fails on drift.
 
-Score deltas between models on the same release matter more than
-absolute values.
+## Considerations for using the data
 
-For full discussion of these limitations, see
-[`docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
+### Out-of-scope by design
+
+The benchmark does not measure these and does not intend to:
+
+- **Coaching advice quality** (correctness, safety, domain
+  appropriateness)
+- **Multi-turn dynamics** beyond three turns
+- **Proactive coaching** (assistance offered without a direct
+  question)
+- **Domain expertise depth** (coverage spans 16 domains, broad not
+  deep)
+- **Latency, cost, serving characteristics**
+- **Speaker attribution, addressee detection, ambient audio**
+
+### Caveats on published v1 runs
+
+- **Same-family judging on three of four canonical runs.** API
+  budget across providers (OpenRouter, OpenAI direct, HF Inference
+  Providers Pro) was exhausted mid-effort, leaving Gemini-direct via
+  LiteLLM as the only viable transport. Gemini-Flash-Lite judging
+  Gemini-Flash-Lite (and Gemini-Flash) admits self-preference bias.
+  `baseline-qwen-cross-family` is the cross-family integrity
+  reference for the canonical bank.
+- **Two model-config families across v1.** Canonical four use
+  Gemini-direct + DashScope-International transports; `adversarial`
+  uses an OpenRouter setup. Each `findings.md` manifest carries
+  full identifiers.
+
+### v1.0.x follow-ups
+
+- Re-run the canonical bank with a single fixed ranking judge held
+  constant across all candidates so cross-candidate ranking is
+  apples-to-apples.
+- Re-run `adversarial` under the same Gemini setup as the canonical
+  bank so the model-config story across all six runs is consistent.
+
+### v2 follow-ups
+
+- **Human inter-annotator agreement.** v1 reports cross-LLM judge
+  agreement only. Human IAA on a 25% sample with Cohen's kappa is
+  the highest-priority v2 follow-up.
+- **Real-video validation.** The camera channel uses text scene
+  descriptions as a stand-in for actual video. Held-out video
+  validation on a representative sample is v2 work.
+- **Raw-audio validation.** v1 represents the user's spoken turns as
+  text transcripts.
+- **Beyond-5-trial multi-seed generalization.**
+- **Full omnimodal stack** (live audio in, real-time streaming,
+  voice-mode output, interruption handling).
+
+For score-interpretation guidance and a longer treatment, see
+[`../../docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
 
 ## License
 

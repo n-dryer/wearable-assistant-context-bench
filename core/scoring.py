@@ -4,22 +4,16 @@ These functions implement the deterministic half of the scoring flow.
 Callers combine the returned signals with a judge verdict
 (`core.llm_judge`) to reach a final pass/fail decision.
 
-`has_stale` is kept only as a deprecated compatibility alias for older
-callers. The preferred signal name is `has_prior`, which reflects that
-the response followed the earlier context. `score_response` still
-returns the deprecated `has_stale` keys so older code keeps working,
-but new transcript output should not surface them.
-
-The contrastive-pattern suppressor (see `_CONTRASTIVE_RE`) demotes
-`has_prior` to False when the response explicitly contrasts an earlier
-state with the current one. The pre-suppression value is preserved as
-`has_prior_raw` for audit trails.
+The signal `has_prior` reflects that the response followed the earlier
+context. The contrastive-pattern suppressor (see `_CONTRASTIVE_RE`)
+demotes `has_prior` to False when the response explicitly contrasts
+an earlier state with the current one. The pre-suppression value is
+preserved as `has_prior_raw` for audit trails.
 """
 
 from __future__ import annotations
 
 import re
-import warnings
 from functools import lru_cache
 
 import spacy
@@ -183,21 +177,6 @@ def has_prior(response: str, prior_answers: list[str]) -> bool:
     return fuzzy_match(response, prior_answers)
 
 
-def has_stale(response: str, stale_answers: list[str]) -> bool:
-    """Deprecated alias for `has_prior`. Emits `DeprecationWarning` on call.
-
-    Kept only so older callers and doc snippets continue to work. New
-    code should use `has_prior`.
-    """
-    warnings.warn(
-        "scoring.has_stale is deprecated; use scoring.has_prior "
-        "(the code signal now corresponds to the `prior` policy in v0.2).",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return has_prior(response, stale_answers)
-
-
 def score_response(
     response: str,
     current_answers: list[str],
@@ -239,8 +218,6 @@ def score_response(
             is_refusal (bool): Whether the response refuses or hedges.
             response_length_tokens_est (int): Approximate token count,
                 rounded.
-            has_stale (bool): Deprecated alias of `has_prior`.
-            has_stale_raw (bool): Deprecated alias of `has_prior_raw`.
     """
     has_current = fuzzy_match(response, current_answers)
     has_prior_raw = fuzzy_match(response, prior_answers)
@@ -262,6 +239,4 @@ def score_response(
         "has_abstain": has_abstain_value,
         "is_refusal": is_refusal,
         "response_length_tokens_est": response_length_tokens_est,
-        "has_stale": has_prior_value,
-        "has_stale_raw": has_prior_raw,
     }

@@ -53,30 +53,58 @@ def test_parse_verdict_rejects_unknown_policy() -> None:
         parse_verdict(raw)
 
 
-def test_parse_verdict_rejects_missing_json() -> None:
-    with pytest.raises(ValueError):
-        parse_verdict("no JSON object here")
+def test_parse_verdict_falls_back_to_abstain_when_no_json_or_label_line() -> None:
+    """Verbose prose with no JSON block and no `selected_policy:` line
+    falls back to abstain rather than guessing from a bare label word.
+
+    This is the v1.1 hardening: the previous heuristic scanned for the
+    last bare label word, which would flip on contrastive prose like
+    "uses prior context but I will select current."
+    """
+    verdict = parse_verdict("no JSON object here, just bare prose")
+    assert verdict.selected_policy == "abstain"
+    assert "no-verdict" in verdict.rationale.lower() or "fallback" in verdict.rationale.lower()
+
+
+def test_parse_verdict_does_not_flip_on_contrastive_prose() -> None:
+    """Verbose prose mentioning multiple labels but no explicit verdict
+    line falls back to abstain — the old heuristic would have returned
+    whichever label appeared last."""
+    raw = (
+        "Reasoning: the response discusses prior context briefly, but "
+        "ultimately grounds in the current frame.\n"
+        "(no JSON block, no selected_policy line)"
+    )
+    verdict = parse_verdict(raw)
+    assert verdict.selected_policy == "abstain"
+
+
+def test_parse_verdict_recovers_from_explicit_label_line() -> None:
+    """When the judge skips JSON but emits an explicit
+    `selected_policy: current` line, the parser recovers it."""
+    raw = (
+        "Reasoning: the response describes the new frame.\n"
+        "selected_policy: current"
+    )
+    verdict = parse_verdict(raw)
+    assert verdict.selected_policy == "current"
+    assert "recovered" in verdict.rationale.lower()
 
 
 def test_parse_verdict_falls_back_on_malformed_json() -> None:
-    """Malformed JSON inside a {...} block falls back to heuristic
-    label scanning so the runner doesn't abort on a flaky judge response.
-    The label word `prior` in the raw text drives the fallback policy."""
+    """Malformed JSON inside a {...} block (e.g. stray escape) falls
+    through to the strict label-line check; if neither produces a
+    label, the parser returns abstain."""
     verdict = parse_verdict('{"selected_policy": "prior", "rationale": }')
-    assert verdict.selected_policy == "prior"
-    assert "fallback" in verdict.rationale.lower()
+    # No valid JSON, no explicit selected_policy line -> abstain.
+    assert verdict.selected_policy == "abstain"
 
 
 def test_parse_verdict_falls_back_to_abstain_when_malformed_json_lacks_label_word() -> None:
-    """Malformed JSON inside a {...} block with no label words anywhere
-    falls back to abstain so the runner doesn't abort.
-
-    The regex only matches when the block contains the literal
-    `"selected_policy"`, so we include that key in the raw input but
-    leave the value malformed."""
+    """Malformed JSON with no recoverable label line returns abstain
+    so the runner doesn't abort."""
     verdict = parse_verdict('{"selected_policy": , "rationale": }')
     assert verdict.selected_policy == "abstain"
-    assert "fallback" in verdict.rationale.lower()
 
 
 def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
@@ -104,12 +132,32 @@ def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
         ("openai/gpt-4.1-mini", "openai"),
         ("openrouter/openai/gpt-4.1-mini", "openai"),
         ("gpt-4.1-mini", "openai"),
+        # HuggingFace Inference Providers routing.
+        # Closed-family models served via HF route through to the closed family.
+        ("huggingface/together/openai/gpt-oss-120b", "openai"),
+        ("huggingface/fireworks-ai/openai/gpt-oss-20b", "openai"),
+        # Open-weights candidates (Llama, Qwen, Mistral, etc.) return
+        # None — caller must pass --judge-family explicitly.
+        ("huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct", None),
+        ("huggingface/together/meta-llama/Llama-3.2-11B-Vision-Instruct", None),
+        ("huggingface/fireworks-ai/Qwen/Qwen2.5-VL-72B-Instruct", None),
         ("something-unknown", None),
         ("", None),
     ],
 )
 def test_infer_candidate_family(model_id: str, expected: str | None) -> None:
     assert infer_candidate_family(model_id) == expected
+
+
+def test_resolve_judge_family_auto_errors_for_open_hf_candidate() -> None:
+    """Open-weights HF candidates must be paired with an explicit
+    --judge-family, since the cross-family map only covers
+    Claude/Gemini/OpenAI today."""
+    with pytest.raises(ValueError, match="could not infer the candidate family"):
+        resolve_judge_family(
+            "auto",
+            "huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct",
+        )
 
 
 def test_resolve_judge_family_explicit_returns_requested() -> None:

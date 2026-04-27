@@ -28,10 +28,12 @@ KICKER = "v1 &middot; scenario bank"
 TITLE = "Wearable Assistant Context Benchmark"
 
 SUBTITLE = (
-    "A model-selection benchmark for wearable AI assistants. Tests "
-    "whether smart glasses update to <strong>current context</strong> "
-    "instead of staying anchored to <strong>prior context</strong> as "
-    "the user's point-of-view changes between turns."
+    "A model-selection benchmark for multimodal AI assistants used "
+    "actively for advice or coaching (wearable or handheld), with "
+    "audio/video/text input and audio/text output. Tests whether the "
+    "assistant updates to <strong>current context</strong> instead "
+    "of staying anchored to <strong>prior context</strong> as the "
+    "user's situation changes between turns."
 )
 
 HERO_BADGES = [
@@ -41,10 +43,12 @@ HERO_BADGES = [
 
 PRODUCT_PROBLEM_PARAGRAPHS = [
     (
-        "Wearable AI fails if users must constantly narrate their "
-        "changing environment. To be frictionless, smart glasses "
-        "must silently track the user's point-of-view as they move, "
-        "look around, or swap objects."
+        "An AI assistant used in-the-moment for advice or coaching "
+        "fails if the user must constantly restate what they're "
+        "looking at, holding, or referring to. To be frictionless "
+        "(wearable or handheld), the assistant must silently track "
+        "the user's situational context as they move, look around, "
+        "or swap objects."
     ),
     "Examples:",
 ]
@@ -94,10 +98,13 @@ THREE_CHANNEL_INTRO = (
 THREE_CHANNEL_BULLETS = [
     (
         "<strong>Audio.</strong> User speech "
-        "(<code>turn_1_user</code>, <code>turn_2_user</code>). Natural "
-        "phrasing, with references that depend on the scene; the user "
-        "never names the object outright or announces the shift. "
-        "Visible to candidate and judge."
+        "(<code>turn_1_user</code>, <code>turn_2_user</code>). "
+        "Represented as text transcripts in v1, not raw audio; "
+        "acoustic grounding, speaker attribution, and ambient audio "
+        "cues are out of scope. Natural phrasing, with references "
+        "that depend on the scene; the user never names the object "
+        "outright or announces the shift. Visible to candidate and "
+        "judge."
     ),
     (
         "<strong>Video.</strong> Scene descriptions "
@@ -210,17 +217,22 @@ REPO_LINKS = [
 ]
 
 RESULTS_METRIC = {
-    "title": "v1 results: 4 runs published",
+    "title": "v1 results: 6 runs, 50 + 20 scenarios",
     "body": (
-        "Cross-family judging baselines plus a video ablation. "
-        "Run A: <code>gemini-2.5-flash-lite</code> candidate + "
-        "<code>gpt-4o-mini</code> judge: <strong>92.8%</strong>. "
-        "Run B: <code>gpt-4o-mini</code> candidate + "
-        "<code>gemini-2.5-flash-lite</code> judge: <strong>100.0%</strong>. "
-        "Run C: same as Run A with the video input hidden "
-        "(<code>--no-camera</code> flag): <strong>7.2%</strong>. The "
-        "85.6 percentage point gap between Run A and Run C is the "
-        "video channel's contribution. Full results table at "
+        "Camera ablation: <code>baseline</code> 60.6% (CI 54.1&ndash;67.1) "
+        "&rarr; <code>ablation-no-camera</code> 14.4% (CI 9.1&ndash;19.7). "
+        "A <strong>46.2 pp drop</strong> when the camera description is "
+        "removed. The model relies heavily on visual input and can't "
+        "recover the answers from the user's words alone. "
+        "<code>baseline-alt</code> (Gemini-Flash) 77.7%; "
+        "<code>baseline-qwen-cross-family</code> (Qwen3-VL-Plus + "
+        "Gemini judge) 54.2% with <code>current</code> 100% / "
+        "<code>prior</code> 8.3%, showing the model grounds in the "
+        "latest frame and struggles to refer back. Deictic-repair "
+        "ablation: deictic gesture-style repairs recover 100% of "
+        "misses where they apply; named repairs recover 30% of misses "
+        "on harder scenarios. Adversarial pack 67.3% with cross-LLM "
+        "agreement &kappa;=0.443. Full table at "
         "<a href=\"https://n-dryer.github.io/wearable-assistant-context-bench/\">"
         "n-dryer.github.io/wearable-assistant-context-bench</a>."
     ),
@@ -228,11 +240,13 @@ RESULTS_METRIC = {
 
 FOOTER_PARAGRAPH = (
     "This benchmark supports a practical model-selection decision "
-    "for a live wearable assistant. It is not a general multimodal "
-    "benchmark. A model that fails it is unlikely to be viable as a "
-    "wearable assistant; a model that passes still needs separate "
-    "evaluation for advice quality, real video, latency, and "
-    "everything else outside the context-tracking question."
+    "for a live multimodal AI assistant the user is actively engaging "
+    "with for advice or coaching (wearable or handheld). It is not a "
+    "general multimodal benchmark. A model that fails it cannot serve "
+    "as an in-the-moment multimodal assistant; a model that passes "
+    "still needs separate evaluation for advice quality, real video, "
+    "latency, and everything else outside the context-tracking "
+    "question."
 )
 
 

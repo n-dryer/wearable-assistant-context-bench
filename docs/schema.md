@@ -4,9 +4,10 @@ Field definitions for `benchmark/v1/scenarios.json` and
 `benchmark/v1/expected_answers.json`.
 
 The benchmark uses a three-channel design. The candidate model sees two
-of these channels: the audio (user speech) and the camera (image
-descriptions). The third channel, ground truth answers, is visible
-only to the judge.
+of these channels: the audio (user speech, represented as text
+transcripts in v1, not raw audio) and the camera (image descriptions,
+represented as scene-description text, not real video frames). The
+third channel, ground truth answers, is visible only to the judge.
 
 For the rules that govern how each channel is written, see
 [scenario_authoring_rules.md](scenario_authoring_rules.md).
@@ -31,7 +32,8 @@ A flat JSON array. Each element is a scenario object.
 | `turn_1_user` | string | yes | First user message. Natural speech only. Must not narrate visible objects or evaluate technique. | `"How do I get more torque on this?"` |
 | `turn_2_image` | string or null | yes | Camera description at the moment Turn 2 is spoken. Different from `turn_1_image` (this is where the context shift becomes visible). | `"Hand wrapped around a wooden handle..."` |
 | `turn_2_user` | string | yes | Second user message after the context change. Natural follow-up. Must not announce the shift. | `"Am I doing this right?"` |
-| `turn_3_repair_anchor` | string | yes | Repair prompt fired after a Turn 2 miss. Names the intended frame explicitly. | `"I mean the hammer I'm holding now."` |
+| `turn_3_repair_anchor` | string | yes | Named repair prompt fired after a Turn 2 miss. Canonical floor metric: maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
+| `turn_3_repair_anchor_deictic` | string or null | no | Deictic-only repair prompt for visible-referent `current`-target scenarios. Used when the runner is invoked with `--repair-style deictic`. Pure spatial/temporal pronouns ("this", "what I'm holding now") with no object names. Null for scenarios where a deictic gesture cannot resolve the reference (`absent_referent`, `pre_conversation_recall`, or `target_context != current`); the runner falls back to the named anchor in those cases. | `"I mean this thing in my hand right now."` |
 | `notes` | string | no | Authoring commentary. Not used by the runner. | `"Object swap mid-task; Turn 2 deictic."` |
 
 ### target_context values
@@ -94,3 +96,33 @@ Scoring is deterministic substring containment with word-boundary
 matching: `re.search(r'\b<token>\b', response, re.IGNORECASE)`. See
 [`docs/benchmark_spec.md`](benchmark_spec.md) for the full scoring
 rules.
+
+---
+
+## Terminology notes
+
+Centralized definitions for terms used throughout the docs:
+
+- **Shift type** (stored as `cue_type`). Scenario category describing
+  the shape of the context shift between Turn 1 and Turn 2. The 8
+  values are listed in
+  [`benchmark_spec.md`](benchmark_spec.md#the-8-shift-type-categories).
+- **Scene description.** What a vision system would say about a
+  camera frame: shape, material, color, motion, position. v1 uses
+  scene descriptions in text as a proxy for real video frames so
+  the benchmark can isolate context-tracking ability from variability
+  in the vision front-end.
+- **Deictic.** A word or phrase whose meaning depends on context
+  ("this", "that", "it", "here", "now"). The benchmark's user speech
+  is intentionally deictic so the model has to use the camera channel
+  and conversation history to resolve the reference.
+- **Named repair anchor.** Turn 3 repair line that names both the
+  intended and the wrong objects explicitly (`turn_3_repair_anchor`).
+  Floor recoverability metric: maximally specific user correction.
+- **Deictic repair anchor.** Turn 3 repair line using only deictic
+  pronouns ("no, this, what I'm holding now"; field
+  `turn_3_repair_anchor_deictic`). Realistic-recovery signal,
+  populated only on visible-referent `current`-target scenarios.
+- **Cross-family judge / fixed ranking judge.** See
+  [`benchmark_spec.md`](benchmark_spec.md#the-judge) and the
+  `--judge-family` / `--ranking-judge-family` runner flags.

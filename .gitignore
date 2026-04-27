@@ -13,10 +13,12 @@ dist/
 .vscode/
 .idea/
 benchmark/v1/runs/*
+!benchmark/v1/runs/adversarial/
 !benchmark/v1/runs/baseline/
-!benchmark/v1/runs/baseline-cross-family-a/
-!benchmark/v1/runs/baseline-cross-family-b/
-!benchmark/v1/runs/baseline-ablation-no-camera/
+!benchmark/v1/runs/baseline-alt/
+!benchmark/v1/runs/ablation-no-camera/
+!benchmark/v1/runs/baseline-qwen-cross-family/
+!benchmark/v1/runs/baseline-deictic-repair/
 EXECUTION_PLAN.md
 REBUILD_PLAN.md
 AGENTS.md

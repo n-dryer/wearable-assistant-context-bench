@@ -49,8 +49,14 @@ ground-truth access to evaluate which context the response reflects.
 
 ## Audio channel rules
 
-Write what a person would actually say to a wearable AI coach. The user
-does not narrate what the camera sees.
+In v1, the audio channel is represented as **text transcripts**, not
+raw audio. Write what a person would actually say to a multimodal AI
+assistant they're actively using for advice or coaching (wearable or
+handheld) as a transcript: the words a speech-to-text system would
+emit. Acoustic grounding, speaker attribution, addressee
+detection, and ambient audio cues are out of scope; do not attempt
+to encode prosody, pauses, or non-lexical sounds. The user does not
+narrate what the camera sees.
 
 ### Must
 
@@ -135,6 +141,50 @@ to be cryptic, only non-labeled.
 | "User holding a claw hammer above a nail." | "Hand wrapped around a long wooden handle. Heavy metal head at the top, one face flat, the other split into two curved prongs. Positioned above a nail head protruding from a pine board." |
 | "Correctly gripped Phillips-head screwdriver inserted into screw." | "Right hand gripping a slim metal tool with a crosshead tip, inserted into a fastener partially driven into a wood surface. Elbow raised, wrist rotated." |
 | "Pan of soup on the stove, looks done." | "Shallow metal pan on a gas burner. Liquid surface showing small bubbles around the edges. Steam rising visibly." |
+
+---
+
+## Repair anchor rules
+
+Every scenario must populate `turn_3_repair_anchor` (the named anchor).
+Visible-referent `current`-target scenarios additionally populate
+`turn_3_repair_anchor_deictic` (the deictic anchor).
+
+### Named anchor: canonical floor metric
+
+`turn_3_repair_anchor` names both the intended object and the wrong
+object explicitly: *"I mean the hammer I'm holding now, not the
+screwdriver from before."* This measures floor recoverability: given a
+maximally specific correction, can the model recover?
+
+The named anchor is required on every scenario.
+
+### Deictic anchor: realistic recovery signal
+
+`turn_3_repair_anchor_deictic` uses pure spatial or temporal deictic
+language: *"I mean this thing in my hand right now"* or *"I mean what
+I'm looking at."* It must not name either object.
+
+Populate the deictic field only when **all three** are true:
+
+1. `target_context == "current"` (the user is repairing toward the
+   present frame).
+2. `cue_type` ∈ {`object_in_hand`, `object_in_view`, `object_state`,
+   `screen_content`, `sequential_task`, `location`}. These are the
+   visible-referent categories where a real wearable's vision system
+   could resolve a deictic gesture.
+3. The Turn 2 referent is genuinely visible in the camera frame
+   (i.e. the deictic gesture is technically resolvable).
+
+Leave the field as `null` for `absent_referent`,
+`pre_conversation_recall`, and any scenario whose target is `prior`,
+`clarify`, or `abstain`. The runner falls back to the named anchor in
+those cases when invoked with `--repair-style deictic`.
+
+The deictic anchor must not contain object-name vocabulary from the
+`current_answers` or `prior_answers` lists. The validator's token
+leakage check applies to it the same way it applies to user-speech
+fields.
 
 ---
 

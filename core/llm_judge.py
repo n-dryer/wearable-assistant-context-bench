@@ -17,6 +17,7 @@ resolves to a family **different** from the candidate's (see
 from __future__ import annotations
 
 import json
+import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -26,12 +27,15 @@ from core.litellm_adapter import LiteLLMAdapter
 from core.models import ModelConfig
 
 
+_logger = logging.getLogger(__name__)
+
+
 JUDGE_MODEL_ID_CLAUDE = "openrouter/anthropic/claude-sonnet-4.6"
 JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
 JUDGE_MODEL_ID_OPENAI = "openai/gpt-4.1-mini"
 JUDGE_TEMPERATURE = 0.0
 JUDGE_MAX_TOKENS = 1024
-JUDGE_PROMPT_VERSION = "v1.0.0"
+JUDGE_PROMPT_VERSION = "v1.1.0"
 
 
 ALLOWED_POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
@@ -95,7 +99,15 @@ class JudgeAdapterBase(ABC):
 
 
 class GeminiJudgeAdapter(JudgeAdapterBase):
-    """Gemini-backed judge adapter (smoke-test scaffold)."""
+    """Gemini-backed judge adapter using the native google-genai SDK.
+
+    Wraps `core.gemini_adapter.GeminiAdapter` for single-shot
+    system+user judge calls. Used when the resolved judge family is
+    `gemini` and the model id is a bare Gemini name (no provider
+    prefix); provider-qualified ids like
+    ``openrouter/google/gemini-2.5-flash`` route through
+    `LiteLLMJudgeAdapter` instead.
+    """
 
     family = "gemini"
 
@@ -273,10 +285,20 @@ class LLMJudge:
 def infer_candidate_family(model_id: str) -> str | None:
     """Infer the candidate model's family from its `--model` string.
 
+    Recognises native and provider-qualified ids for Claude, Gemini,
+    and OpenAI. Routing-layer prefixes (``openrouter/...``,
+    ``huggingface/<provider>/...``) are stripped recursively so the
+    underlying family can be detected.
+
+    Open-weights families served via Inference Providers (Llama, Qwen,
+    Mistral, DeepSeek, Gemma, etc.) are intentionally returned as
+    ``None`` — the cross-family judge map only covers Claude/Gemini/
+    OpenAI today, so HF candidates must pass ``--judge-family``
+    explicitly. The runner surfaces a clear error in that case.
+
     Returns:
-        `"claude"`, `"gemini"`, `"openai"`, or `None` if the family
-        cannot be inferred. The runner errors out on `None` in
-        `--judge-family auto`.
+        ``"claude"``, ``"gemini"``, ``"openai"``, or ``None``. The
+        runner errors out on ``None`` in ``--judge-family auto``.
     """
     if not model_id:
         return None
@@ -293,6 +315,20 @@ def infer_candidate_family(model_id: str) -> str | None:
             return infer_candidate_family(remainder)
         if provider in {"vertexai", "vertex_ai"} and "gemini" in remainder:
             return "gemini"
+        if provider == "huggingface" and remainder:
+            # huggingface/<inference_provider>/<hf_org>/<hf_model>.
+            # Strip the inference-provider segment so we can detect a
+            # closed-family model (e.g. huggingface/together/openai/
+            # gpt-oss-120b → openai). For open-weights candidates
+            # (Llama, Qwen, Mistral, etc.), the recursion returns None
+            # and the caller sees a "pass --judge-family explicitly"
+            # error.
+            if "/" in remainder:
+                _, inner = remainder.split("/", 1)
+                inferred = infer_candidate_family(inner)
+                if inferred is not None:
+                    return inferred
+            return None
     claude_markers = ("claude", "sonnet", "opus", "haiku")
     gemini_markers = ("gemini",)
     openai_prefixes = ("gpt-", "o1", "o3", "o4")
@@ -434,85 +470,104 @@ def _format_list(items: list[str]) -> str:
 
 
 _JSON_OBJECT_RE = re.compile(r"\{[^{}]*\"selected_policy\"[^{}]*\}", re.DOTALL)
-# Matches label words as whole words; used for heuristic fallback parsing
-# when the judge model does not produce a JSON verdict block.
-_LABEL_RE = re.compile(
-    r"\b(current|prior|clarify|abstain)\b", re.IGNORECASE
+# Strict final-line patterns the judge can emit instead of (or after) a
+# JSON block. Anchored to "selected_policy" so we never confuse a
+# casual occurrence of "prior" or "current" inside reasoning prose
+# with the verdict.
+_LABEL_LINE_RE = re.compile(
+    r"selected[_\s-]?policy\s*[:=]\s*['\"`]?(current|prior|clarify|abstain)\b",
+    re.IGNORECASE,
 )
 
 
-def _heuristic_label(raw: str) -> str | None:
-    """Extract a label from verbose prose when JSON is absent.
+def _strict_label_line(raw: str) -> str | None:
+    """Extract a label only from an explicit ``selected_policy: X`` line.
 
-    Scans backwards through the text and returns the last label word found
-    (most likely to be the judge's conclusion). Returns None if no label
-    word appears anywhere.
+    Unlike the previous backwards-scan heuristic, this never flips on
+    contrastive prose like *"the response uses prior context but I will
+    select current"* — the only signal it accepts is the judge naming
+    the field by name.
     """
-    matches = list(_LABEL_RE.finditer(raw or ""))
+    if not raw:
+        return None
+    matches = list(_LABEL_LINE_RE.finditer(raw))
     if not matches:
         return None
+    # Use the *last* explicit "selected_policy: X" mention; if the judge
+    # restated the verdict, the final restatement is the conclusion.
     return matches[-1].group(1).lower()
 
 
 def parse_verdict(raw: str) -> JudgeVerdict:
     """Extract a JudgeVerdict from the raw judge response text.
 
-    The judge is instructed to end with a JSON object. We search for the
-    last such object, which tolerates any step-by-step reasoning that
-    precedes it.
+    The judge is instructed to end with a JSON object containing
+    ``selected_policy`` and ``rationale``. The parser tolerates
+    step-by-step reasoning before the JSON block.
 
-    When no JSON block is found (e.g. a model that produces verbose prose
-    without structured output), a heuristic fallback scans backwards for
-    the last label word and returns a JudgeVerdict with an empty rationale.
-    This keeps the runner alive for models that ignore the JSON instruction.
+    When no JSON block is found, the parser falls back to a strict
+    ``selected_policy: <label>`` regex anchored to the field name. It
+    deliberately does NOT scan for bare label words anywhere in the
+    text, because contrastive reasoning like *"the response uses prior
+    context but I will select current"* would otherwise return the
+    wrong label depending on word order. If neither a JSON block nor
+    a ``selected_policy:`` line is present, the parser returns
+    ``abstain`` with a logged warning rather than guessing.
 
     Raises:
-        ValueError: If no JSON verdict can be parsed *and* no label word
-            appears in the raw text, or the `selected_policy` extracted
-            via JSON is not in the allowed set.
+        ValueError: If a JSON block is parsed but its ``selected_policy``
+            value is not one of the allowed labels.
     """
-    matches = list(_JSON_OBJECT_RE.finditer(raw or ""))
-    if not matches:
-        label = _heuristic_label(raw)
-        if label is None:
-            if not (raw or "").strip():
-                # Empty response (e.g. from a timed-out candidate/judge that
-                # returned ""). Record as abstain so the runner continues
-                # rather than aborting. Score will be wrong for this cell.
-                return JudgeVerdict(
-                    selected_policy="abstain",
-                    rationale="(no-response fallback — candidate or judge returned empty)",
-                )
-            raise ValueError(
-                f"Judge response contained no JSON verdict and no label word: {raw!r}"
-            )
-        return JudgeVerdict(selected_policy=label, rationale="(heuristic fallback)")
+    if not (raw or "").strip():
+        return JudgeVerdict(
+            selected_policy="abstain",
+            rationale=(
+                "(no-response fallback — candidate or judge returned empty)"
+            ),
+        )
 
-    try:
-        payload: dict[str, Any] = json.loads(matches[-1].group(0))
-    except json.JSONDecodeError:
-        # Malformed JSON (e.g. a stray escape that breaks string parsing).
-        # Fall back to scanning for a label word in the raw text so the
-        # runner does not abort. Score will be at the mercy of the
-        # heuristic for this cell.
-        label = _heuristic_label(raw)
-        if label is None:
+    matches = list(_JSON_OBJECT_RE.finditer(raw))
+    if matches:
+        try:
+            payload: dict[str, Any] = json.loads(matches[-1].group(0))
+        except json.JSONDecodeError:
+            # JSON-shaped block but malformed (e.g. stray escape). Fall
+            # through to the strict label-line check below.
+            payload = {}
+        if payload:
+            selected_policy = payload.get("selected_policy")
+            if (
+                not isinstance(selected_policy, str)
+                or selected_policy not in ALLOWED_POLICIES
+            ):
+                raise ValueError(
+                    f"Judge verdict 'selected_policy' must be one of "
+                    f"{ALLOWED_POLICIES}, got {selected_policy!r}"
+                )
+            rationale = str(payload.get("rationale", "")).strip()
             return JudgeVerdict(
-                selected_policy="abstain",
-                rationale="(malformed-json fallback — no label word found)",
+                selected_policy=selected_policy, rationale=rationale
             )
+
+    label = _strict_label_line(raw)
+    if label is not None:
+        _logger.warning(
+            "judge verdict had no JSON block; recovered from "
+            "'selected_policy: %s' line. Raw length=%d.",
+            label,
+            len(raw),
+        )
         return JudgeVerdict(
             selected_policy=label,
-            rationale="(malformed-json heuristic fallback)",
+            rationale="(recovered from selected_policy line; no JSON block)",
         )
 
-    selected_policy = payload.get("selected_policy")
-    if not isinstance(selected_policy, str) or selected_policy not in ALLOWED_POLICIES:
-        raise ValueError(
-            f"Judge verdict 'selected_policy' must be one of "
-            f"{ALLOWED_POLICIES}, got {selected_policy!r}"
-        )
-
-    rationale = str(payload.get("rationale", "")).strip()
-
-    return JudgeVerdict(selected_policy=selected_policy, rationale=rationale)
+    _logger.warning(
+        "judge verdict had no JSON block and no 'selected_policy:' line; "
+        "falling back to abstain. Raw preview=%r",
+        (raw[:200] + "...") if len(raw) > 200 else raw,
+    )
+    return JudgeVerdict(
+        selected_policy="abstain",
+        rationale="(no-verdict fallback — neither JSON nor selected_policy line found)",
+    )

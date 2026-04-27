@@ -14,6 +14,7 @@ Exits 0 if all checks pass, 1 otherwise.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -23,6 +24,10 @@ from typing import Any
 
 SCENARIOS_PATH = Path("benchmark/v1/scenarios.json")
 ANSWERS_PATH = Path("benchmark/v1/expected_answers.json")
+INTERVENTIONS_PATH = Path("benchmark/v1/interventions.json")
+LOCKFILE_PATH = Path("benchmark/v1/MANIFEST.lock.json")
+ADVERSARIAL_SCENARIOS_PATH = Path("benchmark/v1/scenarios_adversarial.json")
+ADVERSARIAL_ANSWERS_PATH = Path("benchmark/v1/expected_answers_adversarial.json")
 
 # Common-object blocklist for image descriptions. Image descriptions must
 # NOT name the object directly. This list is non-exhaustive but catches
@@ -64,7 +69,12 @@ def word_match(token: str, text: str) -> bool:
 
 def check_1_token_leakage(scenarios, answers):
     """Check 1: No `current_answers` or `prior_answers` token appears in
-    any user speech field."""
+    any user speech field (including the optional deictic repair anchor).
+
+    The named repair anchor (``turn_3_repair_anchor``) is exempt because
+    it deliberately names the intended and wrong objects to measure
+    floor recoverability.
+    """
     fails = []
     for sc in scenarios:
         sid = sc["scenario_id"]
@@ -73,6 +83,9 @@ def check_1_token_leakage(scenarios, answers):
             ("turn_1_user", sc.get("turn_1_user", "") or ""),
             ("turn_2_user", sc.get("turn_2_user", "") or ""),
         ]
+        deictic = sc.get("turn_3_repair_anchor_deictic")
+        if deictic:
+            speech_fields.append(("turn_3_repair_anchor_deictic", deictic))
         for field_name, text in speech_fields:
             for token in ea.get("current_answers", []):
                 if word_match(token, text):
@@ -114,9 +127,14 @@ def check_2_object_name_in_images(scenarios):
     return fails
 
 
-def check_3_schema_validation(scenarios, answers):
+def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = True):
     """Check 3: Required fields present, types correct, IDs unique,
-    distributions match."""
+    distributions match.
+
+    ``enforce_distribution`` toggles the bank-level cue_type distribution
+    check. The canonical 50-scenario bank pins exact counts; the
+    adversarial pack uses its own distribution and skips this check.
+    """
     fails = []
     required_scenario_fields = {
         "scenario_id", "target_context", "cue_type", "activity_domain",
@@ -240,21 +258,101 @@ def check_3_schema_validation(scenarios, answers):
                 "detail": "clarify target_context but clarify_indicators is empty",
             })
 
-    # Distribution checks
-    cue_counts = Counter(sc.get("cue_type") for sc in scenarios)
-    expected_cue_counts = {
-        "object_in_hand": 12, "object_state": 8, "sequential_task": 6,
-        "location": 6, "object_in_view": 5, "absent_referent": 5,
-        "screen_content": 4, "pre_conversation_recall": 4,
+    # Distribution checks (canonical bank only).
+    if enforce_distribution:
+        cue_counts = Counter(sc.get("cue_type") for sc in scenarios)
+        expected_cue_counts = {
+            "object_in_hand": 12, "object_state": 8, "sequential_task": 6,
+            "location": 6, "object_in_view": 5, "absent_referent": 5,
+            "screen_content": 4, "pre_conversation_recall": 4,
+        }
+        for cue, expected_count in expected_cue_counts.items():
+            if cue_counts[cue] != expected_count:
+                fails.append({
+                    "scenario_id": "<bank>",
+                    "check": "schema",
+                    "detail": f"cue_type {cue} count {cue_counts[cue]} does not match expected {expected_count}",
+                })
+
+    return fails
+
+
+def check_7_lockfile_drift():
+    """Check 7: Computed asset hashes match the static MANIFEST.lock.json.
+
+    Catches silent mutations to the scenario bank, expected answers,
+    prompt conditions, or judge-prompt template that ship without a
+    coordinated benchmark_version (or judge_prompt_version) bump. To
+    refresh the lockfile after a deliberate content change, run
+    ``python scripts/regen_manifest_lock.py``.
+    """
+    fails = []
+    if not LOCKFILE_PATH.exists():
+        return [{
+            "scenario_id": "<bank>",
+            "check": "lockfile",
+            "detail": (
+                f"missing lockfile at {LOCKFILE_PATH}; run "
+                "scripts/regen_manifest_lock.py to create it"
+            ),
+        }]
+    try:
+        lockfile = json.loads(LOCKFILE_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [{
+            "scenario_id": "<bank>",
+            "check": "lockfile",
+            "detail": f"lockfile is not valid JSON: {exc}",
+        }]
+
+    # Imports here so the validator runs even when the package import
+    # path is not set up (e.g., in a slimmed CI environment that only
+    # checks scenarios). The hash checks above for assets remain the
+    # primary signal even if these imports fail.
+    try:
+        repo_root = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(repo_root))
+        from core.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
+        from core.report import BENCHMARK_VERSION, SCHEMA_REVISION
+    except ImportError as exc:
+        return [{
+            "scenario_id": "<bank>",
+            "check": "lockfile",
+            "detail": f"could not import benchmark package for lockfile check: {exc}",
+        }]
+
+    def _sha(path):
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    expected = {
+        "benchmark_version": BENCHMARK_VERSION,
+        "schema_revision": SCHEMA_REVISION,
+        "judge_prompt_version": JUDGE_PROMPT_VERSION,
+        "judge_prompt_sha256": hashlib.sha256(
+            JUDGE_SYSTEM_PROMPT.encode("utf-8")
+        ).hexdigest(),
+        "scenarios_sha256": _sha(SCENARIOS_PATH),
+        "expected_answers_sha256": _sha(ANSWERS_PATH),
+        "interventions_sha256": _sha(INTERVENTIONS_PATH),
     }
-    for cue, expected_count in expected_cue_counts.items():
-        if cue_counts[cue] != expected_count:
+    if ADVERSARIAL_SCENARIOS_PATH.exists():
+        expected["adversarial_scenarios_sha256"] = _sha(ADVERSARIAL_SCENARIOS_PATH)
+    if ADVERSARIAL_ANSWERS_PATH.exists():
+        expected["adversarial_expected_answers_sha256"] = _sha(
+            ADVERSARIAL_ANSWERS_PATH
+        )
+    for key, value in expected.items():
+        if lockfile.get(key) != value:
             fails.append({
                 "scenario_id": "<bank>",
-                "check": "schema",
-                "detail": f"cue_type {cue} count {cue_counts[cue]} does not match expected {expected_count}",
+                "check": "lockfile",
+                "detail": (
+                    f"{key} mismatch: lockfile={lockfile.get(key)!r}, "
+                    f"computed={value!r}. If this drift is intentional, "
+                    "bump benchmark_version (or judge_prompt_version) "
+                    "and regenerate via scripts/regen_manifest_lock.py."
+                ),
             })
-
     return fails
 
 
@@ -318,12 +416,37 @@ def main() -> int:
     all_fails.extend(check_2_object_name_in_images(scenarios))
     all_fails.extend(check_3_schema_validation(scenarios, answers))
     all_fails.extend(check_6_duplication(scenarios))
+    all_fails.extend(check_7_lockfile_drift())
+
+    # Adversarial pack: same checks except the canonical-bank cue-type
+    # distribution. Run only if the pack files exist (they are part of
+    # the v1 release; missing means a slimmed checkout).
+    if ADVERSARIAL_SCENARIOS_PATH.exists() and ADVERSARIAL_ANSWERS_PATH.exists():
+        adv_scenarios = json.loads(ADVERSARIAL_SCENARIOS_PATH.read_text())
+        adv_answers = json.loads(ADVERSARIAL_ANSWERS_PATH.read_text())
+        all_fails.extend(check_1_token_leakage(adv_scenarios, adv_answers))
+        all_fails.extend(check_2_object_name_in_images(adv_scenarios))
+        all_fails.extend(
+            check_3_schema_validation(
+                adv_scenarios, adv_answers, enforce_distribution=False
+            )
+        )
+        all_fails.extend(check_6_duplication(adv_scenarios))
 
     if args.json:
         print(json.dumps(all_fails, indent=2, ensure_ascii=False))
     else:
         if not all_fails:
-            print(f"All checks passed ({len(scenarios)} scenarios validated).")
+            adv_count = (
+                len(json.loads(ADVERSARIAL_SCENARIOS_PATH.read_text()))
+                if ADVERSARIAL_SCENARIOS_PATH.exists()
+                else 0
+            )
+            adv_note = f" + {adv_count} adversarial" if adv_count else ""
+            print(
+                f"All checks passed ({len(scenarios)} canonical{adv_note} "
+                f"scenarios validated)."
+            )
         else:
             print(f"{len(all_fails)} validation failure(s):")
             for f in all_fails:

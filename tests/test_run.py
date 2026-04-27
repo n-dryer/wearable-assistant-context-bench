@@ -218,5 +218,236 @@ def test_manifest_records_schema_fields(tmp_path: Path) -> None:
     match = _re.search(r"```json\n(.*?)\n```", findings_body, _re.DOTALL)
     assert match is not None, "manifest JSON block missing from findings.md"
     payload = json.loads(match.group(1))
-    assert payload["schema_revision"] == 2
+    assert payload["schema_revision"] == 3
     assert payload["camera_injection"] is True
+    # Without a ranking judge, manifest fields should be null but present.
+    assert "ranking_judge_model" in payload
+    assert "ranking_judge_family" in payload
+    assert payload["ranking_judge_model"] is None
+    assert payload["ranking_judge_family"] is None
+
+
+class _StubRankingJudge(_StubJudge):
+    """Always labels `prior` so it disagrees with the primary stub judge."""
+
+    family = "stub-ranking"
+    model_id = "stub-ranking-model"
+
+    def label(
+        self,
+        response: str,
+        scenario_description: str,
+        turn_2_user: str,
+        current_answers: list[str],
+        prior_answers: list[str],
+        clarify_indicators: list[str],
+        abstain_indicators: list[str],
+        ground_truth_context: str | None = None,
+    ) -> Any:
+        self.calls.append(
+            {
+                "response": response,
+                "turn_2_user": turn_2_user,
+                "ground_truth_context": ground_truth_context,
+            }
+        )
+        from core.llm_judge import JudgeVerdict
+
+        return JudgeVerdict(selected_policy="prior", rationale="ranking-stub")
+
+
+def test_run_records_ranking_judge_fields_when_ranking_judge_provided(
+    tmp_path: Path,
+) -> None:
+    adapter = _StubAdapter()
+    judge = _StubJudge()
+    ranking_judge = _StubRankingJudge()
+    output_dir = tmp_path / "ranking"
+    results = run_module.run(
+        adapter=adapter,  # type: ignore[arg-type]
+        judge=judge,  # type: ignore[arg-type]
+        ranking_judge=ranking_judge,  # type: ignore[arg-type]
+        config={"output_dir": str(output_dir)},
+    )
+    # Every trial should have ranking-judge fields populated.
+    for r in results:
+        assert "turn_2_ranking_judge_policy" in r
+        assert r["turn_2_ranking_judge_policy"] == "prior"
+        assert r["turn_2_ranking_judge_rationale"] == "ranking-stub"
+        # Ranking-pass tracks ranking-judge label vs target.
+        assert r["turn_2_ranking_passed"] == (r["target_context"] == "prior")
+    # Ranking judge should have been called at least once per trial.
+    assert len(ranking_judge.calls) >= len(results)
+    # Manifest should include ranking judge identifiers.
+    findings_body = (output_dir / "findings.md").read_text(encoding="utf-8")
+    import re as _re
+
+    match = _re.search(r"```json\n(.*?)\n```", findings_body, _re.DOTALL)
+    assert match is not None
+    payload = json.loads(match.group(1))
+    assert payload["ranking_judge_model"] == "stub-ranking-model"
+    assert payload["ranking_judge_family"] == "stub-ranking"
+    # Inter-judge agreement section should render real numbers, not the
+    # placeholder.
+    assert "Cohen's kappa" in findings_body
+    assert "Observed agreement" in findings_body
+
+
+def test_adversarial_pack_loads_with_distinct_ids(tmp_path: Path) -> None:
+    """Adversarial pack scenarios have distinct ids (adv-*) and the
+    runner can load them via the `pack` config override."""
+    adapter = _StubAdapter()
+    judge = _StubJudge()
+    output_dir = tmp_path / "adv"
+    results = run_module.run(
+        adapter=adapter,  # type: ignore[arg-type]
+        judge=judge,  # type: ignore[arg-type]
+        config={"output_dir": str(output_dir), "pack": "adversarial"},
+    )
+    ids = {r["scenario_id"] for r in results}
+    assert all(sid.startswith("adv-") for sid in ids), (
+        f"adversarial pack ids should all start with 'adv-': {ids}"
+    )
+    # The committed adversarial pack contains 20 scenarios.
+    assert len(ids) == 20
+    # Manifest should record the pack name.
+    findings = (output_dir / "findings.md").read_text(encoding="utf-8")
+    import re as _re
+
+    match = _re.search(r"```json\n(.*?)\n```", findings, _re.DOTALL)
+    assert match is not None
+    payload = json.loads(match.group(1))
+    assert payload["pack"] == "adversarial"
+
+
+def test_parse_args_accepts_pack_flag() -> None:
+    args = run_module._parse_args(["--pack", "adversarial"])
+    assert args.pack == "adversarial"
+    overrides = run_module._config_overrides_from_args(args)
+    assert overrides == {"pack": "adversarial"}
+
+
+def test_resolve_repair_anchor_named_default() -> None:
+    scenario = run_module.Scenario(
+        scenario_id="sc-x",
+        target_context="current",
+        cue_type="object_in_hand",
+        activity_domain="kitchen",
+        cognitive_load="single_referent",
+        difficulty_tier="medium",
+        turn_1_image="t1",
+        turn_1_user="u1",
+        turn_2_image="t2",
+        turn_2_user="u2",
+        turn_3_repair_anchor="named anchor",
+        turn_3_repair_anchor_deictic="deictic anchor",
+    )
+    text, style = run_module._resolve_repair_anchor(scenario, "named")
+    assert text == "named anchor"
+    assert style == "named"
+
+
+def test_resolve_repair_anchor_deictic_when_populated() -> None:
+    scenario = run_module.Scenario(
+        scenario_id="sc-x",
+        target_context="current",
+        cue_type="object_in_hand",
+        activity_domain="kitchen",
+        cognitive_load="single_referent",
+        difficulty_tier="medium",
+        turn_1_image="t1",
+        turn_1_user="u1",
+        turn_2_image="t2",
+        turn_2_user="u2",
+        turn_3_repair_anchor="named anchor",
+        turn_3_repair_anchor_deictic="deictic anchor",
+    )
+    text, style = run_module._resolve_repair_anchor(scenario, "deictic")
+    assert text == "deictic anchor"
+    assert style == "deictic"
+
+
+def test_resolve_repair_anchor_deictic_falls_back_when_absent() -> None:
+    """absent_referent / pre_conversation_recall scenarios have no
+    deictic anchor; the runner falls back to named."""
+    scenario = run_module.Scenario(
+        scenario_id="sc-y",
+        target_context="prior",
+        cue_type="absent_referent",
+        activity_domain="garden",
+        cognitive_load="single_referent",
+        difficulty_tier="hard",
+        turn_1_image="t1",
+        turn_1_user="u1",
+        turn_2_image="t2",
+        turn_2_user="u2",
+        turn_3_repair_anchor="named only",
+        turn_3_repair_anchor_deictic=None,
+    )
+    text, style = run_module._resolve_repair_anchor(scenario, "deictic")
+    assert text == "named only"
+    assert style == "named"
+
+
+def test_parse_args_accepts_repair_style_flag() -> None:
+    args = run_module._parse_args(["--repair-style", "deictic"])
+    assert args.repair_style == "deictic"
+    overrides = run_module._config_overrides_from_args(args)
+    assert overrides == {"repair_style": "deictic"}
+
+
+def test_committed_bank_has_deictic_for_visible_current_scenarios() -> None:
+    """Every visible-referent current-target scenario in the v1 bank
+    must populate turn_3_repair_anchor_deictic."""
+    scenarios = run_module.load_scenarios(run_module.SCENARIOS_PATH)
+    visible = {
+        "object_in_hand",
+        "object_in_view",
+        "object_state",
+        "screen_content",
+        "sequential_task",
+        "location",
+    }
+    missing = [
+        s.scenario_id
+        for s in scenarios
+        if s.target_context == "current"
+        and s.cue_type in visible
+        and not s.turn_3_repair_anchor_deictic
+    ]
+    assert not missing, (
+        f"visible-referent current-target scenarios missing deictic anchor: {missing}"
+    )
+
+
+def test_committed_bank_omits_deictic_for_non_visible_scenarios() -> None:
+    """Scenarios where a deictic gesture cannot resolve the reference
+    must leave turn_3_repair_anchor_deictic null."""
+    scenarios = run_module.load_scenarios(run_module.SCENARIOS_PATH)
+    bad = [
+        s.scenario_id
+        for s in scenarios
+        if s.cue_type in {"absent_referent", "pre_conversation_recall"}
+        and s.turn_3_repair_anchor_deictic
+    ]
+    assert not bad, (
+        f"non-visible scenarios should not have deictic anchor: {bad}"
+    )
+
+
+def test_parse_args_accepts_ranking_judge_flags() -> None:
+    args = run_module._parse_args(
+        [
+            "--ranking-judge-family",
+            "claude",
+            "--ranking-judge-model",
+            "openrouter/anthropic/claude-sonnet-4.6",
+        ]
+    )
+    assert args.ranking_judge_family == "claude"
+    assert args.ranking_judge_model == "openrouter/anthropic/claude-sonnet-4.6"
+    overrides = run_module._config_overrides_from_args(args)
+    assert overrides == {
+        "ranking_judge_family": "claude",
+        "ranking_judge_model_id": "openrouter/anthropic/claude-sonnet-4.6",
+    }

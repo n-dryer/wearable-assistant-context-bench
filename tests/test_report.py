@@ -8,18 +8,23 @@ import re
 import pytest
 
 from core.report import (
-    BENCHMARK_SLICE,
+    AUXILIARY_POLICY_NOTE,
+    BENCHMARK_LABEL,
     DEFAULT_RANKING_CONDITION,
-    DIAGNOSTIC_POLICY_NOTE,
     REQUIRED_MANIFEST_KEYS,
-    UNSCORED_POLICY_NOTE,
     balanced_accuracy_under_condition,
+    balanced_accuracy_with_ci_under_condition,
     class_accuracy_under_condition,
+    class_accuracy_with_ci_under_condition,
     code_judge_disagreement_by_scenario,
+    cohens_kappa,
+    inter_judge_agreement_summary,
+    inter_judge_disagreement_by_scenario,
     per_policy_pass_rate_by_condition,
     render_findings_markdown,
     scenario_by_condition_matrix,
     simulated_repair_rate_by_condition,
+    wilson_interval,
 )
 
 
@@ -282,7 +287,7 @@ def test_render_findings_markdown_shape() -> None:
             "runner_git_commit": None,
         },
     )
-    assert BENCHMARK_SLICE in output
+    assert BENCHMARK_LABEL in output
     assert "Benchmark summary" in output
     assert "Per-class pass rate" in output
     assert "Simulated repair rate" in output
@@ -290,9 +295,7 @@ def test_render_findings_markdown_shape() -> None:
     assert "Scenario-by-condition matrix" in output
     assert "Reproducibility manifest" in output
     assert "balanced Turn 2 accuracy" in output
-    assert DIAGNOSTIC_POLICY_NOTE in output
-    # Backwards-compatible alias still resolves to the same note.
-    assert UNSCORED_POLICY_NOTE == DIAGNOSTIC_POLICY_NOTE
+    assert AUXILIARY_POLICY_NOTE in output
     # No old probe-study / aggregate-pass-rate leftovers.
     lowered = output.lower()
     for forbidden in (
@@ -357,3 +360,132 @@ def test_render_findings_markdown_manifest_fills_missing_keys() -> None:
     warnings = payload["manifest_warnings"]
     assert any("scenarios_sha256" in w for w in warnings)
     assert payload["scenarios_sha256"] is None
+
+
+def test_wilson_interval_zero_n_returns_none() -> None:
+    assert wilson_interval(0, 0) is None
+
+
+def test_wilson_interval_typical_case_brackets_rate() -> None:
+    triple = wilson_interval(45, 50)
+    assert triple is not None
+    rate, lo, hi = triple
+    assert abs(rate - 0.9) < 1e-9
+    assert 0.0 <= lo <= rate <= hi <= 1.0
+    # Wilson is asymmetric near boundaries; just assert the band is positive width.
+    assert hi - lo > 0
+
+
+def test_wilson_interval_full_pass_caps_at_one() -> None:
+    triple = wilson_interval(50, 50)
+    assert triple is not None
+    rate, lo, hi = triple
+    assert rate == 1.0
+    # Wilson with k=n produces an upper bound numerically indistinguishable
+    # from 1.0 (within float epsilon) and the lower bound stays below 1.
+    assert hi == pytest.approx(1.0)
+    assert lo < 1.0
+
+
+def test_class_accuracy_with_ci_returns_triples_or_none() -> None:
+    # All passes for current, none for prior; both classes have trials.
+    results = []
+    for _ in range(5):
+        results.append({
+            "scenario_id": "sc-c", "condition": "baseline",
+            "trial": 0, "target_context": "current",
+            "turn_2_passed": True, "turn_2_code_signals": {},
+            "turn_3_repair_attempted": False, "turn_3_repair_passed": None,
+        })
+    for _ in range(5):
+        results.append({
+            "scenario_id": "sc-p", "condition": "baseline",
+            "trial": 0, "target_context": "prior",
+            "turn_2_passed": False, "turn_2_code_signals": {},
+            "turn_3_repair_attempted": False, "turn_3_repair_passed": None,
+        })
+    out = class_accuracy_with_ci_under_condition(results, "baseline")
+    assert out["current"] is not None and out["current"][0] == 1.0
+    assert out["prior"] is not None and out["prior"][0] == 0.0
+
+
+def test_balanced_accuracy_with_ci_handles_missing_class() -> None:
+    # Only current trials; prior is missing -> CI should be None.
+    results = [
+        {
+            "scenario_id": "sc-c", "condition": "baseline",
+            "trial": 0, "target_context": "current",
+            "turn_2_passed": True, "turn_2_code_signals": {},
+            "turn_3_repair_attempted": False, "turn_3_repair_passed": None,
+        },
+    ]
+    assert balanced_accuracy_with_ci_under_condition(results, "baseline") is None
+
+
+def test_cohens_kappa_perfect_agreement_is_one() -> None:
+    assert cohens_kappa(["a", "b", "a"], ["a", "b", "a"]) == pytest.approx(1.0)
+
+
+def test_cohens_kappa_independent_random_is_zero() -> None:
+    # 4 items, balanced 2/2 split, 2 matches by chance
+    a = ["x", "x", "y", "y"]
+    b = ["x", "y", "x", "y"]
+    # observed = 2/4 = 0.5; expected = 0.5*0.5 + 0.5*0.5 = 0.5; kappa = 0
+    assert cohens_kappa(a, b) == pytest.approx(0.0)
+
+
+def test_cohens_kappa_below_zero_when_systematically_disagreeing() -> None:
+    a = ["x", "x", "y", "y"]
+    b = ["y", "y", "x", "x"]
+    # observed = 0; expected = 0.5; kappa = -1
+    assert cohens_kappa(a, b) == pytest.approx(-1.0)
+
+
+def test_cohens_kappa_unequal_lengths_raises() -> None:
+    with pytest.raises(ValueError):
+        cohens_kappa(["a"], ["a", "b"])
+
+
+def test_inter_judge_agreement_summary_returns_none_without_ranking_labels() -> None:
+    # Standard fixture has no ranking-judge fields; expect None.
+    assert inter_judge_agreement_summary(_fixture_results()) is None
+
+
+def test_inter_judge_agreement_summary_with_ranking_labels() -> None:
+    results = _fixture_results()
+    # Annotate every trial with a ranking-judge label that mostly matches
+    # the primary judge's label, with a couple of disagreements.
+    for i, trial in enumerate(results):
+        primary = trial["turn_2_judge_policy"]
+        # Disagree on every fifth trial.
+        if i % 5 == 0 and primary == "current":
+            trial["turn_2_ranking_judge_policy"] = "prior"
+        else:
+            trial["turn_2_ranking_judge_policy"] = primary
+    summary = inter_judge_agreement_summary(results)
+    assert summary is not None
+    assert summary["trials"] == len(results)
+    assert summary["observed_agreement"] < 1.0
+    assert summary["kappa"] is not None
+    assert -1.0 <= summary["kappa"] <= 1.0
+
+
+def test_inter_judge_disagreement_by_scenario_counts_only_paired_trials() -> None:
+    results = _fixture_results()
+    # Tag a single trial with disagreeing ranking label.
+    target_idx = 0
+    results[target_idx]["turn_2_ranking_judge_policy"] = (
+        "prior" if results[target_idx]["turn_2_judge_policy"] != "prior" else "current"
+    )
+    counts = inter_judge_disagreement_by_scenario(results)
+    assert counts.get(results[target_idx]["scenario_id"]) == 1
+    # Untagged trials should not surface.
+    untagged_total = sum(counts.values())
+    assert untagged_total == 1
+
+
+def test_render_findings_markdown_includes_inter_judge_section() -> None:
+    output = render_findings_markdown(_fixture_results())
+    assert "Inter-judge agreement (cross-LLM)" in output
+    # No ranking judge in the fixture -> placeholder text rendered.
+    assert "ranking-judge-family" in output
