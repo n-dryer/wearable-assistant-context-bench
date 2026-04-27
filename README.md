@@ -37,7 +37,7 @@ Full leaderboard and per-class breakdown are in [Results](#results).
 
 This benchmark supports model selection for deployed multimodal AI
 assistants used actively for advice or coaching. Form factors covered
-include wearable (smart glasses, ear-worn devices) and handheld
+include wearable (smart glasses, ear worn devices) and handheld
 (phone-as-coach apps, AR/MR devices held in hand).
 
 The product problem is simple:
@@ -52,7 +52,7 @@ The product problem is simple:
 Users should not have to keep restating what they are looking at,
 holding, or referring to. The assistant should infer the right
 reference from the situational cues already present in the
-interaction. One-off examples are not enough to make a model-selection
+interaction. One off examples are not enough to make a model-selection
 call. Every candidate needs identical scenarios, identical scoring
 setup, and a saved run record.
 
@@ -95,7 +95,7 @@ Per-class accuracy under `baseline` (full table per run in
   `baseline` 60.6% &rarr; `ablation-no-camera` 14.4%. A 46.2 percentage
   point gap. That rules out one alternative reading: it isn't
   solving from question phrasing alone. On its own, this doesn't
-  prove context tracking; the per-class pattern below does.
+  prove context tracking; the per class pattern below does.
 - **It handles "current" but stumbles on "prior".** Across all six
   runs, performance is much better when the answer is about the
   most recent frame than when the answer is about an earlier
@@ -108,19 +108,19 @@ Per-class accuracy under `baseline` (full table per run in
   (`baseline-alt`, 77.7%) outperforms Gemini-Flash-Lite
   (`baseline`, 60.6%) on the same scenario set with the same judge.
 - **Same-family judging may inflate the Scenario Bank Gemini numbers.**
-  The `baseline-qwen-cross-family` run (cross-family judging) lands
+  The `baseline-qwen-cross-family` run (cross family judging) lands
   at 54.2% on the same scenario set vs `baseline`'s 60.6%, a 6.4
-  pp gap consistent with self-preference bias on the same-family
+  pp gap consistent with self preference bias on the same-family
   runs (though candidate quality also differs; see "Caveats").
-- **Cross-LLM judge agreement on the adversarial pack:** Cohen's
+- **Cross LLM judge agreement on the adversarial pack:** Cohen's
   kappa = 0.443 across `gpt-4o-mini` and `claude-haiku-4.5`. The
-  two cross-family judges disagreed on 110 of 300 trials (36.7%).
+  two cross family judges disagreed on 110 of 300 trials (36.7%).
   This is the only v1 run that reports a cross-LLM agreement
   metric, since the Scenario Bank runs ran a single judge each.
 - **Deictic-only repair recovers 100% of misses where it applies;
   named repair recovers 30% of misses where it falls back.** The
   `baseline-deictic-repair` run uses the deictic anchor on the 31
-  visible-referent `current`-target scenarios and falls back to the
+  visible referent `current`-target scenarios and falls back to the
   named anchor on the rest. Repaired 50/50 deictic, 30/100 named.
   Reading: when the user can repair with a pointing gesture
   ("no, this, what I'm holding now"), recovery happens; when the
@@ -129,34 +129,34 @@ Per-class accuracy under `baseline` (full table per run in
   rarely helps. Overall recovery rate is the same as the `baseline`
   run (53% of all misses); the deictic anchor concentrates the
   recoveries on the easier scenarios.
-- **`condition_b` (pre-answer scaffold) consistently helps;
-  `condition_a` (policy-instruction nudge) is mixed.** Across runs
+- **`condition_b` (pre answer scaffold) consistently helps;
+  `condition_a` (policy instruction nudge) is mixed.** Across runs
   with measurable shift, the forced "identify the relevant context
   first" structure outperforms the looser instruction wording.
 
 ### Caveats
 
-- **Same-family judging on four of five Scenario Bank runs.** API
+- **Same family judging on four of five Scenario Bank runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Pro) was
-  exhausted mid-effort, leaving Gemini Direct (via LiteLLM) as the
+  exhausted mid effort, leaving Gemini Direct (via LiteLLM) as the
   only viable transport for the bulk of the Scenario Bank runs.
-  Gemini-Flash-Lite judges Gemini-Flash-Lite (and Gemini-Flash)
+  Gemini-Flash-Lite judges Gemini-Flash-Lite (and Gemini Flash)
   on `baseline`, `baseline-alt`, `ablation-no-camera`, and
   `baseline-deictic-repair`, which admits self-preference bias.
   `baseline-qwen-cross-family` is the cross-family integrity
   reference for the Scenario Bank; `adversarial` is the
   cross-family integrity reference for the adversarial pack.
-- **Two model-config families across v1.** Five Scenario Bank runs use
-  Gemini-direct + DashScope-International transports. Adversarial
+- **Two model config families across v1.** Five Scenario Bank runs use
+  Gemini direct + DashScope International transports. Adversarial
   uses an OpenRouter setup with a Claude-Haiku ranking judge.
-  Comparing within a single run is fully apples-to-apples;
+  Comparing within a single run is fully apples to apples;
   comparing across runs requires reading the candidate and judge
   identifiers in each `findings.md` manifest.
 - **`baseline-qwen-cross-family` candidate scoring isolated.** The
   Qwen3-VL-Plus candidate has not been evaluated against a fixed
   ranking judge alongside the Gemini candidates, so it cannot yet
-  be ranked head-to-head with `baseline` or `baseline-alt`.
-  Cross-candidate ranking is a v1.0.x follow-up.
+  be ranked head to head with `baseline` or `baseline-alt`.
+  Cross candidate ranking is a v1.0.x follow-up.
 
 Full transcripts and per-scenario matrices live in
 `benchmark/v1/runs/<name>/` for each of the six runs.
@@ -193,8 +193,8 @@ the camera channel is represented as **scene descriptions in text**
 as a proxy for what a real wearable's vision system would produce
 from a camera frame; the benchmark does not score performance on real
 video. Both proxies are deliberate: they let the benchmark isolate
-context-tracking ability from the variability of the perceptual
-front-end. Adding raw-audio and real-video variants is acknowledged
+context tracking ability from the variability of the perceptual
+front end. Adding raw audio and real-video variants is acknowledged
 as future work; see [`docs/benchmark_notes.md`](docs/benchmark_notes.md).
 
 ## How it works
@@ -225,7 +225,7 @@ This is a context-tracking benchmark. It is not a coaching benchmark.
 It does not directly evaluate:
 
 - Whether the coaching advice is sound and fits the domain
-- Multi-turn conversation flow past Turn 2
+- Multi turn conversation flow past Turn 2
 - Performance on real video frames (the video channel uses scene
   descriptions in text as a proxy)
 - Performance on raw audio (the audio channel uses text transcripts
@@ -233,8 +233,8 @@ It does not directly evaluate:
   detection, and ambient audio cues are not tested)
 - Proactive coaching, noticing without being asked
 - Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
-- Wall-clock latency or per-call cost
-- Long-horizon memory across sessions
+- Wall clock latency or per call cost
+- Long horizon memory across sessions
 
 A model that fails this benchmark cannot serve as an in-the-moment
 multimodal assistant. A model that passes still needs separate
