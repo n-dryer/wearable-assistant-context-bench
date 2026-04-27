@@ -187,9 +187,10 @@ def render() -> None:
     # they don't fit on one row (they should).
     badge_font = _font(22)
     badges = [
-        "50 scenarios",
-        "4 published runs",
-        "MIT license",
+        "70 scenarios",
+        "6 published runs",
+        "AI wearable",
+        "Model benchmark",
     ]
     gap = 12
     cursor_x = 80
