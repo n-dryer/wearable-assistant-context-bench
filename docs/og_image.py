@@ -189,7 +189,7 @@ def render() -> None:
     badges = [
         "70 scenarios",
         "6 published runs",
-        "AI wearable",
+        "AI wearables",
         "Model benchmark",
     ]
     gap = 12
