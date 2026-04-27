@@ -33,28 +33,48 @@ Full leaderboard and per-class breakdown are in [Results](#results).
 - **[`docs/benchmark_notes.md`](docs/benchmark_notes.md)**: score interpretation and limitations
 - **[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md)**: dataset scope, runs, caveats
 
-## Why this benchmark exists
+## What this benchmark measures
 
-This benchmark supports model selection for deployed multimodal AI
+This benchmark measures **context tracking** for multimodal AI
 assistants used actively for advice or coaching. Form factors covered
 include wearable (smart glasses, ear-worn devices) and handheld
 (phone-as-coach apps, AR/MR devices held in hand).
 
-The product problem is simple:
+The product problem: a user asks about a hammer, puts it down, picks
+up a screwdriver, then asks, "how do I use this?" The assistant
+should answer about the screwdriver. Users should not have to keep
+restating what they are looking at, holding, or referring to. The
+assistant should infer the right reference from the situational cues
+already present in the interaction.
 
-- A user asks about the bedroom walls, walks into the kitchen, then
-  asks about the walls again. The assistant answers as if the user is
-  still in the bedroom.
-- A user asks about a hammer, puts it down, picks up a screwdriver,
-  then asks, "how do I use this?" The assistant answers about the
-  hammer.
+The Scenario Bank is **50 scenarios across 8 shift-type categories**:
+`object_in_hand`, `object_state`, `sequential_task`, `location`,
+`object_in_view`, `absent_referent`, `screen_content`,
+`pre_conversation_recall`. Per-category counts are in
+[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type).
+Each scenario has three turns. Scene descriptions are injected on the
+user side as `[Camera: ...]` blocks (the literal field name from the
+scenario JSON). Scene descriptions are what a vision system would say
+about a video frame: shape, material, color, motion, position, without
+naming the object directly. The candidate combines those scene blocks
+with deictic user speech and figures out what the question is about.
 
-Users should not have to keep restating what they are looking at,
-holding, or referring to. The assistant should infer the right
-reference from the situational cues already present in the
-interaction. One-off examples are not enough to make a model-selection
-call. Every candidate needs identical scenarios, identical scoring
-setup, and a saved run record.
+The judge labels each Turn 2 response as one of `current`, `prior`,
+`clarify`, or `abstain`. The primary score is **Balanced Turn 2
+accuracy**:
+
+```text
+primary_score = mean(current_accuracy, prior_accuracy)
+```
+
+The benchmark supports model-selection decisions for deployed
+multimodal coaching assistants. In v1, both perceptual channels are
+text proxies: spoken turns as text transcripts (not raw audio), and
+camera frames as scene descriptions (as a proxy for what a vision
+system would say about real video). This isolates context-tracking
+ability from variability in the perceptual front-end. See
+[`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design)
+for the three-channel design and proxy decisions.
 
 ## Results
 
@@ -77,7 +97,7 @@ yet.
 | **adversarial** | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` ranking judge | adversarial 20 | **67.3%** (55.5&ndash;79.1) |
 
 Per-class accuracy under `baseline` (full table per run in
-`runs/<name>/findings.md`):
+`benchmark/v1/runs/<name>/findings.md`):
 
 | Run | `current` | `prior` |
 |---|---|---|
@@ -88,114 +108,81 @@ Per-class accuracy under `baseline` (full table per run in
 | baseline-deictic-repair | 87.9% (82.0&ndash;92.0) | 33.3% (22.7&ndash;45.9) |
 | adversarial | 84.6% (73.9&ndash;91.4) | 50.0% (29.9&ndash;70.1) |
 
-### What the runs show
+Run-by-run interpretation, statistical analysis (McNemar paired test,
+minimum detectable effect, MMStar empirical-difficulty grounding),
+and condition-sensitivity findings are in
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-the-runs-show).
+Score-interpretation guidance is in
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md#how-to-read-the-primary-score).
 
-- **The candidate leans heavily on the camera input.** Same
-  candidate and judge, only the camera description toggled:
-  `baseline` 60.6% &rarr; `ablation-no-camera` 14.4%. A 46.2 percentage
-  point gap. That rules out one alternative reading: it isn't
-  solving from question phrasing alone. On its own, this doesn't
-  prove context tracking; the per-class pattern below does.
-- **It handles "current" but stumbles on "prior".** Across all six
-  runs, performance is much better when the answer is about the
-  most recent frame than when the answer is about an earlier
-  frame. `baseline-qwen-cross-family` is the clearest example:
-  100% on `current`, 8.3% on `prior`. The candidate grounds in the
-  latest visual input and struggles to refer back. With the
-  camera ablation above, this is the capability gap the benchmark
-  targets.
-- **Bigger sibling helps, on the same family.** Gemini-Flash
-  (`baseline-alt`, 77.7%) outperforms Gemini-Flash-Lite
-  (`baseline`, 60.6%) on the same scenario set with the same judge.
-- **Same-family judging may inflate the Scenario Bank Gemini numbers.**
-  The `baseline-qwen-cross-family` run (cross-family judging) lands
-  at 54.2% on the same scenario set vs `baseline`'s 60.6%, a 6.4
-  pp gap consistent with self-preference bias on the same-family
-  runs (though candidate quality also differs; see "Caveats").
-- **Cross-LLM judge agreement on the adversarial pack:** Cohen's
-  kappa = 0.443 across `gpt-4o-mini` and `claude-haiku-4.5`. The
-  two cross-family judges disagreed on 110 of 300 trials (36.7%).
-  This is the only v1 run that reports a cross-LLM agreement
-  metric, since the Scenario Bank runs ran a single judge each.
-- **Deictic-only repair recovers 100% of misses where it applies;
-  named repair recovers 30% of misses where it falls back.** The
-  `baseline-deictic-repair` run uses the deictic anchor on the 31
-  visible-referent `current`-target scenarios and falls back to the
-  named anchor on the rest. Repaired 50/50 deictic, 30/100 named.
-  Reading: when the user can repair with a pointing gesture
-  ("no, this, what I'm holding now"), recovery happens; when the
-  miss is on `prior`/`abstain`/`clarify`-target scenarios where a
-  pointing gesture cannot resolve the reference, named clarification
-  rarely helps. Overall recovery rate is the same as the `baseline`
-  run (53% of all misses); the deictic anchor concentrates the
-  recoveries on the easier scenarios.
-- **`condition_b` (pre-answer scaffold) consistently helps;
-  `condition_a` (policy-instruction nudge) is mixed.** Across runs
-  with measurable shift, the forced "identify the relevant context
-  first" structure outperforms the looser instruction wording.
+### Reproducing a run
+
+Each leaderboard row corresponds to one of the commands below. The
+exact model ids and flags are taken from each run's reproducibility
+manifest in `benchmark/v1/runs/<name>/findings.md`. Outputs land in
+`benchmark/v1/runs/<name>/`.
+
+```bash
+# baseline
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline
+
+# baseline-alt
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-alt
+
+# ablation-no-camera
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --no-camera \
+  --output-dir benchmark/v1/runs/ablation-no-camera
+
+# baseline-qwen-cross-family
+python -m benchmark.v1.run \
+  --model dashscope-intl/qwen3-vl-plus \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-qwen-cross-family
+
+# baseline-deictic-repair
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --repair-style deictic \
+  --output-dir benchmark/v1/runs/baseline-deictic-repair
+
+# adversarial
+python -m benchmark.v1.run \
+  --model openrouter/google/gemini-2.5-flash-lite \
+  --judge-model openrouter/openai/gpt-4o-mini --judge-family openai \
+  --pack adversarial \
+  --ranking-judge-model openrouter/anthropic/claude-haiku-4.5 \
+  --ranking-judge-family claude \
+  --output-dir benchmark/v1/runs/adversarial
+```
 
 ### Caveats
 
-- **Same-family judging on four of five Scenario Bank runs.** API
-  budget across providers (OpenRouter, OpenAI direct, HF Pro) was
-  exhausted mid-effort, leaving Gemini Direct (via LiteLLM) as the
-  only viable transport for the bulk of the Scenario Bank runs.
-  Gemini-Flash-Lite judges Gemini-Flash-Lite (and Gemini-Flash)
-  on `baseline`, `baseline-alt`, `ablation-no-camera`, and
-  `baseline-deictic-repair`, which admits self-preference bias.
-  `baseline-qwen-cross-family` is the cross-family integrity
-  reference for the Scenario Bank; `adversarial` is the
-  cross-family integrity reference for the adversarial pack.
-- **Two model-config families across v1.** Five Scenario Bank runs use
-  Gemini-direct + DashScope-International transports. Adversarial
-  uses an OpenRouter setup with a Claude-Haiku ranking judge.
-  Comparing within a single run is fully apples-to-apples;
-  comparing across runs requires reading the candidate and judge
-  identifiers in each `findings.md` manifest.
-- **`baseline-qwen-cross-family` candidate scoring isolated.** The
-  Qwen3-VL-Plus candidate has not been evaluated against a fixed
-  ranking judge alongside the Gemini candidates, so it cannot yet
-  be ranked head-to-head with `baseline` or `baseline-alt`.
-  Cross-candidate ranking is a v1.0.x follow-up.
+- Same-family judging on four of five Scenario Bank runs; API budget
+  across non-Gemini providers was exhausted mid-effort, leaving
+  `baseline-qwen-cross-family` as the cross-family integrity
+  reference for the Scenario Bank.
+- Two model-config families across v1 (Gemini-direct +
+  DashScope-International for the Scenario Bank, OpenRouter for the
+  adversarial run); compare within a single run, or read each
+  `findings.md` manifest before comparing across runs.
+- `baseline-qwen-cross-family` cannot yet be ranked head-to-head with
+  the Gemini Scenario Bank runs; cross-candidate ranking under a
+  fixed ranking judge is a v1.0.x follow-up.
 
-Full transcripts and per-scenario matrices live in
-`benchmark/v1/runs/<name>/` for each of the six runs.
-
-## What this benchmark measures
-
-This benchmark measures **context tracking**. It tests whether a
-model uses the current situational evidence visible in the video
-input, or stays anchored to prior context after a shift.
-
-The Scenario Bank is **50 scenarios across eight kinds of context
-shift**: object in hand, object state, sequential task, location,
-object in view, absent referent, screen content, and
-pre-conversation recall. Each scenario has three turns, with scene
-descriptions injected on the user side as `[Camera: ...]` blocks
-(the literal field name from the scenario JSON). Scene descriptions
-are what a vision system would say about a video frame: shape,
-material, color, motion, position, without naming the object
-directly. The candidate has to combine those scene blocks with user
-speech that depends on the scene, then figure out what the question
-is about.
-
-The judge labels each Turn 2 response with one of `current`, `prior`,
-`clarify`, or `abstain`. The primary score is **Balanced Turn 2
-accuracy**: the macro-averaged accuracy across `current` and `prior`
-classes under the `baseline` system prompt.
-
-### How v1 represents audio and video
-
-In v1, the user's spoken turns are represented as **text transcripts**,
-not raw audio. The benchmark does not test acoustic grounding, speaker
-attribution, addressee detection, or ambient audio cues. Similarly,
-the camera channel is represented as **scene descriptions in text**
-as a proxy for what a real wearable's vision system would produce
-from a camera frame; the benchmark does not score performance on real
-video. Both proxies are deliberate: they let the benchmark isolate
-context-tracking ability from the variability of the perceptual
-front-end. Adding raw-audio and real-video variants is acknowledged
-as future work; see [`docs/benchmark_notes.md`](docs/benchmark_notes.md).
+Full discussion and limitations are in
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md#caveats). Full
+transcripts and per-scenario matrices live in
+`benchmark/v1/runs/<name>/`.
 
 ## How it works
 
@@ -219,31 +206,13 @@ prompts (the neutral `baseline` plus `condition_a` and `condition_b`,
 two nudge variants) at temperature 0. Turn 3 fires only after a
 Turn 2 miss and feeds the repair rate.
 
-## What this benchmark does NOT measure
-
-This is a context-tracking benchmark. It is not a coaching benchmark.
-It does not directly evaluate:
-
-- Whether the coaching advice is sound and fits the domain
-- Multi-turn conversation flow past Turn 2
-- Performance on real video frames (the video channel uses scene
-  descriptions in text as a proxy)
-- Performance on raw audio (the audio channel uses text transcripts
-  as a proxy; acoustic grounding, speaker attribution, addressee
-  detection, and ambient audio cues are not tested)
-- Proactive coaching, noticing without being asked
-- Domain knowledge depth (cooking, woodworking, music, fitness, etc.)
-- Wall-clock latency or per-call cost
-- Long-horizon memory across sessions
-
+For what is out of scope by design (advice quality, multi-turn
+dynamics beyond Turn 2, proactive coaching, domain depth, latency,
+cost, raw-audio perception, long-horizon memory), see
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
 A model that fails this benchmark cannot serve as an in-the-moment
 multimodal assistant. A model that passes still needs separate
-evaluation for everything in this list.
-
-v1 runs 5 trials per cell and reports 95% confidence intervals on
-every score, so deltas can be interpreted against sampling noise.
-Inter-judge agreement (Cohen's kappa across two cross-family judges)
-is reported alongside primary scores.
+evaluation for the items in that list.
 
 ## Quickstart
 
@@ -264,15 +233,14 @@ python -m benchmark.v1.run --model <candidate_model_id>
 
 `scripts/setup.sh` sets up the venv with pinned dependencies, then
 downloads the spaCy `en_core_web_sm` model that the validator and
-scoring code path need. Override the Python interpreter
-with `PYTHON=python3.13 ./scripts/setup.sh` if you need a specific
+scoring code path need. Override the Python interpreter with
+`PYTHON=python3.13 ./scripts/setup.sh` if you need a specific
 version.
 
 ## API keys
 
-Requires Python 3.11+. The Quickstart block above is the canonical
-install sequence. Set the API keys you need for the candidate and
-judge models you plan to run:
+Requires Python 3.11+. Set the API keys you need for the candidate
+and judge models you plan to run:
 
 - `ANTHROPIC_API_KEY`
 - `GEMINI_API_KEY` or `GOOGLE_API_KEY`
@@ -281,54 +249,10 @@ judge models you plan to run:
 - `HF_TOKEN` (and `HUGGINGFACE_API_KEY` as a fallback name) for
   Hugging Face Inference Providers
 
-An example environment file is provided in [`.env.example`](.env.example).
-
-### Hugging Face Inference Providers as a candidate
-
-Open-weights multimodal candidates can run via [HF Inference
-Providers](https://huggingface.co/docs/inference-providers/index)
-(`router.huggingface.co`). Authenticate with `HF_TOKEN` (a
-fine-grained token with *Make calls to Inference Providers*
-permission). HF Pro accounts get included Inference Provider credits
-each month; additional usage is billed at provider rates with no
-markup.
-
-Model ids use the format `huggingface/<inference_provider>/<hf_org>/<hf_model>`.
-The benchmark works with any chat-completion-capable model, but
-candidates must support real wearable or handheld deployment
-(multimodal: live audio in/out, streaming, video). The v1
-measurement is text-form, but the deployment target needs vision.
-
-Recommended candidates (compact to frontier):
-
-| Model | Model id (LiteLLM format) | Notes |
-| --- | --- | --- |
-| Qwen 2.5 VL 7B | `huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct` | Best balance: leading open VLM, fast and cheap |
-| Llama 3.2 Vision 11B | `huggingface/together/meta-llama/Llama-3.2-11B-Vision-Instruct` | Proven, broadly supported across providers |
-| Qwen 2.5 VL 72B | `huggingface/fireworks-ai/Qwen/Qwen2.5-VL-72B-Instruct` | Frontier open-weights VLM; higher cost |
-
-Other HF Inference Provider partners that support vision-language
-chat completion include Cohere, Featherless AI, Fireworks, Groq,
-Hyperbolic, Novita, Nscale, OVHcloud, Together, and Z.ai. The
-specific provider segment in the model id determines routing; pick
-based on availability and pricing.
-
-Worked example invocation:
-
-```bash
-python -m benchmark.v1.run \
-  --model huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct \
-  --judge-family openai \
-  --judge-model openrouter/openai/gpt-4o-mini \
-  --output-dir benchmark/v1/runs/qwen-vl-7b
-```
-
-`--judge-family` is required for open-weights HF candidates; the
-cross-family judge auto-resolution map only covers Claude, Gemini,
-and OpenAI today. Pick the family different from the
-candidate's training lineage to preserve self-preference-bias
-correction. The runner will surface a clear error if you pass
-`--judge-family auto` against an open-weights HF candidate.
+An example environment file is provided in
+[`.env.example`](.env.example). To run open-weights multimodal
+candidates via HF Inference Providers, see
+[`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ## Run the benchmark
 
@@ -347,8 +271,8 @@ Optional flags:
   `benchmark/v1/runs/latest/`.
 
 The runner writes `transcripts.jsonl` and `findings.md` (which
-includes a reproducibility manifest as a JSON block) into the
-output directory.
+includes a reproducibility manifest as a JSON block) into the output
+directory.
 
 ## Verify the repo
 
@@ -365,51 +289,21 @@ validation, cross-scenario duplication) over the scenario bank.
 ## How the judge works
 
 A second model labels each Turn 2 response with one of `current`,
-`prior`, `clarify`, or `abstain`. v1 supports two judge roles:
+`prior`, `clarify`, or `abstain`. By default, `--judge-family auto`
+picks a different family than the candidate (Claude &rarr; Gemini,
+Gemini &rarr; OpenAI, OpenAI &rarr; Gemini) to reduce
+self-preference bias. For cross-candidate ranking, configure a fixed
+ranking judge with `--ranking-judge-family`; each trial then carries
+both verdicts and Cohen's kappa is reported. The judge sees the same
+audio and video channels as the candidate plus a ground-truth section
+naming the actual objects in frame; it does not see `target_context`,
+`cue_type`, or authoring `notes`. The privileged-field constraint is
+enforced by
+[`tests/test_judge_prompt_constraints.py`](tests/test_judge_prompt_constraints.py).
 
-**Cross-family judge (per-run integrity).** By default,
-`--judge-family auto` resolves to a different family than the
-candidate (Claude &rarr; Gemini, Gemini &rarr; OpenAI, OpenAI &rarr; Gemini).
-This reduces **self-preference bias**: the tendency of a model to
-rate outputs from its own family more favorably. Per-family default
-judge models are in [`core/llm_judge.py`](core/llm_judge.py): Claude
-&rarr; `openrouter/anthropic/claude-sonnet-4.6`, Gemini &rarr;
-`gemini-2.5-flash`, OpenAI &rarr; `openai/gpt-4.1-mini`. Pass
-`--judge-model <id>` to override.
-
-**Fixed ranking judge (cross-candidate comparability).** Cross-family
-judging removes self-preference within a run but does not isolate
-candidate quality from judge strictness across runs. To rank two
-candidates apples-to-apples, configure a fixed ranking judge with
-`--ranking-judge-family {claude|gemini|openai}` (and optionally
-`--ranking-judge-model <id>`). Each trial then carries both verdicts
-in its transcript. The findings report includes an "Inter-judge
-agreement (cross-LLM)" section with Cohen's kappa and per-scenario
-disagreement counts, used as a substitute for human inter-annotator
-agreement (future work).
-
-**Ground-truth visibility.** The judge receives the same audio and
-video channels as the candidate, plus a ground-truth section naming
-the actual objects in the Turn 1 and Turn 2 frames. The candidate
-never sees this section. The judge does **not** see the scenario's
-`target_context` label, `cue_type` shift category, or authoring
-`notes`. Those would name the answer. The constraint is enforced
-by [`tests/test_judge_prompt_constraints.py`](tests/test_judge_prompt_constraints.py).
-
-## How to read the primary score
-
-The primary score is **Balanced Turn 2 accuracy**: the macro-average
-of `current` and `prior` class accuracies under `baseline`.
-
-Macro-averaging gives each class equal weight, so the larger `current`
-class doesn't dominate the headline number. `baseline` is the default
-comparison system prompt; `condition_a` and `condition_b` are
-prompt-sensitivity checks, not replacement scores.
-
-On this benchmark, score deltas matter more than absolute values.
-Treat differences between models on the same release as the signal.
-For interpretation guidance, see
-[`docs/benchmark_notes.md`](docs/benchmark_notes.md).
+Full design rationale (why two layers, why cross-family by default)
+is in
+[`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
 ## Repository layout
 
@@ -424,6 +318,8 @@ For interpretation guidance, see
   authoring rules and validation checklist
 - [`docs/benchmark_notes.md`](docs/benchmark_notes.md): score
   interpretation and limitations
+- [`docs/running_open_weights.md`](docs/running_open_weights.md):
+  HF Inference Providers candidate setup
 - [`tests`](tests): runtime and input-validation tests
 - [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py):
   programmatic checks against the scenario bank
@@ -435,6 +331,10 @@ are out of scope once the `v1.0.0` release tag is created. Bug fixes
 and new model adapters are welcome at any time, as are doc and
 reproducibility improvements. See
 [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full policy.
+
+## Maintainer
+
+Nate Dryer ([@n-dryer](https://github.com/n-dryer)).
 
 ## License
 
