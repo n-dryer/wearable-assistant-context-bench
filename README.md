@@ -304,9 +304,14 @@ For interpretation guidance, see
 
 ## Results
 
-v1 publishes five runs across two scenario packs. All use 5 trials
-per cell and report 95% Wilson CIs per class plus 95%
-normal-approximation CIs on the balanced mean.
+v1 publishes six runs across the canonical 50-scenario bank and the
+adversarial 20-scenario distractor-rich pack. All use 5 trials per
+cell and report 95% Wilson CIs per class plus 95%
+normal-approximation CIs on the balanced mean. A third pack — 15
+ceiling-test scenarios in `scenarios_v2_candidates.json` (all
+`difficulty_tier: hard`) — is wired via `--pack hard` for users who
+want to push frontier models, but no run is published against it
+yet.
 
 | Run | Candidate | Judge | Pack | Primary score (95% CI) |
 |---|---|---|---|---|
@@ -338,7 +343,7 @@ Per-class accuracy under `baseline` (full table per run in
   isn't solving from question phrasing alone. It does not on its
   own prove context tracking; the per-class pattern below does.
 - **The model handles "current" but stumbles on "prior".** Across
-  all five runs the model is much better when the answer is about
+  all six runs the model is much better when the answer is about
   the most recent frame than when the answer is about an earlier
   frame. `baseline-qwen-cross-family` is the clearest example:
   100% on `current`, 8.3% on `prior`. The model grounds in the
@@ -377,16 +382,17 @@ Per-class accuracy under `baseline` (full table per run in
 
 ### Caveats
 
-- **Same-family judging on three of four canonical runs.** API
+- **Same-family judging on four of five canonical runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Pro) was
   exhausted mid-effort, leaving Gemini Direct (via LiteLLM) as the
   only viable transport for the bulk of the canonical runs.
   Gemini-Flash-Lite judges Gemini-Flash-Lite (and Gemini-Flash)
-  on those three runs, which admits self-preference bias.
+  on `baseline`, `baseline-alt`, `ablation-no-camera`, and
+  `baseline-deictic-repair`, which admits self-preference bias.
   `baseline-qwen-cross-family` is the cross-family integrity
   reference for the canonical bank; `adversarial` is the
   cross-family integrity reference for the adversarial pack.
-- **Two model-config families across v1.** Canonical 4 use
+- **Two model-config families across v1.** Five canonical runs use
   Gemini-direct + DashScope-International transports. Adversarial
   uses an OpenRouter setup with a Claude-Haiku ranking judge.
   Comparing within a single run is fully apples-to-apples;

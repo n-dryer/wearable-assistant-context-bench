@@ -1,11 +1,16 @@
-"""Generate improved statistical analysis from existing v1 run data.
+"""Generate statistical analysis from published v1 run data.
 
-Reads the JSONL transcripts from all 4 runs and produces:
-1. Wilson confidence intervals for all reported scores
-2. Per-shift-type accuracy breakdown
-3. McNemar's paired comparison (Run A vs Run B)
-4. Empirical difficulty grounding
-5. Minimum detectable effect disclosure
+Reads the JSONL transcripts from the canonical 50-scenario runs and
+produces:
+
+1. Wilson confidence intervals for the headline balanced and per-class
+   accuracies under `baseline`.
+2. Per-shift-type accuracy breakdown (cross-family runs only).
+3. McNemar's paired comparison (Gemini Flash-Lite vs Gemini Flash on
+   the canonical bank).
+4. Empirical-difficulty grounding (MMStar protocol; 80/40 thresholds).
+5. Minimum-detectable-effect disclosure for the canonical sample size.
+6. Coverage matrix (shift type x difficulty x target_context).
 
 Run:
     python scripts/analyze_runs.py
@@ -27,12 +32,28 @@ from core.statistics import (
 RUNS_DIR = Path("benchmark/v1/runs")
 SCENARIOS_PATH = Path("benchmark/v1/scenarios.json")
 
+# Canonical 50-scenario runs only; the adversarial run uses a different
+# scenario bank and is not directly comparable here.
 RUN_PATHS = {
-    "Run A (Gemini → GPT judge)": RUNS_DIR / "baseline-cross-family-a",
-    "Run B (GPT-4o-mini → Gemini judge)": RUNS_DIR / "baseline-cross-family-b",
-    "Original (Gemini → Gemini, same-family)": RUNS_DIR / "baseline",
-    "Run C (Gemini, no video)": RUNS_DIR / "baseline-ablation-no-camera",
+    "baseline (Gemini Flash-Lite, same-family judge)": RUNS_DIR / "baseline",
+    "baseline-alt (Gemini Flash, same-family judge)": RUNS_DIR / "baseline-alt",
+    "ablation-no-camera (Gemini Flash-Lite, --no-camera)": RUNS_DIR / "ablation-no-camera",
+    "baseline-qwen-cross-family (Qwen3-VL, Gemini judge)": RUNS_DIR / "baseline-qwen-cross-family",
+    "baseline-deictic-repair (Gemini Flash-Lite, deictic repair)": RUNS_DIR / "baseline-deictic-repair",
 }
+
+# The McNemar paired comparison is most informative when both runs
+# share scenarios and condition, but use different candidate models.
+PAIRED_COMPARISON = (
+    "baseline (Gemini Flash-Lite, same-family judge)",
+    "baseline-alt (Gemini Flash, same-family judge)",
+)
+
+# Cross-family runs used for empirical-difficulty grounding (excludes
+# the camera ablation, which is a deliberately handicapped condition).
+EMPIRICAL_DIFFICULTY_RUNS = (
+    "baseline-qwen-cross-family (Qwen3-VL, Gemini judge)",
+)
 
 
 def load_transcripts(run_dir: Path) -> list[dict]:
@@ -124,8 +145,7 @@ def main() -> None:
     # --- 2. Per-shift-type breakdown ---
     print("\n## 2. Per-Shift-Type Accuracy (baseline condition)\n")
     for name, results in all_results.items():
-        # Only show for cross-family runs (A and B)
-        if "cross-family" not in name.lower() and "Run A" not in name and "Run B" not in name:
+        if "no-camera" in name:
             continue
         print(f"### {name}\n")
         print(f"| Shift type | Scenarios | Trials | Accuracy | 95% CI |")
@@ -139,30 +159,28 @@ def main() -> None:
             )
         print()
 
-    # --- 3. McNemar's test: Run A vs Run B ---
-    print("\n## 3. McNemar's Paired Model Comparison (Run A vs Run B)\n")
-    run_a_key = [k for k in all_results if "Run A" in k]
-    run_b_key = [k for k in all_results if "Run B" in k]
-    if run_a_key and run_b_key:
-        results_a = all_results[run_a_key[0]]
-        results_b = all_results[run_b_key[0]]
+    # --- 3. McNemar's paired model comparison ---
+    name_a, name_b = PAIRED_COMPARISON
+    print(f"\n## 3. McNemar's Paired Model Comparison ({name_a} vs {name_b})\n")
+    if name_a in all_results and name_b in all_results:
+        results_a = all_results[name_a]
+        results_b = all_results[name_b]
         mcnemar = mcnemar_test(results_a, results_b, condition="baseline")
         print(f"  Discordant pairs: {mcnemar.n_discordant}")
         print(f"    A correct, B incorrect: {mcnemar.b}")
         print(f"    A incorrect, B correct: {mcnemar.c}")
         print(f"  Concordant pairs: {mcnemar.n_concordant}")
-        print(f"  χ² (continuity corrected): {mcnemar.chi2:.3f}")
+        print(f"  chi-squared (continuity corrected): {mcnemar.chi2:.3f}")
         print(f"  p-value: {mcnemar.p_value:.4f}")
         print(f"  Interpretation: {mcnemar.interpretation}")
     else:
-        print("  Cannot compute — need both Run A and Run B.")
+        print(f"  Cannot compute - need both {name_a} and {name_b}.")
 
     # --- 4. Empirical difficulty grounding ---
     print("\n\n## 4. Empirical Difficulty Grounding\n")
     cross_family_runs = [
-        results for name, results in all_results.items()
-        if "no video" not in name.lower() and "no-camera" not in name.lower()
-        and "same-family" not in name.lower() and "Original" not in name
+        all_results[name] for name in EMPIRICAL_DIFFICULTY_RUNS
+        if name in all_results
     ]
     if cross_family_runs:
         emp = empirical_difficulty(
@@ -196,18 +214,18 @@ def main() -> None:
 
     # --- 5. Minimum detectable effect ---
     print("\n\n## 5. Statistical Power Disclosure\n")
-    n_baseline = 100  # 50 scenarios × 2 trials
+    n_baseline = 50 * 5  # 50 scenarios x 5 trials per cell (v1 default)
     mde = minimum_detectable_effect(n_baseline)
     print(
         f"  Observations per model under baseline: {n_baseline} "
-        f"(50 scenarios × 2 trials)"
+        f"(50 scenarios x 5 trials)"
     )
     print(
         f"  Minimum detectable effect (80% power, 95% CI): "
-        f"≈{mde * 100:.0f} percentage points"
+        f"~{mde * 100:.0f} percentage points"
     )
     print(
-        f"\n  Interpretation: Score differences below ≈{mde * 100:.0f}pp "
+        f"\n  Interpretation: Score differences below ~{mde * 100:.0f}pp "
         f"may not be statistically reliable at this sample size."
     )
 

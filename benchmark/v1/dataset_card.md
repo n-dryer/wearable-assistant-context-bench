@@ -30,15 +30,16 @@ English.
 
 ### Data files
 
-The bank ships in two split groups:
+The bank ships in three split groups:
 
 | Group | Files | Count | Purpose |
 |---|---|---|---|
 | Canonical | `scenarios.json`, `expected_answers.json` | 50 | Frozen primary bank. The `baseline`, `baseline-alt`, `ablation-no-camera`, `baseline-qwen-cross-family`, and `baseline-deictic-repair` runs evaluate against this. |
 | Adversarial | `scenarios_adversarial.json`, `expected_answers_adversarial.json` | 20 | Distractor-rich scenarios for ceiling-effect probing. Run via `--pack adversarial`. |
+| Hard | `scenarios_v2_candidates.json`, `expected_answers_v2_candidates.json` | 15 | Ceiling-test scenarios (all `difficulty_tier: hard`) targeting cells the canonical bank under-covers. Authored after the empirical-difficulty analysis showed that 36% of the canonical bank is harder than its author tier suggests. Run via `--pack hard`. |
 
 There is no train/val/test split. The bank is an evaluation set; all
-70 scenarios are intended for inference and labeling, not training.
+85 scenarios are intended for inference and labeling, not training.
 
 ### Data fields
 
@@ -192,14 +193,14 @@ The benchmark does not measure these and does not intend to:
 
 ### Caveats on published v1 runs
 
-- **Same-family judging on three of four canonical runs.** API
+- **Same-family judging on four of five canonical runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Inference
   Providers Pro) was exhausted mid-effort, leaving Gemini-direct via
   LiteLLM as the only viable transport. Gemini-Flash-Lite judging
   Gemini-Flash-Lite (and Gemini-Flash) admits self-preference bias.
   `baseline-qwen-cross-family` is the cross-family integrity
   reference for the canonical bank.
-- **Two model-config families across v1.** Canonical four use
+- **Two model-config families across v1.** Five canonical runs use
   Gemini-direct + DashScope-International transports; `adversarial`
   uses an OpenRouter setup. Each `findings.md` manifest carries
   full identifiers.

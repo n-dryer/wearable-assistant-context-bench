@@ -219,7 +219,7 @@ version.
 
 ## What v1 ships
 
-v1 publishes five runs across two scenario packs (50 canonical + 20
+v1 publishes six runs across two scenario packs (50 canonical + 20
 adversarial). Each `findings.md` carries its full reproducibility
 manifest; the table below is the headline only.
 
@@ -229,11 +229,12 @@ manifest; the table below is the headline only.
 | `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` | canonical 50 | 77.7% (71.3–84.0) |
 | `ablation-no-camera` | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | canonical 50 | 14.4% (9.1–19.7) |
 | `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` | canonical 50 | 54.2% (50.7–57.7) |
+| `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | canonical 50 | 60.6% (54.1–67.1) |
 | `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
 ### Methodology features in v1
 
-- **Cross-family judging.** Two of five runs ship cross-family
+- **Cross-family judging.** Two of six runs ship cross-family
   (judge family different from candidate family):
   `baseline-qwen-cross-family` and `adversarial`. The three Gemini
   canonical runs are same-family; see Caveats below.
@@ -252,9 +253,9 @@ manifest; the table below is the headline only.
   mean the soldering iron I just picked up, not the multimeter
   probe"`) measuring floor recoverability, and a deictic anchor
   (`"no, this, what I'm holding now"`) measuring realistic recovery.
-  The named repair is what the five published runs use; an explicit
-  `--repair-style deictic` ablation across the bank is a v1.0.x
-  follow-up.
+  Five canonical runs use the named anchor;
+  `baseline-deictic-repair` ablates the deictic anchor on the same
+  candidate as `baseline` for direct comparison.
 - **Variance reporting.** `--trials 5` per cell with 95% Wilson CIs
   per class and 95% normal-approximation CIs on the balanced mean.
 - **Frozen scenario bank with static lockfile.** SHA256 hashes of
@@ -306,17 +307,57 @@ manifest; the table below is the headline only.
   and `abstain`-target scenarios, where deixis cannot point at the
   intended referent, verbal clarification rarely recovers the miss.
 
+### Statistical analysis
+
+`scripts/analyze_runs.py` regenerates the per-run statistics from the
+published JSONL transcripts. The findings below come from running it
+on the canonical 50-scenario runs at v1 release.
+
+**McNemar paired test (`baseline` vs `baseline-alt`).** Same scenario
+bank, same condition, different candidate models: Gemini Flash-Lite
+vs Gemini Flash. 250 paired observations under `baseline`. 55
+discordant pairs (40 favoring Flash, 15 favoring Flash-Lite),
+chi-squared (continuity-corrected) = 10.47, p = 0.0012. The bigger
+sibling is statistically better on the canonical bank. Reference:
+McNemar's test is the standard paired comparison for binary outcomes
+on the same items; see Bowyer et al. (2025, arXiv:2503.01747) for the
+benchmark-evaluation framing.
+
+**Minimum detectable effect.** At the v1 sample size (50 scenarios x
+5 trials = 250 observations per cell under `baseline`), the
+two-proportion z-test at 80% power gives an MDE of approximately 13
+percentage points around p = 0.5. Score differences below ~13 pp
+between two runs at this sample size should be treated as inside the
+noise floor. The Gemini Flash vs Flash-Lite gap (17.1 pp) clears it;
+the Gemini Flash-Lite vs Qwen3-VL gap (6.4 pp) does not.
+
+**Empirical-difficulty grounding (MMStar protocol).** Following Chen
+et al. (NeurIPS 2024), pass rates from the cross-family
+`baseline-qwen-cross-family` run reclassify each scenario into easy
+(>= 80% pass), medium (40-80%), or hard (< 40%). Author-assigned
+difficulty agrees with empirical difficulty on 18/50 scenarios (36%).
+The dominant mismatch direction is "author medium/hard but
+empirically easy" (24 scenarios) -- the bank skews easier than
+authors expected. A smaller cluster (8 scenarios) is empirically hard
+where authors marked them medium or easy. The 20-scenario adversarial
+pack and the harder-by-construction scenarios in
+`scenarios_v2_candidates.json` (15 ceiling-test scenarios, sc-51 to
+sc-65) target the gap directly. Re-running the difficulty grounding
+on multiple cross-family runs would tighten the empirical-tier
+labels; v1 reports the single available cross-family run.
+
 ### Caveats
 
-- **Same-family judging on three of four canonical runs.** API
+- **Same-family judging on four of five canonical runs.** API
   budget across providers (OpenRouter, OpenAI direct, HF Inference
   Providers Pro) was exhausted mid-effort, leaving Gemini-direct
   via LiteLLM as the only viable transport for the bulk of the
-  canonical runs. Gemini-Flash-Lite judges Gemini-Flash-Lite (and
-  Gemini-Flash) on those three runs, which admits self-preference
-  bias. The `baseline-qwen-cross-family` run is the cross-family
-  integrity reference for the canonical bank.
-- **Two model-config families across v1.** The four canonical runs
+  canonical runs. Gemini-Flash-Lite judges Gemini-Flash-Lite and
+  Gemini-Flash on `baseline`, `baseline-alt`,
+  `ablation-no-camera`, and `baseline-deictic-repair`, which admits
+  self-preference bias. The `baseline-qwen-cross-family` run is the
+  cross-family integrity reference for the canonical bank.
+- **Two model-config families across v1.** The five canonical runs
   use Gemini-direct + DashScope-International transports. The
   `adversarial` run uses an OpenRouter setup with a Claude-Haiku
   ranking judge. Each `findings.md` manifest names the candidate

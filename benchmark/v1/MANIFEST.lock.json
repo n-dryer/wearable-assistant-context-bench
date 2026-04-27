@@ -8,5 +8,7 @@
   "interventions_sha256": "374ca5837b4ca75cfa2f6b2fd65769c23ccefcf04697b29af19e109a7f6bebe9",
   "adversarial_scenarios_sha256": "45f486adb801879ac7a24194c78f333abb3f6a8dc2dc656e8db39c5836254238",
   "adversarial_expected_answers_sha256": "866944fdfe0326c827941fd292206c35ebce0218ea5daa969c0a0b0973ca4b3e",
+  "hard_scenarios_sha256": "67b23881e398907bddaa65c74ae61391feb717d028bd9538cdcd3763e8071a26",
+  "hard_expected_answers_sha256": "66a8572ab0860d2069bf6e046621043551a7c35d4ae9212a1cb4cd7bc8c7e984",
   "_note": "Static lockfile. scripts/validate_scenarios.py compares computed hashes against this lock and fails CI if they drift without a coordinated benchmark_version bump. Regenerate by running scripts/regen_manifest_lock.py."
 }

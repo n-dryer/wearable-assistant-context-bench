@@ -327,6 +327,38 @@ def test_parse_args_accepts_pack_flag() -> None:
     assert overrides == {"pack": "adversarial"}
 
 
+def test_parse_args_accepts_hard_pack_flag() -> None:
+    args = run_module._parse_args(["--pack", "hard"])
+    assert args.pack == "hard"
+    overrides = run_module._config_overrides_from_args(args)
+    assert overrides == {"pack": "hard"}
+
+
+def test_hard_pack_loads_with_distinct_ids(tmp_path: Path) -> None:
+    """Hard pack scenarios have ids sc-51..sc-65 and the runner can
+    load them via the `pack` config override."""
+    adapter = _StubAdapter()
+    judge = _StubJudge()
+    output_dir = tmp_path / "hard"
+    results = run_module.run(
+        adapter=adapter,  # type: ignore[arg-type]
+        judge=judge,  # type: ignore[arg-type]
+        config={"output_dir": str(output_dir), "pack": "hard"},
+    )
+    ids = {r["scenario_id"] for r in results}
+    assert len(ids) == 15
+    assert all(sid.startswith("sc-") for sid in ids), (
+        f"hard pack ids should all start with 'sc-': {ids}"
+    )
+    findings = (output_dir / "findings.md").read_text(encoding="utf-8")
+    import re as _re
+
+    match = _re.search(r"```json\n(.*?)\n```", findings, _re.DOTALL)
+    assert match is not None
+    payload = json.loads(match.group(1))
+    assert payload["pack"] == "hard"
+
+
 def test_resolve_repair_anchor_named_default() -> None:
     scenario = run_module.Scenario(
         scenario_id="sc-x",

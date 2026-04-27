@@ -62,6 +62,8 @@ EXPECTED_ANSWERS_PATH = EXP_DIR / "expected_answers.json"
 INTERVENTIONS_PATH = EXP_DIR / "interventions.json"
 ADVERSARIAL_SCENARIOS_PATH = EXP_DIR / "scenarios_adversarial.json"
 ADVERSARIAL_ANSWERS_PATH = EXP_DIR / "expected_answers_adversarial.json"
+HARD_SCENARIOS_PATH = EXP_DIR / "scenarios_v2_candidates.json"
+HARD_ANSWERS_PATH = EXP_DIR / "expected_answers_v2_candidates.json"
 
 
 def _scenarios_path_for_pack(pack: str) -> Path:
@@ -69,6 +71,8 @@ def _scenarios_path_for_pack(pack: str) -> Path:
         return SCENARIOS_PATH
     if pack == "adversarial":
         return ADVERSARIAL_SCENARIOS_PATH
+    if pack == "hard":
+        return HARD_SCENARIOS_PATH
     raise ValueError(f"unknown scenario pack {pack!r}")
 
 
@@ -77,6 +81,8 @@ def _answers_path_for_pack(pack: str) -> Path:
         return EXPECTED_ANSWERS_PATH
     if pack == "adversarial":
         return ADVERSARIAL_ANSWERS_PATH
+    if pack == "hard":
+        return HARD_ANSWERS_PATH
     raise ValueError(f"unknown scenario pack {pack!r}")
 
 
@@ -817,13 +823,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--pack",
         dest="pack",
-        choices=["canonical", "adversarial"],
+        choices=["canonical", "adversarial", "hard"],
         default=None,
         help=(
             "Scenario pack to run. `canonical` is the frozen 50-scenario "
             "bank; `adversarial` is the separately-tagged 20-scenario "
             "distractor-rich pack published to discriminate at the top of "
-            "the score range. Defaults to canonical."
+            "the score range; `hard` is the 15-scenario ceiling-test pack "
+            "(all hard difficulty) targeting cells the canonical bank "
+            "under-covers. Defaults to canonical."
         ),
     )
     parser.add_argument(

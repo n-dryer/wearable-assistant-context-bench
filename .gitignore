@@ -26,5 +26,8 @@ CLAUDE.md
 output/
 results/
 
+# Local-only audit / interview-prep notes
+audits/
+
 # Claude Code / sibling worktrees (local-only)
 .claude/

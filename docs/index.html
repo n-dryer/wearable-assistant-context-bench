@@ -562,15 +562,52 @@ ul.bullets li {
         </section>
 
         <section class="row">
+            <div class="label">Statistical reliability</div>
+            <h2>Which differences are real, and which are noise?</h2>
+            <p>At the v1 sample size (50 scenarios &times; 5
+            trials = 250 paired observations under
+            <code>baseline</code>), the
+            <strong>minimum detectable effect</strong> at 80% power
+            is approximately 13 percentage points. Two runs less
+            than ~13 pp apart are not reliably distinguishable from
+            sampling noise. The 17.1-point Gemini Flash vs
+            Flash-Lite gap clears the bar; the 6.4-point gap
+            between Gemini Flash-Lite and Qwen3-VL-Plus does not.
+            The standard paired test for binary outcomes on the
+            same items is
+            <strong>McNemar's test</strong>: of the 250 paired
+            observations between <code>baseline</code> and
+            <code>baseline-alt</code>, 55 disagreed (40 favoring
+            Flash, 15 favoring Flash-Lite),
+            &chi;<sup>2</sup> = 10.47, p = 0.0012. Bigger sibling
+            wins decisively on this bank. <code>scripts/analyze_runs.py</code>
+            regenerates these numbers from the published JSONL
+            transcripts.</p>
+            <p>One pattern the analysis surfaces is a
+            <strong>ceiling effect</strong>: of the 50 scenarios,
+            most pass at &gt;= 80% on the cross-family
+            integrity-reference run, and a smaller cluster fails
+            at &lt; 40%. Author difficulty and empirical difficulty
+            agree on only 18 of 50 (36%). That motivates the 20-scenario
+            adversarial pack and a 15-scenario harder-by-construction
+            ceiling-test set
+            (<code>scenarios_v2_candidates.json</code>) that fill
+            cells the canonical bank under-covers. Re-running
+            empirical difficulty across multiple cross-family
+            candidates would tighten these labels; v1 reports the
+            single available cross-family run.</p>
+        </section>
+
+        <section class="row">
             <div class="label">Caveats on v1 numbers</div>
             <h2>What to keep in mind when reading the table</h2>
             <p>API budget exhausted across multiple providers
             mid-effort, leaving Gemini-direct as the only
-            transport for the bulk of the canonical runs. Three
-            of the four canonical Gemini runs ended up
-            same-family (Gemini-Flash-Lite judging itself).
-            Same-family judging admits self-preference bias, so
-            those numbers may be inflated.
+            transport for the bulk of the canonical runs. Four
+            of the five canonical Gemini runs ended up
+            same-family (Gemini-Flash-Lite judging itself or
+            Gemini-Flash). Same-family judging admits
+            self-preference bias, so those numbers may be inflated.
             <code>baseline-qwen-cross-family</code> is the
             cross-family integrity reference for the canonical
             bank: same scenarios, same scoring rules, but a
@@ -580,7 +617,9 @@ ul.bullets li {
             <code>baseline-qwen-cross-family</code> (54.2%) is the
             visible self-preference signal, though candidate
             quality differs between the two runs and explains
-            some of the gap as well.</p>
+            some of the gap as well, and the gap sits below the
+            ~13-point minimum detectable effect at this sample
+            size.</p>
         </section>
 
         <section class="row" id="out-of-scope">

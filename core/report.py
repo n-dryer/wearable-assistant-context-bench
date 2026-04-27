@@ -38,34 +38,35 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
+from core.statistics import wilson_ci
+
 
 # 95% normal-distribution z-score for Wilson score interval
 WILSON_Z_95: float = 1.959964
 
 
 def wilson_interval(passed: int, total: int, z: float = WILSON_Z_95) -> tuple[float, float, float] | None:
-    """Wilson score interval for a binomial proportion.
+    """Wilson score interval for a binomial proportion as ``(rate, lo, hi)``.
 
-    Returns ``(rate, lo, hi)`` or ``None`` when ``total == 0``. The
-    Wilson interval is preferred over the normal approximation for
-    small N because it stays within [0, 1] and degrades gracefully
-    at extremes.
+    Thin tuple-returning wrapper over :func:`core.statistics.wilson_ci`
+    for callers in this module that pre-date the dataclass API. New
+    code should call ``wilson_ci`` directly.
+
+    Returns ``None`` when ``total == 0``. The custom ``z`` argument is
+    honored only when it differs from the 95% default; non-default
+    confidence levels route through ``wilson_ci``.
     """
     if total <= 0:
         return None
-    rate = passed / total
-    denom = 1.0 + (z * z) / total
-    center = (rate + (z * z) / (2 * total)) / denom
-    margin = (
-        z
-        * math.sqrt(
-            (rate * (1.0 - rate) / total) + (z * z) / (4 * total * total)
-        )
-        / denom
-    )
-    lo = max(0.0, center - margin)
-    hi = min(1.0, center + margin)
-    return rate, lo, hi
+    if z == WILSON_Z_95:
+        ci = wilson_ci(passed, total)
+        return ci.proportion, ci.lower, ci.upper
+    # Custom z: derive a confidence level for wilson_ci.
+    from statistics import NormalDist
+
+    confidence = 2 * NormalDist().cdf(z) - 1
+    ci = wilson_ci(passed, total, confidence=confidence)
+    return ci.proportion, ci.lower, ci.upper
 
 
 POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")

@@ -28,6 +28,8 @@ INTERVENTIONS_PATH = Path("benchmark/v1/interventions.json")
 LOCKFILE_PATH = Path("benchmark/v1/MANIFEST.lock.json")
 ADVERSARIAL_SCENARIOS_PATH = Path("benchmark/v1/scenarios_adversarial.json")
 ADVERSARIAL_ANSWERS_PATH = Path("benchmark/v1/expected_answers_adversarial.json")
+HARD_SCENARIOS_PATH = Path("benchmark/v1/scenarios_v2_candidates.json")
+HARD_ANSWERS_PATH = Path("benchmark/v1/expected_answers_v2_candidates.json")
 
 # Common-object blocklist for image descriptions. Image descriptions must
 # NOT name the object directly. This list is non-exhaustive but catches
@@ -341,6 +343,10 @@ def check_7_lockfile_drift():
         expected["adversarial_expected_answers_sha256"] = _sha(
             ADVERSARIAL_ANSWERS_PATH
         )
+    if HARD_SCENARIOS_PATH.exists():
+        expected["hard_scenarios_sha256"] = _sha(HARD_SCENARIOS_PATH)
+    if HARD_ANSWERS_PATH.exists():
+        expected["hard_expected_answers_sha256"] = _sha(HARD_ANSWERS_PATH)
     for key, value in expected.items():
         if lockfile.get(key) != value:
             fails.append({
@@ -433,6 +439,21 @@ def main() -> int:
         )
         all_fails.extend(check_6_duplication(adv_scenarios))
 
+    # Hard pack: same checks except canonical-bank distribution. Same
+    # rationale as the adversarial pack — separately tagged scenarios
+    # validated under their own distribution rules.
+    if HARD_SCENARIOS_PATH.exists() and HARD_ANSWERS_PATH.exists():
+        hard_scenarios = json.loads(HARD_SCENARIOS_PATH.read_text())
+        hard_answers = json.loads(HARD_ANSWERS_PATH.read_text())
+        all_fails.extend(check_1_token_leakage(hard_scenarios, hard_answers))
+        all_fails.extend(check_2_object_name_in_images(hard_scenarios))
+        all_fails.extend(
+            check_3_schema_validation(
+                hard_scenarios, hard_answers, enforce_distribution=False
+            )
+        )
+        all_fails.extend(check_6_duplication(hard_scenarios))
+
     if args.json:
         print(json.dumps(all_fails, indent=2, ensure_ascii=False))
     else:
@@ -442,10 +463,16 @@ def main() -> int:
                 if ADVERSARIAL_SCENARIOS_PATH.exists()
                 else 0
             )
+            hard_count = (
+                len(json.loads(HARD_SCENARIOS_PATH.read_text()))
+                if HARD_SCENARIOS_PATH.exists()
+                else 0
+            )
             adv_note = f" + {adv_count} adversarial" if adv_count else ""
+            hard_note = f" + {hard_count} hard" if hard_count else ""
             print(
-                f"All checks passed ({len(scenarios)} canonical{adv_note} "
-                f"scenarios validated)."
+                f"All checks passed ({len(scenarios)} canonical"
+                f"{adv_note}{hard_note} scenarios validated)."
             )
         else:
             print(f"{len(all_fails)} validation failure(s):")

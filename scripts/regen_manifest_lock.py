@@ -28,6 +28,8 @@ EXPECTED_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers.json"
 INTERVENTIONS_PATH = REPO_ROOT / "benchmark" / "v1" / "interventions.json"
 ADV_SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios_adversarial.json"
 ADV_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers_adversarial.json"
+HARD_SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios_v2_candidates.json"
+HARD_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers_v2_candidates.json"
 
 LOCKFILE_NOTE = (
     "Static lockfile. scripts/validate_scenarios.py compares computed "
@@ -60,6 +62,9 @@ def build_lockfile() -> dict:
     if ADV_SCENARIOS_PATH.exists() and ADV_ANSWERS_PATH.exists():
         lockfile["adversarial_scenarios_sha256"] = _sha256(ADV_SCENARIOS_PATH)
         lockfile["adversarial_expected_answers_sha256"] = _sha256(ADV_ANSWERS_PATH)
+    if HARD_SCENARIOS_PATH.exists() and HARD_ANSWERS_PATH.exists():
+        lockfile["hard_scenarios_sha256"] = _sha256(HARD_SCENARIOS_PATH)
+        lockfile["hard_expected_answers_sha256"] = _sha256(HARD_ANSWERS_PATH)
     lockfile["_note"] = LOCKFILE_NOTE
     return lockfile
 
