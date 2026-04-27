@@ -42,24 +42,19 @@ include wearable (smart glasses, ear-worn devices) and handheld
 
 The product problem: a user asks about a hammer, puts it down, picks
 up a screwdriver, then asks, "how do I use this?" The assistant
-should answer about the screwdriver. Users should not have to keep
-restating what they are looking at, holding, or referring to. The
-assistant should infer the right reference from the situational cues
-already present in the interaction.
+should answer about the screwdriver, without the user having to
+restate what they are holding.
 
-The Scenario Bank is **50 scenarios across 8 shift-type categories**:
-`object_in_hand`, `object_state`, `sequential_task`, `location`,
+The Scenario Bank is **50 scenarios across 8 shift-type categories**
+(`object_in_hand`, `object_state`, `sequential_task`, `location`,
 `object_in_view`, `absent_referent`, `screen_content`,
-`pre_conversation_recall`. Per-category counts are in
-[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type).
-Each scenario has three turns. Scene descriptions are injected on the
-user side as `[Camera: ...]` blocks (the literal field name from the
-scenario JSON). Scene descriptions are what a vision system would say
-about a video frame: shape, material, color, motion, position, without
-naming the object directly. The candidate combines those scene blocks
-with deictic user speech and figures out what the question is about.
+`pre_conversation_recall`; counts in
+[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type)).
+Each scenario has three turns. Camera frames inject as `[Camera: ...]`
+blocks containing scene descriptions — shape, material, color,
+motion, position, without naming the object.
 
-The judge labels each Turn 2 response as one of `current`, `prior`,
+The judge labels each Turn 2 response as `current`, `prior`,
 `clarify`, or `abstain`. The primary score is **Balanced Turn 2
 accuracy**:
 
@@ -68,13 +63,11 @@ primary_score = mean(current_accuracy, prior_accuracy)
 ```
 
 The benchmark supports model-selection decisions for deployed
-multimodal coaching assistants. In v1, both perceptual channels are
-text proxies: spoken turns as text transcripts (not raw audio), and
-camera frames as scene descriptions (as a proxy for what a vision
-system would say about real video). This isolates context-tracking
-ability from variability in the perceptual front-end. See
-[`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design)
-for the three-channel design and proxy decisions.
+multimodal coaching assistants. v1 channels are text proxies: spoken
+turns as text transcripts (not raw audio), camera frames as scene
+descriptions (as a proxy for real video). Three-channel design and
+proxy rationale:
+[`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).
 
 ## Results
 
@@ -108,12 +101,8 @@ Per-class accuracy under `baseline` (full table per run in
 | baseline-deictic-repair | 87.9% (82.0&ndash;92.0) | 33.3% (22.7&ndash;45.9) |
 | adversarial | 84.6% (73.9&ndash;91.4) | 50.0% (29.9&ndash;70.1) |
 
-Run-by-run interpretation, statistical analysis (McNemar paired test,
-minimum detectable effect, MMStar empirical-difficulty grounding),
-and condition-sensitivity findings are in
-[`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-the-runs-show).
-Score-interpretation guidance is in
-[`docs/benchmark_notes.md`](docs/benchmark_notes.md#how-to-read-the-primary-score).
+Run interpretation, statistical analysis, and score-reading guidance:
+[`docs/benchmark_notes.md`](docs/benchmark_notes.md).
 
 ### Reproducing a run
 
@@ -198,111 +187,37 @@ flowchart LR
     Label -->|clarify or abstain| Aux["Auxiliary diagnostics"]
 ```
 
-The candidate sees the audio channel (user speech) and the video
-channel (scene descriptions). The judge also receives a ground-truth
-section that names the actual objects in Turn 1 and Turn 2; the
-candidate never sees that. Each scenario runs under three system
-prompts (the neutral `baseline` plus `condition_a` and `condition_b`,
-two nudge variants) at temperature 0. Turn 3 fires only after a
-Turn 2 miss and feeds the repair rate.
-
-For what is out of scope by design (advice quality, multi-turn
-dynamics beyond Turn 2, proactive coaching, domain depth, latency,
-cost, raw-audio perception, long-horizon memory), see
+What's out of scope:
 [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
-A model that fails this benchmark cannot serve as an in-the-moment
-multimodal assistant. A model that passes still needs separate
-evaluation for the items in that list.
 
 ## Quickstart
+
+Requires Python 3.11+. Copy [`.env.example`](.env.example) to `.env`
+and set the keys for the candidate and judge models you plan to use:
+`ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (or `GOOGLE_API_KEY`),
+`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `HF_TOKEN`.
 
 ```bash
 git clone https://github.com/n-dryer/wearable-assistant-context-bench.git
 cd wearable-assistant-context-bench
-./scripts/setup.sh
-. .venv/bin/activate
+./scripts/setup.sh && . .venv/bin/activate
 
-# Verify the repo without API access (stubs both candidate and judge):
+# Verify (no API access needed):
 python -m pytest tests/ -q
-python scripts/validate_scenarios.py
 
-# Run the benchmark against a real model (requires API keys, see below):
-cp .env.example .env  # then fill in keys
+# Run:
 python -m benchmark.v1.run --model <candidate_model_id>
 ```
 
-`scripts/setup.sh` sets up the venv with pinned dependencies, then
-downloads the spaCy `en_core_web_sm` model that the validator and
-scoring code path need. Override the Python interpreter with
-`PYTHON=python3.13 ./scripts/setup.sh` if you need a specific
-version.
-
-## API keys
-
-Requires Python 3.11+. Set the API keys you need for the candidate
-and judge models you plan to run:
-
-- `ANTHROPIC_API_KEY`
-- `GEMINI_API_KEY` or `GOOGLE_API_KEY`
-- `OPENAI_API_KEY`
-- `OPENROUTER_API_KEY`
-- `HF_TOKEN` (and `HUGGINGFACE_API_KEY` as a fallback name) for
-  Hugging Face Inference Providers
-
-An example environment file is provided in
-[`.env.example`](.env.example). To run open-weights multimodal
-candidates via HF Inference Providers, see
-[`docs/running_open_weights.md`](docs/running_open_weights.md).
-
-## Run the benchmark
-
-```bash
-python -m benchmark.v1.run \
-  --model <candidate_model_id> \
-  --judge-model <judge_model_id>
-```
-
-Optional flags:
-
-- `--judge-family auto|claude|gemini|openai`: judge family override.
-  Default is `auto`, which picks a different family than the candidate.
-- `--trials <int>`: trials per (scenario, condition) cell. Default is 5.
-- `--output-dir <path>`: output directory. Default is
-  `benchmark/v1/runs/latest/`.
-
-The runner writes `transcripts.jsonl` and `findings.md` (which
-includes a reproducibility manifest as a JSON block) into the output
-directory.
-
-## Verify the repo
-
-```bash
-python -m pytest tests/ -q
-python scripts/validate_scenarios.py
-```
-
-The test suite stubs candidate models and the judge so the runtime
-tests work without API access. The validator script runs four
-programmatic checks (token leakage, object-name leakage, schema
-validation, cross-scenario duplication) over the scenario bank.
+Run flags: `python -m benchmark.v1.run --help`. Open-weights HF
+candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ## How the judge works
 
-A second model labels each Turn 2 response with one of `current`,
-`prior`, `clarify`, or `abstain`. By default, `--judge-family auto`
-picks a different family than the candidate (Claude &rarr; Gemini,
-Gemini &rarr; OpenAI, OpenAI &rarr; Gemini) to reduce
-self-preference bias. For cross-candidate ranking, configure a fixed
-ranking judge with `--ranking-judge-family`; each trial then carries
-both verdicts and Cohen's kappa is reported. The judge sees the same
-audio and video channels as the candidate plus a ground-truth section
-naming the actual objects in frame; it does not see `target_context`,
-`cue_type`, or authoring `notes`. The privileged-field constraint is
-enforced by
-[`tests/test_judge_prompt_constraints.py`](tests/test_judge_prompt_constraints.py).
-
-Full design rationale (why two layers, why cross-family by default)
-is in
+A second model labels each Turn 2 response. `--judge-family auto`
+picks a different family than the candidate to reduce
+self-preference bias; `--ranking-judge-family` adds a fixed second
+judge for cross-candidate ranking. Full rationale:
 [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
 ## Repository layout
