@@ -349,27 +349,26 @@ labels; v1 reports the single available cross-family run.
 
 ### Caveats
 
-- **Same-family judging on four of five Scenario Bank runs.** API
-  budget across providers (OpenRouter, OpenAI direct, HF Inference
-  Providers Pro) was exhausted mid-effort, leaving Gemini-direct
-  via LiteLLM as the only viable transport for the bulk of the
-  Scenario Bank runs. Gemini-Flash-Lite judges Gemini-Flash-Lite
-  and Gemini-Flash on `baseline`, `baseline-alt`,
-  `ablation-no-camera`, and `baseline-deictic-repair`, which admits
-  self-preference bias. The `baseline-qwen-cross-family` run is the
-  cross-family integrity reference for the Scenario Bank.
+- **Same-family judging on four of five Scenario Bank runs.** Mid-run,
+  the API budget ran out across non-Gemini providers (OpenRouter,
+  OpenAI direct, HF Inference Providers Pro), leaving Gemini-direct
+  via LiteLLM as the only working path. Gemini-Flash-Lite ended up
+  judging Gemini-Flash-Lite (and Gemini-Flash) on `baseline`,
+  `baseline-alt`, `ablation-no-camera`, and `baseline-deictic-repair`
+  — same-family pairings that can show self-preference bias.
+  `baseline-qwen-cross-family` is the cross-family reference for the
+  Scenario Bank.
 - **Two model-config families across v1.** The five Scenario Bank
-  runs use Gemini-direct + DashScope-International transports. The
-  `adversarial` run uses an OpenRouter setup with a Claude-Haiku
-  ranking judge. Each `findings.md` manifest names the candidate
-  and judge identifiers; comparing within a single run is fully
-  apples-to-apples.
-- **`baseline-qwen-cross-family` cannot yet be ranked head-to-head
+  runs use Gemini-direct + DashScope-International. The
+  `adversarial` run uses OpenRouter with a Claude-Haiku ranking
+  judge. Within a single run the candidate and judge stay fixed, so
+  comparisons there are direct. Across runs, check the candidate and
+  judge ids in each `findings.md` before comparing.
+- **`baseline-qwen-cross-family` cannot yet be ranked directly
   against the Gemini Scenario Bank runs.** Cross-candidate ranking
-  requires a fixed ranking judge held constant across candidates;
-  v1 demonstrates that mechanism on the adversarial run only.
-  Re-running the Scenario Bank with a fixed ranking judge across
-  all candidates is a v1.0.x follow-up.
+  needs the same judge across every candidate; v1 wires that in only
+  on `adversarial`. Re-running the Scenario Bank under one fixed
+  ranking judge is a v1.0.x follow-up.
 
 ## Open limitations (future follow-ups)
 
@@ -597,4 +596,5 @@ Quick reference for the abbreviated forms used throughout these docs:
 - **Cross-family judge.** A judge whose model family differs from
   the candidate's, used to reduce self-preference bias within a run.
 - **Fixed ranking judge.** A single judge held constant across runs,
-  used to compare candidates apples-to-apples.
+  so candidates can be compared directly without judge strictness
+  varying between them.

@@ -243,23 +243,22 @@ The benchmark does not measure these and does not intend to:
 
 ### Caveats on published v1 runs
 
-- **Same-family judging on four of five Scenario Bank runs.** API
-  budget across providers (OpenRouter, OpenAI direct, HF Inference
-  Providers Pro) was exhausted mid-effort, leaving Gemini-direct via
-  LiteLLM as the only viable transport. Gemini-Flash-Lite judging
-  Gemini-Flash-Lite (and Gemini-Flash) admits self-preference bias.
-  `baseline-qwen-cross-family` is the cross-family integrity
-  reference for the Scenario Bank.
-- **Two model-config families across v1.** Five Scenario Bank runs use
-  Gemini-direct + DashScope-International transports; `adversarial`
-  uses an OpenRouter setup. Each `findings.md` manifest carries
-  full identifiers.
+- **Same-family judging on four of five Scenario Bank runs.** Mid-run,
+  the API budget ran out across non-Gemini providers (OpenRouter,
+  OpenAI direct, HF Inference Providers Pro), leaving Gemini-direct
+  via LiteLLM as the only working path. Gemini-Flash-Lite ended up
+  judging Gemini-Flash-Lite (and Gemini-Flash) — same-family pairings
+  that can show self-preference bias. `baseline-qwen-cross-family` is
+  the cross-family reference for the Scenario Bank.
+- **Two model-config families across v1.** Five Scenario Bank runs
+  use Gemini-direct + DashScope-International; `adversarial` uses
+  OpenRouter. Each `findings.md` carries full candidate and judge
+  ids.
 
 ### v1.0.x follow-ups
 
-- Re-run the Scenario Bank with a single fixed ranking judge held
-  constant across all candidates so cross-candidate ranking is
-  apples-to-apples.
+- Re-run the Scenario Bank under one fixed ranking judge so candidates
+  can be ranked directly against each other.
 - Re-run `adversarial` under the same Gemini setup as the Scenario
   Bank so the model-config story across all six runs is consistent.
 

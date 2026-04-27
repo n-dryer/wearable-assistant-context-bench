@@ -109,16 +109,16 @@ Per-row reproduction commands:
 
 ### Caveats
 
-- Same-family judging on four of five Scenario Bank runs; API budget
-  across non-Gemini providers was exhausted mid-effort, leaving
-  `baseline-qwen-cross-family` as the cross-family integrity
-  reference for the Scenario Bank.
-- Two model-config families across v1 (Gemini-direct +
-  DashScope-International for the Scenario Bank, OpenRouter for the
-  adversarial run); compare within a single run, or read each
-  `findings.md` manifest before comparing across runs.
-- `baseline-qwen-cross-family` cannot yet be ranked head-to-head with
-  the Gemini Scenario Bank runs; cross-candidate ranking under a
+- Same-family judging on four of five Scenario Bank runs; the API
+  budget for non-Gemini providers ran out mid-run, leaving
+  `baseline-qwen-cross-family` as the cross-family reference for the
+  Scenario Bank.
+- Two model-config families in v1 (Gemini-direct +
+  DashScope-International for the Scenario Bank, OpenRouter for
+  `adversarial`); compare within a single run, or check the candidate
+  and judge ids in each `findings.md` before comparing across runs.
+- `baseline-qwen-cross-family` cannot yet be ranked directly against
+  the Gemini Scenario Bank runs; cross-candidate ranking under one
   fixed ranking judge is a v1.0.x follow-up.
 
 Full discussion and limitations are in
@@ -146,9 +146,8 @@ What's out of scope:
 ## Quickstart
 
 Requires Python 3.11+. Copy [`.env.example`](.env.example) to `.env`
-and set the keys for the candidate and judge models you plan to use:
-`ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (or `GOOGLE_API_KEY`),
-`OPENAI_API_KEY`, `OPENROUTER_API_KEY`, `HF_TOKEN`.
+and fill in keys for the providers you'll use; the file documents
+each variable.
 
 ```bash
 git clone https://github.com/n-dryer/wearable-assistant-context-bench.git

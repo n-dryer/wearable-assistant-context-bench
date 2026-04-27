@@ -420,7 +420,7 @@ ul.bullets li {
 
             <p>The five Scenario Bank runs share the same 50
             scenarios, so primary scores compare directly within a
-            run (apples-to-apples). The fifth Scenario Bank run
+            run. The fifth Scenario Bank run
             (<code>baseline-deictic-repair</code>) shares the same
             Turn 2 setup as <code>baseline</code>, so its primary
             score is identical; the difference shows up in the
@@ -537,7 +537,7 @@ ul.bullets li {
                 outputs more favorably). The
                 <strong>fixed ranking judge</strong> is a second
                 judge held constant across runs so candidates can
-                be compared apples-to-apples. The two judges read
+                be compared directly. The two judges read
                 the same 300 adversarial trials. They agreed on 190
                 (Cohen's &kappa; = 0.443, moderate). Not
                 idiosyncratic to one family, but not lined up
@@ -597,24 +597,22 @@ ul.bullets li {
         <section class="row">
             <div class="label">Caveats on v1 numbers</div>
             <h2>What to keep in mind when reading the table</h2>
-            <p>API budget exhausted across multiple providers
-            mid-effort, leaving Gemini-direct as the only
-            transport for the bulk of the Scenario Bank runs.
-            Four of the five Gemini runs on the Scenario Bank
-            ended up same-family (Gemini-Flash-Lite judging
-            itself or Gemini-Flash). Same-family judging admits
-            self-preference bias, so those numbers may be
-            inflated.
+            <p>Mid-run, the API budget for non-Gemini providers
+            ran out, leaving Gemini-direct as the only working
+            path. Four of the five Gemini runs on the Scenario
+            Bank ended up same-family (Gemini-Flash-Lite judging
+            itself or Gemini-Flash) — pairings that can show
+            self-preference bias, so those numbers may be inflated.
             <code>baseline-qwen-cross-family</code> is the
-            cross-family integrity reference for the Scenario
-            Bank: same scenarios, same scoring rules, but a
-            non-Gemini candidate paired with the Gemini judge.
-            The 6.4-point gap between same-family
-            <code>baseline</code> (60.6%) and cross-family
+            cross-family reference for the Scenario Bank: same
+            scenarios, same scoring rules, but a non-Gemini
+            candidate paired with the Gemini judge. The 6.4-point
+            gap between same-family <code>baseline</code> (60.6%)
+            and cross-family
             <code>baseline-qwen-cross-family</code> (54.2%) is the
             visible self-preference signal, though candidate
             quality differs between the two runs and explains
-            some of the gap as well, and the gap sits below the
+            some of the gap. The gap also sits below the
             ~13-point minimum detectable effect at this sample
             size.</p>
         </section>
