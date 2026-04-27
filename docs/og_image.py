@@ -166,7 +166,7 @@ def render() -> None:
     )
     draw.text(
         (80, 220),
-        "Context Benchmark",
+        "Context Bench",
         fill=INK,
         font=title_font,
     )
