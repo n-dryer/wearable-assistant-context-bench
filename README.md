@@ -104,55 +104,8 @@ Per-class accuracy under `baseline` (full table per run in
 Run interpretation, statistical analysis, and score-reading guidance:
 [`docs/benchmark_notes.md`](docs/benchmark_notes.md).
 
-### Reproducing a run
-
-Each leaderboard row corresponds to one of the commands below. The
-exact model ids and flags are taken from each run's reproducibility
-manifest in `benchmark/v1/runs/<name>/findings.md`. Outputs land in
-`benchmark/v1/runs/<name>/`.
-
-```bash
-# baseline
-python -m benchmark.v1.run \
-  --model gemini/gemini-2.5-flash-lite \
-  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
-  --output-dir benchmark/v1/runs/baseline
-
-# baseline-alt
-python -m benchmark.v1.run \
-  --model gemini/gemini-2.5-flash \
-  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
-  --output-dir benchmark/v1/runs/baseline-alt
-
-# ablation-no-camera
-python -m benchmark.v1.run \
-  --model gemini/gemini-2.5-flash-lite \
-  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
-  --no-camera \
-  --output-dir benchmark/v1/runs/ablation-no-camera
-
-# baseline-qwen-cross-family
-python -m benchmark.v1.run \
-  --model dashscope-intl/qwen3-vl-plus \
-  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
-  --output-dir benchmark/v1/runs/baseline-qwen-cross-family
-
-# baseline-deictic-repair
-python -m benchmark.v1.run \
-  --model gemini/gemini-2.5-flash-lite \
-  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
-  --repair-style deictic \
-  --output-dir benchmark/v1/runs/baseline-deictic-repair
-
-# adversarial
-python -m benchmark.v1.run \
-  --model openrouter/google/gemini-2.5-flash-lite \
-  --judge-model openrouter/openai/gpt-4o-mini --judge-family openai \
-  --pack adversarial \
-  --ranking-judge-model openrouter/anthropic/claude-haiku-4.5 \
-  --ranking-judge-family claude \
-  --output-dir benchmark/v1/runs/adversarial
-```
+Per-row reproduction commands:
+[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
 ### Caveats
 

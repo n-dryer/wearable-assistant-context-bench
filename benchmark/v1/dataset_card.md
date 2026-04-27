@@ -154,6 +154,56 @@ Each run's full `findings.md` includes the reproducibility manifest.
 For the full per-class breakdown, see
 [`README.md#results`](../../README.md#results).
 
+### Reproducing the v1 runs
+
+Each leaderboard row above corresponds to one of the commands below.
+The model ids and flags are taken from each run's reproducibility
+manifest in `runs/<name>/findings.md`. Outputs land in
+`runs/<name>/`.
+
+```bash
+# baseline
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline
+
+# baseline-alt
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-alt
+
+# ablation-no-camera
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --no-camera \
+  --output-dir benchmark/v1/runs/ablation-no-camera
+
+# baseline-qwen-cross-family
+python -m benchmark.v1.run \
+  --model dashscope-intl/qwen3-vl-plus \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-qwen-cross-family
+
+# baseline-deictic-repair
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --repair-style deictic \
+  --output-dir benchmark/v1/runs/baseline-deictic-repair
+
+# adversarial
+python -m benchmark.v1.run \
+  --model openrouter/google/gemini-2.5-flash-lite \
+  --judge-model openrouter/openai/gpt-4o-mini --judge-family openai \
+  --pack adversarial \
+  --ranking-judge-model openrouter/anthropic/claude-haiku-4.5 \
+  --ranking-judge-family claude \
+  --output-dir benchmark/v1/runs/adversarial
+```
+
 ### Methodology features exercised
 
 - **Cross-family judging.** `baseline-qwen-cross-family` and
