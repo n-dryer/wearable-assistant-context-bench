@@ -29,8 +29,6 @@ results/
 # Local-only audit / interview-prep notes
 audits/
 
-# Claude Code / sibling worktrees (local-only)
+# Local-only working directories
 .claude/
-
-# here.now MCP working state (local-only)
 .herenow/
