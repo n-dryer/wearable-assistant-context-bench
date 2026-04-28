@@ -5,31 +5,35 @@
 
 [![Wearable Assistant Context Benchmark: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A model-selection benchmark for live AI wearable assistants.
+A benchmark for comparing models for live AI wearable assistants.
 
-These assistants process multimodal inputs during ongoing conversations. This benchmark simulates that with text as a proxy for real video and audio: transcripts for audio and scene descriptions for video frames. The user may be actively talking about one object, place, screen, or task, then shift to something else without saying exactly what changed. In a wearable setting, the user should not have to keep explaining what they are holding, looking at, or doing.
+Wearable assistants need to follow what the user means during a live conversation. A user might ask about one object, place, screen, or task, then move to something else without saying what changed. The assistant should use the latest audio, video, and text context instead of making the user explain every change.
 
-This benchmark tests one part of that product problem: context tracking after the visible scene changes. Specifically, it tests cross-turn multimodal reference resolution. The model should answer based on the object, place, screen, or task the user means now, not the one from the earlier turn.
+This benchmark tests one slice of that problem. It checks whether a model answers from the scene the user means now, or whether it stays anchored to the earlier part of the conversation. In benchmark terms, this is cross-turn multimodal reference resolution.
+
+v1 uses text stand-ins for live inputs. Spoken user turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real-video scenarios so the same reference-tracking task can be tested with visual input directly.
 
 Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
-## Quick Links
+## Quick links
 
 | Need | Start here |
 |---|---|
 | View the project dashboard and published results | [Project dashboard](https://n-dryer.github.io/wearable-assistant-context-bench/) |
 | Interpret scores | [`docs/benchmark_notes.md`](docs/benchmark_notes.md) |
 | Reproduce v1 runs | [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs) |
-| Understand the benchmark design | [`docs/benchmark_spec.md`](docs/benchmark_spec.md) |
+| Read the benchmark design | [`docs/benchmark_spec.md`](docs/benchmark_spec.md) |
 | Configure API keys | [`docs/api_keys.md`](docs/api_keys.md) |
 | Run open-weight models | [`docs/running_open_weights.md`](docs/running_open_weights.md) |
 | Report an issue | [GitHub Issues](https://github.com/n-dryer/wearable-assistant-context-bench/issues) |
 
-## Published Results
+## Published results
 
 v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses a separate 20-scenario pack with more distractors.
 
-**The primary score evaluates Balanced Turn 2 accuracy: accuracy on cases where the correct answer is the new situation and accuracy on cases where the correct answer is the earlier situation.** The strongest published Scenario Bank result is `baseline-alt`, with a **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that the visual context channel is central to the task.
+The primary score is **Balanced Turn 2 accuracy**. It averages two checks: how often the model answers correctly when the new scene matters, and how often it avoids switching when the earlier context is still the right answer.
+
+The strongest published Scenario Bank result is `baseline-alt`, with a **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that the visual context channel is central to the task.
 
 | Run | Candidate | Judge | Primary score (95% CI) |
 |---|---|---|---|
@@ -42,26 +46,24 @@ v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adv
 
 More detail:
 
-- How often models answer from the new scene instead of the earlier one: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
-- How to read the scores: [`docs/benchmark_notes.md`](docs/benchmark_notes.md)
-- Commands for reproducing each published run: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs)
+- New-scene and earlier-scene accuracy: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
+- Score interpretation: [`docs/benchmark_notes.md`](docs/benchmark_notes.md)
+- Reproduction commands: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs)
 
 ## Quickstart
 
 Requires Python 3.11+. You can use [`uv`](https://docs.astral.sh/uv/) for dependency and environment management.
 
-### Install and Verify
+### Install and verify
 
 ```bash
 git clone https://github.com/n-dryer/wearable-assistant-context-bench.git
 cd wearable-assistant-context-bench
 
-# Environment setup via uv
 uv venv
 source .venv/bin/activate
 uv pip install -e .
 
-# Run tests
 pytest tests/ -q
 ```
 
@@ -69,27 +71,27 @@ If you prefer standard pip, run `./scripts/setup.sh` instead of the `uv` command
 
 The test suite does not require API access.
 
-### Configure API Keys
+### Configure API keys
 
-Copy [`.env.example`](.env.example) to `.env`:
+Copy the example environment file, then add your provider keys:
 
 ```bash
 cp .env.example .env
 ```
 
-Provider-specific key details: [`docs/api_keys.md`](docs/api_keys.md).
+See [`docs/api_keys.md`](docs/api_keys.md) for provider-specific setup.
 
-### Run a Candidate Model
+### Run a candidate model
 
 ```bash
 python -m benchmark.v1.run --model <candidate_model_id>
 ```
 
-Published reproduction commands are listed in [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
+For exact commands used in the published runs, see [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
-Open-weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
+For open-weight Hugging Face models, see [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
-### Common Commands
+### Common commands
 
 ```bash
 # Run tests
@@ -102,51 +104,52 @@ python scripts/validate_scenarios.py
 python -m benchmark.v1.run --help
 ```
 
-## Benchmark Design
+## Benchmark design
 
-This section summarizes the benchmark mechanics: the modality constraints, the evaluation flow, how scenarios are structured, and how responses are scored.
+This section explains what the benchmark sends to the model, how the scenarios work, and how responses are scored.
 
-### Modality
+### Inputs in v1
 
-- **Audio** is represented as text transcripts, not raw audio.
-- **Video** is represented as scene descriptions, not raw video.
+v1 does not use raw audio or raw video.
 
-A planned next version will add real-video test scenarios. The goal is to keep the same reference-tracking task while also testing whether models can read the visual scene directly, instead of relying on written scene descriptions.
+- Audio is represented as text transcripts.
+- Video is represented as written scene descriptions.
 
-Benchmark design: [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).  
-Out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
+The next version is planned to include real-video test scenarios. The goal is to keep the same reference-tracking task while also testing whether models can read the visual scene directly.
 
-### Evaluation Flow
+For the full input design, see [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design). For limits of the benchmark, see [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
+
+### Evaluation flow
 
 ```mermaid
 flowchart LR
-    Ctx["[Camera: t0 frame]<br/>(optional context_image)"] --> T1["Turn 1<br/>[Camera: t1 frame]<br/>+ user speech"]
-    T1 --> Shift["Context shift<br/>(visible only in video)"]
-    Shift --> T2["Turn 2<br/>[Camera: t2 frame]<br/>+ user speech"]
+    Ctx["Optional starting scene"] --> T1["Turn 1: scene description + user speech"]
+    T1 --> Shift["Visible scene change"]
+    Shift --> T2["Turn 2: new scene description + user speech"]
     T2 --> Cand["Candidate model"]
-    Cand --> Judge["LLM judge<br/>(different family by default)<br/>+ ground truth"]
+    Cand --> Judge["LLM judge + answer key"]
     Judge --> Label{"Judge label"}
-    Label -->|current or prior| Score["Primary score<br/>Balanced Turn 2 accuracy"]
-    Label -->|clarify or abstain| Aux["Separate counts<br/>for clarify and abstain"]
+    Label -->|current or prior| Score["Primary score"]
+    Label -->|clarify or abstain| Aux["Reported separately"]
 ```
 
-### Scenarios and Packs
+### Scenarios and packs
 
-Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the new situation.
+Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2. The user does not announce the change. The model has to answer the Turn 2 question using the scene the user means at that point in the conversation.
 
-Video frames are injected as `[Camera: ...]` blocks carrying scene descriptions: shape, material, color, motion, and position. They do not include the object name.
+The scene descriptions include visible details such as shape, material, color, motion, and position. They avoid naming the object directly.
 
 | Pack | Size | Purpose | Status |
 |---|---:|---|---|
-| Scenario Bank | 50 scenarios | Main v1 benchmark across 8 shift-type categories | Published |
-| Adversarial | 20 scenarios | Harder scenarios where the earlier object or scene may still be visible | Published |
-| Hard candidates | 15 scenarios | Hard scenarios for testing stronger models | Wired via `--pack hard`; no published run yet |
+| Scenario Bank | 50 scenarios | Main v1 benchmark across 8 shift types | Published |
+| Adversarial | 20 scenarios | Harder cases where the earlier object or scene may still be visible | Published |
+| Hard candidates | 15 scenarios | Hard cases for testing stronger models | Wired via `--pack hard`; no published run yet |
 
-The Scenario Bank covers 8 shift-type categories: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
+The Scenario Bank covers 8 shift types: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
 
 For category counts, scenario fields, and authoring rules, see the [dataset card](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type), [schema](docs/schema.md), and [authoring rules](docs/scenario_authoring_rules.md).
 
-### Scoring and Judging
+### Scoring and judging
 
 Each scenario is evaluated on Turn 2, after the user's situation has changed.
 
@@ -159,8 +162,6 @@ Each scenario is evaluated on Turn 2, after the user's situation has changed.
 
 The primary score measures how well the model separates answers based on the new situation from answers based on the earlier situation. `clarify` and `abstain` are reported separately.
 
-The primary score is **Balanced Turn 2 accuracy**:
-
 ```text
 primary_score = mean(current_accuracy, prior_accuracy)
 ```
@@ -169,17 +170,17 @@ By default (`--judge-family auto`), the judge comes from a different model famil
 
 Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
-## Code Layout
+## Code layout
 
 | Path | Purpose |
 |---|---|
-| [`benchmark/v1`](benchmark/v1) | Scenario bank, runner, and run outputs |
-| [`core`](core) | Model adapters, judge, scoring, and report generation |
+| [`benchmark/v1`](benchmark/v1) | Scenarios, runner, and run outputs |
+| [`core`](core) | Model adapters, judge, scoring, and reports |
 | [`tests`](tests) | Runtime and input-validation tests |
-| [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py) | Scenario-bank validator |
-| [`.env.example`](.env.example) | Environment variable template for provider API keys |
+| [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py) | Scenario validator |
+| [`.env.example`](.env.example) | Environment variable template |
 
-## Contributing and Support
+## Contributing and support
 
 Edits to scenario text, answer keys, prompt text, or scoring semantics are out of scope once the `v1.0.0` release tag is created.
 
