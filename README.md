@@ -8,7 +8,7 @@
 
 A benchmark for testing whether multimodal wearable assistants follow the user's current context when the situation changes.
 
-The benchmark focuses on a failure mode that matters for wearable assistants: the user's situation changes, but the assistant keeps answering as if the old context still applies. It tests whether a model uses current visual context, avoids stale prior context, and is a better fit for context-dependent wearable assistant products.
+The benchmark focuses on a failure mode that matters for wearable assistants: the user's situation changes, but the assistant keeps answering as if the old context still applies. It tests whether a model uses current visual context, avoids stale prior context, and is a better fit for context dependent wearable assistant products.
 
 ## Quick links
 
@@ -25,7 +25,7 @@ The benchmark focuses on a failure mode that matters for wearable assistants: th
 
 ## Published results
 
-v1 publishes six runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses the 20-scenario distractor-rich pack.
+v1 publishes six runs. Five use the 50 scenario Scenario Bank. The `adversarial` run uses the 20 scenario distractor rich pack.
 
 The strongest published Scenario Bank result is `baseline-alt` at **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that performance is highly sensitive to removing the visual context channel.
 
@@ -40,7 +40,7 @@ The strongest published Scenario Bank result is `baseline-alt` at **77.7%** prim
 
 More detail:
 
-- Per-class accuracy (`current` / `prior` breakdown): [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
+- Per class accuracy (`current` / `prior` breakdown): [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
 - How to read the scores: [`docs/benchmark_notes.md`](docs/benchmark_notes.md)
 - Commands for reproducing each published run: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs)
 
@@ -78,7 +78,7 @@ python -m benchmark.v1.run --model <candidate_model_id>
 
 Published reproduction commands are listed in [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
-Open-weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
+Open weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ### Common commands
 
@@ -95,7 +95,7 @@ python -m benchmark.v1.run --help
 
 ## Benchmark overview
 
-This benchmark measures **context tracking** for AI wearable assistants used actively for advice or coaching, including smart glasses and ear-worn devices. It helps compare candidate models for multimodal coaching assistant products.
+This benchmark measures **context tracking** for AI wearable assistants used actively for advice or coaching, including smart glasses and ear worn devices. It helps compare candidate models for multimodal coaching assistant products.
 
 ### Product problem
 
@@ -117,7 +117,7 @@ flowchart LR
 
 ### Scenario design
 
-Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the current situation.
+Each scenario is a three turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the current situation.
 
 Video frames are injected as `[Camera: ...]` blocks carrying scene descriptions: shape, material, color, motion, and position. They do not include the object name.
 
@@ -137,12 +137,12 @@ What's out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-th
 | Pack | Size | Purpose | Status |
 |---|---:|---|---|
 | Scenario Bank | 50 scenarios | Main v1 benchmark across 8 shift-type categories | Published |
-| Adversarial | 20 scenarios | Distractor-rich stress pack | Published |
+| Adversarial | 20 scenarios | Distractor rich stress pack | Published |
 | Hard candidates | 15 scenarios | Ceiling-test candidates for frontier models | Wired via `--pack hard`; no published run yet |
 
 The Scenario Bank covers 8 shift-type categories: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
 
-Per-category counts: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type).
+Per category counts: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type).
 
 Scenario field reference: [`docs/schema.md`](docs/schema.md).
 
@@ -159,7 +159,7 @@ Each scenario is evaluated on Turn 2, after the user's situation has changed.
 | `clarify` | The response asks for clarification instead of answering |
 | `abstain` | The response avoids answering |
 
-The primary score focuses on distinguishing current-context answers from prior-context answers. `clarify` and `abstain` are reported as auxiliary diagnostics.
+The primary score focuses on distinguishing current-context answers from prior context answers. `clarify` and `abstain` are reported as auxiliary diagnostics.
 
 The primary score is **Balanced Turn 2 accuracy**:
 
@@ -167,7 +167,7 @@ The primary score is **Balanced Turn 2 accuracy**:
 primary_score = mean(current_accuracy, prior_accuracy)
 ```
 
-By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same-family self-grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
+By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same family self grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
 
 Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
