@@ -1,17 +1,18 @@
 # Wearable Assistant Context Benchmark
 
+[![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 [![Wearable Assistant Context Benchmark: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A benchmark for comparing models for live AI wearable assistants.
+A model-selection benchmark for live AI wearable assistants.
 
-Wearable assistants need to follow what the user means during a live conversation. A user might ask about one object, place, screen, or task, then move to something else without saying what changed. The assistant should use the latest audio, video, and text context instead of making the user explain every change.
+Wearable assistants need to follow what the user means during a live conversation. A user might be actively asking about one object, place, screen, or task, then move to something else without saying what changed. The assistant should use the latest audio, video, and text context instead of making the user explain every change.
 
-This benchmark tests one slice of that problem. It checks whether a model answers from the scene the user means now, or whether it stays anchored to the earlier part of the conversation. In benchmark terms, this is cross-turn multimodal reference resolution.
+This benchmark tests one slice of that problem: context tracking when the visible scene changes. It checks whether a model answers from the scene the user means now, or whether it stays anchored to the earlier part of the conversation. In benchmark terms, this is cross-turn multimodal reference resolution.
 
-v1 uses text stand-ins for live inputs. Spoken user turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real-video scenarios so the same reference-tracking task can be tested with visual input directly.
+v1 uses text as a proxy for real video and live audio. Spoken user turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real-video scenarios so the same reference-tracking task can be tested with visual input directly.
 
 Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
