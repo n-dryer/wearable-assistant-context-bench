@@ -6,8 +6,9 @@ contract, see [`benchmark_spec.md`](benchmark_spec.md).
 
 ## How to read the primary score
 
-The primary score is the **balanced accuracy on Turn 2 under
-`baseline`**: the average of two per-class numbers.
+The primary score is **Balanced Turn 2 accuracy**: the average of
+the `current` and `prior` per-class accuracies under the `baseline`
+prompt condition.
 
 ```text
 primary_score = mean(
@@ -397,8 +398,8 @@ benchmark could do but does not yet.
   future follow-up.
 - **The benchmark does not exercise the full omnimodal stack the
   product requires, but candidates should still meet that bar.** A
-  deployable in-the-moment multimodal coach (wearable or handheld)
-  needs live audio input, voice-mode output, real-time streaming,
+  deployable in-the-moment AI wearable coach needs live audio input,
+  voice-mode output, real-time streaming,
   and interruption handling. This benchmark uses text proxies for
   both vision and audio, and only scores text outputs, so the test
   mechanics only require a candidate with vision support. Candidate

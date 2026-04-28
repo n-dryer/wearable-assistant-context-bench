@@ -4,20 +4,20 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Wearable Assistant Context Benchmark</title>
-        <meta name="description" content="When the user's situation changes mid-conversation, does a wearable AI assistant follow along, or stay stuck on what was happening before? 70 scenarios, six published runs.">
+        <meta name="description" content="When the user's situation changes mid-conversation, does a wearable AI assistant follow along, or stay stuck on what was happening before? 50 scenarios scored across four runs.">
 
         <meta property="og:type" content="website">
         <meta property="og:title" content="Wearable Assistant Context Benchmark">
-        <meta property="og:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 70 scenarios, six published runs. v1.0.0 April 2026.">
+        <meta property="og:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 50 scenarios, four published runs. v1.0.0 April 2026.">
         <meta property="og:url" content="https://n-dryer.github.io/wearable-assistant-context-bench/">
         <meta property="og:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="Wearable Assistant Context Benchmark v1.0.0. 70 scenarios, six published runs. AI wearables. Model benchmark.">
+        <meta property="og:image:alt" content="Wearable Assistant Context Benchmark v1.0.0. 50 scenarios, four published runs, MIT license.">
 
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="Wearable Assistant Context Benchmark">
-        <meta name="twitter:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 70 scenarios, six published runs. v1.0.0 April 2026.">
+        <meta name="twitter:description" content="When the user's situation changes mid-conversation, does the assistant follow along, or stay stuck on what was happening before? 50 scenarios, four published runs. v1.0.0 April 2026.">
         <meta name="twitter:image" content="https://n-dryer.github.io/wearable-assistant-context-bench/og-image.png">
         <meta name="twitter:image:alt" content="Wearable Assistant Context Benchmark v1.0.0.">
 
@@ -222,6 +222,49 @@ ul.bullets li {
     font-variant-numeric: tabular-nums;
 }
 
+.glossary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 40px;
+    margin-top: 14px;
+}
+
+.glossary-cat h3 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #b14f31;
+    margin: 0 0 10px 0;
+}
+
+.glossary-cat dl {
+    margin: 0;
+    padding: 0;
+}
+
+.glossary-cat dt {
+    font-weight: 700;
+    font-size: 15px;
+    color: #2b2118;
+    margin-top: 14px;
+}
+
+.glossary-cat dt:first-of-type {
+    margin-top: 0;
+}
+
+.glossary-cat dd {
+    margin: 4px 0 0 0;
+    padding: 0;
+    font-size: 15px;
+    color: #5b4a3d;
+}
+
+@media (max-width: 720px) {
+    .glossary-grid { grid-template-columns: 1fr; gap: 28px; }
+}
+
 .footer {
     margin-top: 40px;
     padding-top: 22px;
@@ -259,19 +302,21 @@ ul.bullets li {
         <div class="kicker">v1.0.0 &middot; April 2026</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-            A wearable or handheld coaching assistant sees and
-            hears the user. The user swaps tools or walks into
-            another room. The model needs to follow. This
-            benchmark scores
-            <strong>context tracking</strong> &mdash; keeping the
-            model on the right frame as the user's situation
-            changes mid-conversation.
+            An AI wearable assistant the user is actively using
+            for advice or coaching sees what the user sees and
+            hears what they say. When the user's situation changes
+            (they swap tools, walk into a new room), does the
+            assistant follow along, or stay stuck on what was
+            happening before? This benchmark measures
+            <strong>context tracking</strong>: whether the model's
+            answer reflects the user's current situation or the
+            previous one.
         </p>
 
         <div class="badges">
-            <span class="badge">AI wearables</span>
-            <span class="badge">Multimodal model</span>
-            <span class="badge">Benchmark</span>
+            <span class="badge">50 + 20 scenarios</span>
+            <span class="badge">6 published runs</span>
+            <span class="badge">5 trials per cell, 95% CIs</span>
         </div>
 
         <section class="row">
@@ -289,33 +334,22 @@ ul.bullets li {
             what was happening a minute ago?</p>
             <p>Each scenario is structured around three
             <strong>turns</strong> (a turn is one user message
-            plus the assistant's response). Turn 1 sets the scene.
+            plus the model's response). Turn 1 sets the scene.
             Between Turn 1 and Turn 2, the
             <strong>context shifts</strong> (something visible
             changes) without being announced. Turn 2 is a question
-            that only makes sense if it noticed the shift.
-            Turn 3 fires only on a Turn 2 miss: the user
-            clarifies and the assistant gets one more chance,
+            that only makes sense if the model noticed the shift.
+            Turn 3 fires only when the model misses Turn 2: the
+            user clarifies and the model gets one more chance,
             scored as the <strong>repair rate</strong>.</p>
-            <p>Each scenario carries a target label that says
-            what the right answer should refer to:</p>
-            <ul class="bullets">
-                <li><strong><code>current</code></strong>: the
-                right answer is about what the video shows in
-                Turn 2 (the user's situation right now).</li>
-                <li><strong><code>prior</code></strong>: the right
-                answer is about an earlier scene (Turn 1, or a
-                pre-conversation frame the user is referring back
-                to).</li>
-                <li><strong><code>clarify</code></strong>: the
-                question is too ambiguous to answer from the
-                available context; the assistant should ask which
-                thing is meant.</li>
-                <li><strong><code>abstain</code></strong>: the
-                needed information isn't in the conversation; the
-                assistant should decline rather than guess.</li>
-            </ul>
-            <p>The 50 scenarios in the Scenario Bank are spread
+            <p>Each scenario carries a target label that says what
+            the right answer should refer to:
+            <code>current</code> (the new situation),
+            <code>prior</code> (an earlier situation the user is
+            referring back to), <code>clarify</code> (the
+            assistant should ask which thing is meant), or
+            <code>abstain</code> (the assistant should say it
+            can't tell). The 50 canonical scenarios are spread
             across eight kinds of context shift: object switched
             in hand, same object in a different state, the next
             step of a sequential task, a change of location, a
@@ -324,12 +358,16 @@ ul.bullets li {
             the content of a screen changing, and recall of
             something the device saw before the conversation
             began.</p>
-            <p><strong>Heads up.</strong> The video and audio
-            inputs are text proxies (short scene descriptions and
-            transcripts), not real video or raw audio. This keeps
-            the benchmark cheap and reproducible, but a high score
-            here doesn't guarantee one on real video or audio.
-            See <a href="#out-of-scope">Out of scope</a>.</p>
+            <p><strong>One disclosure up front.</strong> The
+            camera input is short text descriptions of the scene,
+            not actual video frames. The audio input is text
+            transcripts, not raw audio. Both are deliberate
+            proxies that isolate context tracking from
+            perceptual-front-end noise. That keeps the benchmark
+            cheap and reproducible, but it means a model that does
+            well here might not do well on real video or raw
+            audio. More on that in
+            <a href="#out-of-scope">Out of scope</a>.</p>
         </section>
 
         <section class="row">
@@ -337,23 +375,21 @@ ul.bullets li {
             <h2>Six published runs</h2>
 
             <p>Each row below is an isolated experiment, not a
-            ranked leaderboard. Higher score, more often the
-            assistant tracks the shift. The
+            ranked leaderboard. The score measures how often the
+            assistant correctly realizes the situation has changed
+            versus getting stuck on what happened before. The
             <strong>primary score</strong> is balanced Turn 2
             accuracy: the average of accuracy on
             <code>current</code>-target scenarios and accuracy on
             <code>prior</code>-target scenarios under the neutral
-            <strong>system prompt</strong>, each given equal weight
-            so the larger class doesn't dominate the headline.
-            (v1 ships a neutral baseline prompt plus two nudge
-            variants; only the baseline drives the primary
-            score.)</p>
+            system prompt, weighted equally so the larger class
+            doesn't dominate the headline.</p>
 
-            <p>Five runs use the Scenario Bank (50 scenarios); one
+            <p>Five runs use the canonical 50-scenario bank; one
             uses a separate 20-scenario adversarial pack designed
             to discriminate at the top of the score range. CIs are
-            95% Wilson intervals per class and a 95%
-            normal-approximation interval on the balanced mean.</p>
+            95% Wilson intervals per class, 95% normal-approximation
+            on the balanced mean.</p>
 
             <table class="leaderboard">
                 <thead>
@@ -369,7 +405,7 @@ ul.bullets li {
                 <tbody>
                     <tr class="highlight">
                         <td><strong>baseline</strong></td>
-                        <td>Same-family Gemini reference run</td>
+                        <td>Same-family Gemini canonical</td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td>50</td>
@@ -385,7 +421,7 @@ ul.bullets li {
                     </tr>
                     <tr class="highlight">
                         <td><strong>ablation-no-camera</strong></td>
-                        <td>Video channel stripped</td>
+                        <td>Camera channel stripped</td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td>50</td>
@@ -418,9 +454,9 @@ ul.bullets li {
                 </tbody>
             </table>
 
-            <p>The five Scenario Bank runs share the same 50
-            scenarios, so primary scores compare directly within a
-            run. The fifth Scenario Bank run
+            <p>The five canonical runs share the same 50-scenario
+            bank, so primary scores compare directly within a run
+            (apples-to-apples). The fifth canonical run
             (<code>baseline-deictic-repair</code>) shares the same
             Turn 2 setup as <code>baseline</code>, so its primary
             score is identical; the difference shows up in the
@@ -428,29 +464,23 @@ ul.bullets li {
         </section>
 
         <section class="row">
-            <div class="label">Video ablation</div>
-            <h2>Strip the scene description and accuracy collapses</h2>
+            <div class="label">Camera ablation</div>
+            <h2>Without the camera input, the model can't answer</h2>
             <div class="callout">
-                <div class="callout-title">Same model, scene description shown vs hidden</div>
+                <div class="callout-title">Same model, camera shown vs hidden</div>
                 <div class="callout-stat flow">60.6% &rarr; 14.4%</div>
-                <p>The <strong>video ablation</strong> takes the
+                <p>The <strong>camera ablation</strong> takes the
                 same candidate model and the same judge and runs
                 them twice: once with the scene description
                 included in the prompt (<code>baseline</code>),
-                once with it stripped
-                (<code>ablation-no-camera</code>). Accuracy drops
-                46.2 percentage points. That rules out one
-                alternative reading of the headline numbers, that
-                the model is solving the task from question
-                phrasing alone &mdash; it isn't, it needs the
-                visual context to answer well. (This is about the
-                text scene description we feed in; whether real
-                video would behave the same is a separate
-                question, called out in
-                <a href="#out-of-scope">Out of scope</a>. And on
-                its own, the ablation isn't proof of deeper
-                context tracking; the per-class pattern below
-                fills in the rest.)</p>
+                once with it stripped (<code>ablation-no-camera</code>).
+                The 46.2 percentage-point drop rules out one
+                alternative reading of the headline numbers, namely
+                that the model is solving the task by guessing
+                from question phrasing alone. It can't. It needs
+                the camera input. (This isn't on its own a proof
+                of deeper context tracking; the per-class pattern
+                below fills in the rest.)</p>
             </div>
         </section>
 
@@ -460,20 +490,16 @@ ul.bullets li {
             <div class="callout">
                 <div class="callout-title">Cross-family integrity reference: Qwen3-VL-Plus + Gemini judge</div>
                 <div class="callout-stat flow">100.0% on <code>current</code> / 8.3% on <code>prior</code></div>
-                <p>When the right answer is about what the video
-                shows now (<code>current</code>), the model is
-                strong; when the right answer requires referring
-                back to an earlier scene
-                (<code>prior</code>), it stumbles. Across all six
-                runs the model is much better when the right
-                answer is about the most recent frame than when
-                the right answer is about an earlier frame. The
+                <p>Across all six runs the model is much better
+                when the right answer is about the most recent
+                frame than when the right answer is about an
+                earlier frame. The
                 <code>baseline-qwen-cross-family</code> run is the
                 clearest example: 100% accuracy when the target is
                 <code>current</code>, 8.3% when the target is
                 <code>prior</code>. The model grounds in the
                 latest visual input and struggles to refer back.
-                Together with the video ablation, this is the
+                Together with the camera ablation, this is the
                 capability gap the benchmark targets: a strong
                 read on what's in front of the model right now,
                 paired with a weak read on what the user is
@@ -483,41 +509,26 @@ ul.bullets li {
 
         <section class="row">
             <div class="label">Repair rate</div>
-            <h2>When the user clarifies, can the model recover?</h2>
+            <h2>When the user clarifies, what recovers?</h2>
             <div class="callout">
-                <div class="callout-title">Deictic vs named repair on the Scenario Bank</div>
+                <div class="callout-title">Deictic vs named repair on the canonical bank</div>
                 <div class="callout-stat flow">Deictic 50/50 (100%) &middot; Named 30/100 (30%)</div>
                 <p>If the model misses Turn 2, the user gets one
-                clarifying follow-up.
-                <strong>Recovery</strong> means the model gets it
-                right after that follow-up; the
-                <strong>repair rate</strong> is the fraction of
-                misses that recover. v1 tests two ways the user
-                might clarify.</p>
-                <p>The <strong>deictic anchor</strong> uses
-                pointing-style language only: "no, <em>this</em>,
-                what I'm holding now."
-                (<em>Deictic</em> means words that point rather
-                than name &mdash; "this", "that", "here", "now".)
-                It mirrors how people actually clarify when
-                they're holding something. The
-                <strong>named anchor</strong> spells the objects
-                out: "I mean the hammer I'm holding now, not the
-                screwdriver from before." It is the most explicit
-                clarification possible &mdash; if the model can't
-                recover here, no clarification will save it.</p>
-                <p>The two scores cover different scenarios. The
-                deictic anchor applies only when the referent is
-                currently visible (50 misses, all 50 recovered).
-                The named anchor covers the rest: misses on
-                <code>prior</code>, <code>clarify</code>, and
-                <code>abstain</code> targets where the user is
-                referring back to something out of frame (100
-                misses, 30 recovered). The pattern: when the user
-                can point, the model recovers every time. When
-                the question is about something no longer
-                visible, even explicit naming recovers only 30%
-                of misses.</p>
+                clarifying follow-up. The
+                <strong>repair rate</strong> is how often the
+                model gets it right after that clarification. v1
+                ships two clarification styles. The
+                <strong>named anchor</strong> spells out both
+                objects ("I mean the hammer I'm holding now, not
+                the screwdriver from before"); it's the floor
+                metric. The <strong>deictic anchor</strong> uses
+                gesture-style language only ("no, this, what I'm
+                holding now"); it's the realistic-recovery signal.
+                On scenarios where a pointing gesture can resolve
+                the reference, deictic recovery is perfect.
+                Elsewhere (when the user is referring back to
+                something not currently visible), verbal
+                clarification rarely helps.</p>
             </div>
         </section>
 
@@ -532,32 +543,35 @@ ul.bullets li {
                 four target labels. The default is
                 <strong>cross-family judging</strong>: the judge
                 comes from a different model maker than the
-                candidate, so a model isn't grading itself. The
+                candidate, which removes self-preference bias (the
+                tendency of a model to rate its own family's
+                outputs more favorably). The
                 <strong>fixed ranking judge</strong> is a second
                 judge held constant across runs so candidates can
-                be compared directly. The two judges read
-                the same 300 adversarial trials. They agreed on 190
-                (Cohen's &kappa; = 0.443, moderate). Not
-                idiosyncratic to one family, but not lined up
-                either. v1 reports this
-                cross-LLM agreement as a substitute for
-                <strong>human inter-annotator agreement</strong>
-                (two human raters labeling the same trials, then
-                comparing &mdash; planned future work).</p>
+                be compared apples-to-apples. On the adversarial
+                pack, both judges labeled the same 300 trials and
+                agreed on 190 of them. Cohen's &kappa; (a standard
+                measure of inter-rater agreement that corrects for
+                chance agreement) of 0.443 is moderate. The labels
+                are not idiosyncratic to one model family, but they
+                aren't perfectly aligned either. v1 reports this
+                cross-LLM agreement as a
+                substitute for human inter-annotator agreement
+                (planned v2 work).</p>
             </div>
         </section>
 
         <section class="row">
-            <div class="label">Reading the gaps</div>
-            <h2>When is one model's score meaningfully better than another's?</h2>
+            <div class="label">Statistical reliability</div>
+            <h2>Which differences are real, and which are noise?</h2>
             <p>At the v1 sample size (50 scenarios &times; 5
             trials = 250 paired observations under
             <code>baseline</code>), the
-            <strong>minimum detectable effect</strong> at 80%
-            power is approximately 13 percentage points. Two runs less
-            than ~13 pp apart are not reliably distinguishable
-            from sampling noise. The 17.1-point Gemini Flash vs
-            Flash-Lite gap clears that threshold; the 6.4-point gap
+            <strong>minimum detectable effect</strong> at 80% power
+            is approximately 13 percentage points. Two runs less
+            than ~13 pp apart are not reliably distinguishable from
+            sampling noise. The 17.1-point Gemini Flash vs
+            Flash-Lite gap clears the bar; the 6.4-point gap
             between Gemini Flash-Lite and Qwen3-VL-Plus does not.
             The standard paired test for binary outcomes on the
             same items is
@@ -565,28 +579,20 @@ ul.bullets li {
             observations between <code>baseline</code> and
             <code>baseline-alt</code>, 55 disagreed (40 favoring
             Flash, 15 favoring Flash-Lite),
-            &chi;<sup>2</sup> = 10.47, p = 0.0012. (&chi;<sup>2</sup>
-            is the test statistic; p = 0.0012 means under
-            1-in-800 odds these results would arise from sampling
-            noise alone.) Bigger sibling wins decisively on this
-            bank. <code>scripts/analyze_runs.py</code> regenerates
-            these numbers from the published JSONL
+            &chi;<sup>2</sup> = 10.47, p = 0.0012. Bigger sibling
+            wins decisively on this bank. <code>scripts/analyze_runs.py</code>
+            regenerates these numbers from the published JSONL
             transcripts.</p>
             <p>One pattern the analysis surfaces is a
-            <strong>ceiling effect</strong> (candidates score
-            near the top of the range, leaving little room to
-            discriminate between them): of the 50 scenarios, most
-            pass at &gt;= 80% on the cross-family
+            <strong>ceiling effect</strong>: of the 50 scenarios,
+            most pass at &gt;= 80% on the cross-family
             integrity-reference run, and a smaller cluster fails
-            at &lt; 40%. <strong>Author difficulty</strong> (the
-            tier the scenario was labeled with at authoring time)
-            and <strong>empirical difficulty</strong> (the
-            difficulty the cross-family run actually shows) agree
-            on only 18 of 50 (36%). That motivates the
-            20-scenario adversarial pack and a 15-scenario
-            harder-by-construction ceiling-test set
+            at &lt; 40%. Author difficulty and empirical difficulty
+            agree on only 18 of 50 (36%). That motivates the 20-scenario
+            adversarial pack and a 15-scenario harder-by-construction
+            ceiling-test set
             (<code>scenarios_v2_candidates.json</code>) that fill
-            cells the Scenario Bank under-covers. Re-running
+            cells the canonical bank under-covers. Re-running
             empirical difficulty across multiple cross-family
             candidates would tighten these labels; v1 reports the
             single available cross-family run.</p>
@@ -595,22 +601,23 @@ ul.bullets li {
         <section class="row">
             <div class="label">Caveats on v1 numbers</div>
             <h2>What to keep in mind when reading the table</h2>
-            <p>Mid-run, the API budget for non-Gemini providers
-            ran out, leaving Gemini-direct as the only working
-            path. Four of the five Gemini runs on the Scenario
-            Bank ended up same-family (Gemini-Flash-Lite judging
-            itself or Gemini-Flash) — pairings that can show
+            <p>API budget exhausted across multiple providers
+            mid-effort, leaving Gemini-direct as the only
+            transport for the bulk of the canonical runs. Four
+            of the five canonical Gemini runs ended up
+            same-family (Gemini-Flash-Lite judging itself or
+            Gemini-Flash). Same-family judging admits
             self-preference bias, so those numbers may be inflated.
             <code>baseline-qwen-cross-family</code> is the
-            cross-family reference for the Scenario Bank: same
-            scenarios, same scoring rules, but a non-Gemini
-            candidate paired with the Gemini judge. The 6.4-point
-            gap between same-family <code>baseline</code> (60.6%)
-            and cross-family
+            cross-family integrity reference for the canonical
+            bank: same scenarios, same scoring rules, but a
+            non-Gemini candidate paired with the Gemini judge.
+            The 6.4-point gap between same-family
+            <code>baseline</code> (60.6%) and cross-family
             <code>baseline-qwen-cross-family</code> (54.2%) is the
             visible self-preference signal, though candidate
             quality differs between the two runs and explains
-            some of the gap. The gap also sits below the
+            some of the gap as well, and the gap sits below the
             ~13-point minimum detectable effect at this sample
             size.</p>
         </section>
@@ -621,24 +628,19 @@ ul.bullets li {
 
             <h3>Inputs</h3>
             <ul class="bullets">
-                <li><strong>Real video frames.</strong> The video channel
+                <li><strong>Real video frames.</strong> The camera
                     input is text descriptions of the scene, not
                     actual frames. A model that does well here
                     might not do well on real video.</li>
                 <li><strong>Raw audio.</strong> Scoring is on
                     text. The user's spoken turns are represented
-                    as text transcripts. <strong>Acoustic
-                    grounding</strong> (using audio properties of
-                    speech to identify what the user is referring
-                    to), <strong>speaker attribution</strong>
-                    (knowing which voice belongs to whom), and
-                    <strong>ambient audio cues</strong>
-                    (background sounds that disambiguate the
-                    scene) are not exercised.</li>
+                    as text transcripts. Acoustic grounding,
+                    speaker attribution, ambient audio cues are
+                    not exercised.</li>
                 <li><strong>Live audio and voice mode.</strong> A
-                    real wearable also needs live audio I/O with
-                    real-time interruption handling. None of that
-                    is exercised here.</li>
+                    real wearable also needs to listen, talk back,
+                    and handle interruptions in real time. None of
+                    that is exercised here.</li>
             </ul>
 
             <h3>Answer characteristics</h3>
@@ -648,8 +650,9 @@ ul.bullets li {
                     safe, or appropriate to the domain. A
                     confidently wrong answer can pass.</li>
                 <li><strong>Domain depth.</strong> Whether the
-                    advice is expert-level in any one activity
-                    covered (cooking, woodworking, music, etc.).</li>
+                    advice is expert-level for cooking,
+                    woodworking, or any other activity in the
+                    scenario.</li>
                 <li><strong>Proactive coaching.</strong> Whether
                     the assistant volunteers help unprompted.</li>
             </ul>
@@ -670,11 +673,11 @@ ul.bullets li {
                     measured.</li>
                 <li><strong>Generalization beyond 5 trials per
                     cell.</strong> v1 reports 95% CIs. Higher
-                    trial counts and seed sweeps are future work.</li>
+                    trial counts and seed sweeps are v2 work.</li>
                 <li><strong>Human inter-annotator agreement.</strong>
                     v1 reports cross-LLM agreement only. A second
                     human rater on a 25% sample is the
-                    highest-priority future follow-up.</li>
+                    highest-priority v2 follow-up.</li>
             </ul>
 
             <p>Full discussion in

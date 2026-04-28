@@ -18,7 +18,7 @@ rates with no markup.
 
 Model ids use `huggingface/<inference_provider>/<hf_org>/<hf_model>`.
 The benchmark works with any chat-completion-capable vision-language
-model. Candidates must support real wearable or handheld deployment
+model. Candidates must support real AI wearable deployment
 (multimodal: live audio in/out, streaming, video). The v1 measurement
 is text-form, but the deployment target needs vision.
 
@@ -49,6 +49,6 @@ python -m benchmark.v1.run \
 `--judge-family` is required for open-weights HF candidates; the
 cross-family judge auto-resolution map only covers Claude, Gemini,
 and OpenAI today. Pick the family different from the candidate's
-training lineage to preserve self-preference-bias correction. The
+training lineage to preserve self-preference bias correction. The
 runner will surface a clear error if you pass `--judge-family auto`
 against an open-weights HF candidate.
