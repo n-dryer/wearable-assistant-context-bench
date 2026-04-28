@@ -34,7 +34,10 @@ benchmark release rather than an in-place edit.
 - New candidate-model adapter support that preserves benchmark
   semantics
 - Documentation improvements, typo fixes, broken-link fixes
-- Test coverage for existing behavior
+- Test coverage for existing behavior (`core/statistics.py` has no
+  tests yet — `wilson_ci`, `mcnemar_test`, `per_shift_type_accuracy`,
+  `empirical_difficulty`, and `minimum_detectable_effect` are all
+  untested)
 - Reproducibility improvements (better manifest fields, cache hygiene,
   run-output clarity)
 - Validator improvements (new programmatic checks, better diagnostics)
