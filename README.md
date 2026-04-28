@@ -1,6 +1,5 @@
 # Wearable Assistant Context Benchmark
 
-[![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -14,12 +13,11 @@ This benchmark tests one part of that product problem: context tracking after th
 
 Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
-## Quick links
+## Quick Links
 
 | Need | Start here |
 |---|---|
-| View published results | [Live results page](https://n-dryer.github.io/wearable-assistant-context-bench/) |
-| View the one-page overview | [Live overview page](https://n-dryer.github.io/wearable-assistant-context-bench/) |
+| View the project dashboard and published results | [Project dashboard](https://n-dryer.github.io/wearable-assistant-context-bench/) |
 | Interpret scores | [`docs/benchmark_notes.md`](docs/benchmark_notes.md) |
 | Reproduce v1 runs | [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs) |
 | Understand the benchmark design | [`docs/benchmark_spec.md`](docs/benchmark_spec.md) |
@@ -27,7 +25,7 @@ Use the score as one signal when comparing models for wearable assistant product
 | Run open-weight models | [`docs/running_open_weights.md`](docs/running_open_weights.md) |
 | Report an issue | [GitHub Issues](https://github.com/n-dryer/wearable-assistant-context-bench/issues) |
 
-## Published results
+## Published Results
 
 v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses a separate 20-scenario pack with more distractors.
 
@@ -52,7 +50,7 @@ More detail:
 
 Requires Python 3.11+. You can use [`uv`](https://docs.astral.sh/uv/) for dependency and environment management.
 
-### Install and verify
+### Install and Verify
 
 ```bash
 git clone https://github.com/n-dryer/wearable-assistant-context-bench.git
@@ -71,7 +69,7 @@ If you prefer standard pip, run `./scripts/setup.sh` instead of the `uv` command
 
 The test suite does not require API access.
 
-### Configure API keys
+### Configure API Keys
 
 Copy [`.env.example`](.env.example) to `.env`:
 
@@ -81,7 +79,7 @@ cp .env.example .env
 
 Provider-specific key details: [`docs/api_keys.md`](docs/api_keys.md).
 
-### Run a candidate model
+### Run a Candidate Model
 
 ```bash
 python -m benchmark.v1.run --model <candidate_model_id>
@@ -91,7 +89,7 @@ Published reproduction commands are listed in [`benchmark/v1/dataset_card.md`](b
 
 Open-weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
-### Common commands
+### Common Commands
 
 ```bash
 # Run tests
@@ -104,7 +102,7 @@ python scripts/validate_scenarios.py
 python -m benchmark.v1.run --help
 ```
 
-## Benchmark design
+## Benchmark Design
 
 This section summarizes the benchmark mechanics: the modality constraints, the evaluation flow, how scenarios are structured, and how responses are scored.
 
@@ -116,7 +114,7 @@ This section summarizes the benchmark mechanics: the modality constraints, the e
 Benchmark design: [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).  
 Out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
 
-### Evaluation flow
+### Evaluation Flow
 
 ```mermaid
 flowchart LR
@@ -130,7 +128,7 @@ flowchart LR
     Label -->|clarify or abstain| Aux["Separate counts<br/>for clarify and abstain"]
 ```
 
-### Scenarios and packs
+### Scenarios and Packs
 
 Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the new situation.
 
@@ -146,7 +144,7 @@ The Scenario Bank covers 8 shift-type categories: `object_in_hand`, `object_stat
 
 For category counts, scenario fields, and authoring rules, see the [dataset card](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type), [schema](docs/schema.md), and [authoring rules](docs/scenario_authoring_rules.md).
 
-### Scoring and judging
+### Scoring and Judging
 
 Each scenario is evaluated on Turn 2, after the user's situation has changed.
 
@@ -169,7 +167,7 @@ By default (`--judge-family auto`), the judge comes from a different model famil
 
 Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
-## Code layout
+## Code Layout
 
 | Path | Purpose |
 |---|---|
@@ -179,7 +177,7 @@ Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging
 | [`scripts/validate_scenarios.py`](scripts/validate_scenarios.py) | Scenario-bank validator |
 | [`.env.example`](.env.example) | Environment variable template for provider API keys |
 
-## Contributing and support
+## Contributing and Support
 
 Edits to scenario text, answer keys, prompt text, or scoring semantics are out of scope once the `v1.0.0` release tag is created.
 
