@@ -151,8 +151,19 @@ Each run's full `findings.md` includes the reproducibility manifest.
 | `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
 | `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
-For the full per-class breakdown, see
-[`README.md#results`](../../README.md#results).
+### Per-class accuracy
+
+Per-class accuracy under `baseline` (full table per run in
+`runs/<name>/findings.md`):
+
+| Run | `current` | `prior` |
+|---|---|---|
+| baseline | 87.9% (82.0–92.0) | 33.3% (22.7–45.9) |
+| baseline-alt | 97.0% (93.1–98.7) | 58.3% (45.7–69.9) |
+| ablation-no-camera | 12.1% (8.0–18.0) | 16.7% (9.3–28.0) |
+| baseline-qwen-cross-family | 100.0% (97.7–100.0) | 8.3% (3.6–18.1) |
+| baseline-deictic-repair | 87.9% (82.0–92.0) | 33.3% (22.7–45.9) |
+| adversarial | 84.6% (73.9–91.4) | 50.0% (29.9–70.1) |
 
 ### Reproducing the v1 runs
 

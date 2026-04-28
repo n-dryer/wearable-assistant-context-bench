@@ -6,23 +6,11 @@
 
 [![Wearable Assistant Context Benchmark: six published runs across the Scenario Bank and adversarial pack](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A multimodal AI assistant for in-the-moment advice or coaching — on
-a wearable (smart glasses, ear-worn) or handheld device — sees what
-the user sees, hears what they say, and answers in audio or text.
-When the user's situation changes (they swap tools, walk into a new
+A benchmark for measuring whether multimodal assistants update to
+current context instead of staying anchored to prior context. When
+the user's situation changes (they swap tools, walk into a new
 room), does the assistant follow along, or stay stuck on what was
 happening before? **This benchmark scores that.**
-
-## Headline numbers
-
-| Effect | Number |
-|---|---|
-| Camera input is load-bearing | **60.6% &rarr; 14.4%** when the camera channel is stripped |
-| Stuck on the latest frame | **100.0% on `current` / 8.3% on `prior`** (cross-family integrity reference) |
-| Bigger sibling, same family | **77.7% vs 60.6%** (Gemini Flash vs Flash-Lite, McNemar p = 0.0012) |
-| Cross-LLM judge agreement | Cohen's &kappa; = **0.443** (moderate) on the adversarial pack |
-
-Full leaderboard and per-class breakdown are in [Results](#results).
 
 ## Documentation
 
@@ -80,51 +68,35 @@ ceiling-test scenarios in `scenarios_v2_candidates.json` (all
 want to push frontier models, but no run is published against it
 yet.
 
-| Run | Candidate | Judge | Pack | Primary score (95% CI) |
-|---|---|---|---|---|
-| **baseline** | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same-family) | Scenario Bank | **60.6%** (54.1&ndash;67.1) |
-| **baseline-alt** | `gemini-2.5-flash` | `gemini-2.5-flash-lite` (same-family) | Scenario Bank | **77.7%** (71.3&ndash;84.0) |
-| **ablation-no-camera** | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | Scenario Bank | **14.4%** (9.1&ndash;19.7) |
-| **baseline-qwen-cross-family** | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` (cross-family) | Scenario Bank | **54.2%** (50.7&ndash;57.7) |
-| **baseline-deictic-repair** | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | Scenario Bank | **60.6%** (54.1&ndash;67.1) |
-| **adversarial** | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` ranking judge | adversarial 20 | **67.3%** (55.5&ndash;79.1) |
+Five runs use the 50-scenario Scenario Bank; `adversarial` uses the
+20-scenario distractor pack.
 
-Per-class accuracy under `baseline` (full table per run in
-`benchmark/v1/runs/<name>/findings.md`):
+| Run | Candidate | Judge | Primary score (95% CI) |
+|---|---|---|---|
+| **baseline** | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same-family) | **60.6%** (54.1&ndash;67.1) |
+| **baseline-alt** | `gemini-2.5-flash` | `gemini-2.5-flash-lite` (same-family) | **77.7%** (71.3&ndash;84.0) |
+| **ablation-no-camera** | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | **14.4%** (9.1&ndash;19.7) |
+| **baseline-qwen-cross-family** | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` (cross-family) | **54.2%** (50.7&ndash;57.7) |
+| **baseline-deictic-repair** | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | **60.6%** (54.1&ndash;67.1) |
+| **adversarial** | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` ranking judge | **67.3%** (55.5&ndash;79.1) |
 
-| Run | `current` | `prior` |
-|---|---|---|
-| baseline | 87.9% (82.0&ndash;92.0) | 33.3% (22.7&ndash;45.9) |
-| baseline-alt | 97.0% (93.1&ndash;98.7) | 58.3% (45.7&ndash;69.9) |
-| ablation-no-camera | 12.1% (8.0&ndash;18.0) | 16.7% (9.3&ndash;28.0) |
-| baseline-qwen-cross-family | 100.0% (97.7&ndash;100.0) | 8.3% (3.6&ndash;18.1) |
-| baseline-deictic-repair | 87.9% (82.0&ndash;92.0) | 33.3% (22.7&ndash;45.9) |
-| adversarial | 84.6% (73.9&ndash;91.4) | 50.0% (29.9&ndash;70.1) |
-
-Run interpretation, statistical analysis, and score-reading guidance:
+Per-class accuracy (`current` / `prior` breakdown):
+[`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy).
+Run interpretation and score-reading:
 [`docs/benchmark_notes.md`](docs/benchmark_notes.md).
-
 Per-row reproduction commands:
 [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
 ### Caveats
 
-- Same-family judging on four of five Scenario Bank runs; the API
-  budget for non-Gemini providers ran out mid-run, leaving
-  `baseline-qwen-cross-family` as the cross-family reference for the
-  Scenario Bank.
-- Two model-config families in v1 (Gemini-direct +
-  DashScope-International for the Scenario Bank, OpenRouter for
-  `adversarial`); compare within a single run, or check the candidate
-  and judge ids in each `findings.md` before comparing across runs.
-- `baseline-qwen-cross-family` cannot yet be ranked directly against
-  the Gemini Scenario Bank runs; cross-candidate ranking under one
-  fixed ranking judge is a v1.0.x follow-up.
+- Four of five Scenario Bank runs use same-family judging;
+  `baseline-qwen-cross-family` is the cross-family reference.
+- Two model-config families in v1 — compare within a run, or read
+  each `findings.md` manifest before comparing across runs.
+- Cross-candidate ranking under one fixed judge is a v1.0.x
+  follow-up.
 
-Full discussion and limitations are in
-[`docs/benchmark_notes.md`](docs/benchmark_notes.md#caveats). Full
-transcripts and per-scenario matrices live in
-`benchmark/v1/runs/<name>/`.
+Full discussion: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#caveats).
 
 ## How it works
 
@@ -164,8 +136,7 @@ candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ## API keys
 
-Copy [`.env.example`](.env.example) to `.env` and fill in keys for the
-providers you'll use. Variable list and notes:
+Copy [`.env.example`](.env.example) to `.env`. Details:
 [`docs/api_keys.md`](docs/api_keys.md).
 
 ## How the judge works
