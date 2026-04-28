@@ -6,9 +6,9 @@
 
 [![Wearable Assistant Context Benchmark: six published runs across the Scenario Bank and adversarial pack](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A multimodal AI assistant the user is actively using for advice or
-coaching (wearable or handheld, with audio/video/text input and
-audio/text output) sees what the user sees and hears what they say.
+A multimodal AI assistant for in-the-moment advice or coaching — on
+a wearable (smart glasses, ear-worn) or handheld device — sees what
+the user sees, hears what they say, and answers in audio or text.
 When the user's situation changes (they swap tools, walk into a new
 room), does the assistant follow along, or stay stuck on what was
 happening before? **This benchmark scores that.**
