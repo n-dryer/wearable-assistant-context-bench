@@ -29,7 +29,7 @@ Use the score as one signal when comparing models for wearable-assistant product
 
 ## Published results
 
-v1 publishes six runs. Five use the 50 scenario Scenario Bank. The `adversarial` run uses the 20 scenario distractor rich pack.
+v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses a separate 20-scenario pack with more distractors.
 
 The strongest published Scenario Bank result is `baseline-alt` at **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that performance is highly sensitive to removing the visual context channel.
 
@@ -44,7 +44,7 @@ The strongest published Scenario Bank result is `baseline-alt` at **77.7%** prim
 
 More detail:
 
-- Per class accuracy (`current` / `prior` breakdown): [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
+- How often models answer from the new scene instead of the earlier one: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#per-class-accuracy)
 - How to read the scores: [`docs/benchmark_notes.md`](docs/benchmark_notes.md)
 - Commands for reproducing each published run: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs)
 
@@ -82,7 +82,7 @@ python -m benchmark.v1.run --model <candidate_model_id>
 
 Published reproduction commands are listed in [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
-Open weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
+Open-weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ### Common commands
 
@@ -99,11 +99,7 @@ python -m benchmark.v1.run --help
 
 ## Benchmark overview
 
-This benchmark measures **context tracking** for AI wearable assistants used actively for advice or coaching, including smart glasses and ear worn devices. It helps compare candidate models for multimodal coaching assistant products.
-
-### Product problem
-
-A user asks about a hammer, puts it down, picks up a screwdriver, then asks, "how do I use this?" The assistant should answer about the screwdriver, without the user having to restate what they are holding.
+This section summarizes the benchmark mechanics: how scenarios are built, what the model sees, and how responses are scored.
 
 ### Evaluation flow
 
@@ -121,13 +117,13 @@ flowchart LR
 
 ### Scenario design
 
-Each scenario is a three turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the current situation.
+Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the new situation.
 
 Video frames are injected as `[Camera: ...]` blocks carrying scene descriptions: shape, material, color, motion, and position. They do not include the object name.
 
 ### v1 modality scope
 
-v1 keeps perception out of scope so the benchmark can focus on context tracking.
+v1 keeps perception out of scope so the benchmark can focus on cross-turn reference resolution.
 
 - Audio is represented as text transcripts, not raw audio.
 - Video is represented as scene descriptions, not raw video.
@@ -141,16 +137,12 @@ What's out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-th
 | Pack | Size | Purpose | Status |
 |---|---:|---|---|
 | Scenario Bank | 50 scenarios | Main v1 benchmark across 8 shift-type categories | Published |
-| Adversarial | 20 scenarios | Distractor rich stress pack | Published |
+| Adversarial | 20 scenarios | Distractor-rich stress pack | Published |
 | Hard candidates | 15 scenarios | Ceiling-test candidates for frontier models | Wired via `--pack hard`; no published run yet |
 
 The Scenario Bank covers 8 shift-type categories: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
 
-Per category counts: [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type).
-
-Scenario field reference: [`docs/schema.md`](docs/schema.md).
-
-Scenario authoring rules: [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md).
+For category counts, scenario fields, and authoring rules, see the [dataset card](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type), [schema](docs/schema.md), and [authoring rules](docs/scenario_authoring_rules.md).
 
 ## Scoring and judging
 
@@ -158,12 +150,12 @@ Each scenario is evaluated on Turn 2, after the user's situation has changed.
 
 | Label | Meaning |
 |---|---|
-| `current` | The response uses the current context correctly |
-| `prior` | The response stays anchored to the prior context |
+| `current` | The response answers using the new situation |
+| `prior` | The response answers using the earlier situation |
 | `clarify` | The response asks for clarification instead of answering |
 | `abstain` | The response avoids answering |
 
-The primary score focuses on distinguishing current-context answers from prior context answers. `clarify` and `abstain` are reported as auxiliary diagnostics.
+The primary score focuses on distinguishing answers based on the new situation from answers based on the earlier situation. `clarify` and `abstain` are reported as auxiliary diagnostics.
 
 The primary score is **Balanced Turn 2 accuracy**:
 
@@ -171,7 +163,7 @@ The primary score is **Balanced Turn 2 accuracy**:
 primary_score = mean(current_accuracy, prior_accuracy)
 ```
 
-By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same family self grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
+By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same-family self-grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
 
 Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
