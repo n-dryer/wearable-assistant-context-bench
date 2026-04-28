@@ -145,9 +145,7 @@ What's out of scope:
 
 ## Quickstart
 
-Requires Python 3.11+. Copy [`.env.example`](.env.example) to `.env`
-and fill in keys for the providers you'll use; the file documents
-each variable.
+Requires Python 3.11+.
 
 ```bash
 git clone https://github.com/n-dryer/wearable-assistant-context-bench.git
@@ -164,12 +162,19 @@ python -m benchmark.v1.run --model <candidate_model_id>
 Run flags: `python -m benchmark.v1.run --help`. Open-weights HF
 candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
+## API keys
+
+Copy [`.env.example`](.env.example) to `.env` and fill in keys for the
+providers you'll use. Variable list and notes:
+[`docs/api_keys.md`](docs/api_keys.md).
+
 ## How the judge works
 
-A second model labels each Turn 2 response. `--judge-family auto`
-picks a different family than the candidate to reduce
-self-preference bias; `--ranking-judge-family` adds a fixed second
-judge for cross-candidate ranking. Full rationale:
+A second model labels each Turn 2 response. By default
+(`--judge-family auto`), the judge comes from a different family
+than the candidate, so a model isn't grading itself. To rank
+candidates directly against each other, add `--ranking-judge-family`
+for one judge held constant across all of them. Full rationale:
 [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
 ## Repository layout

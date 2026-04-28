@@ -195,42 +195,34 @@ label.
 
 ## The judge
 
-A second LLM acts as the judge. The judge sees:
+A second LLM labels each Turn 2 response as `current`, `prior`,
+`clarify`, or `abstain`. It sees:
 
-1. A neutral scenario description naming the Turn 1 user message and
-   stating only that the user's context shifts between turns. It does
-   not name the target label, the shift type, or the authoring notes;
-   those would tell the judge the answer it is being asked to
-   produce.
+1. A neutral scenario description with the Turn 1 user message and
+   the fact that the user's context shifts between turns. It does
+   not see the target label, the shift type, or the authoring notes
+   — those would give away the answer.
 2. The Turn 2 user message.
 3. The candidate's Turn 2 response.
-4. The four answer lists for the scenario.
-5. A **ground-truth context section** containing the activity domain
-   and plain-language descriptions of the Turn 1 and Turn 2 (and
-   optional pre-conversation) camera frames. This is the perceptual
-   information the judge needs to determine whether the response
-   reflects the current or prior frame.
+4. The four answer lists.
+5. A **ground-truth context section** with plain-language
+   descriptions of the Turn 1 and Turn 2 camera frames (plus the
+   pre-conversation frame for recall scenarios). This is what tells
+   the judge which frame the response actually matches.
 
-The judge emits a JSON verdict naming one of the four labels and a
-one-sentence rationale. See `core/llm_judge.py` for the prompt and
-parsing logic. The judge prompt is versioned (`JUDGE_PROMPT_VERSION`)
-and hashed into the run manifest. The privileged-field constraint
-(no `target_context`, no `cue_type`, no authoring `notes` in the
-rendered judge prompt) is enforced by
-`tests/test_judge_prompt_constraints.py`.
+The judge returns a JSON verdict with one label and a one-sentence
+rationale. See `core/llm_judge.py` for the prompt and parsing logic.
+The judge prompt is versioned (`JUDGE_PROMPT_VERSION`) and hashed
+into the run manifest. The privileged-field constraint (no
+`target_context`, `cue_type`, or authoring `notes` in the rendered
+prompt) is enforced by `tests/test_judge_prompt_constraints.py`.
 
-### Cross-family default
-
-By default, `--judge-family auto` resolves to a different model
-family than the candidate. For example, a Claude candidate gets a
-Gemini judge by default; a Gemini candidate gets an OpenAI judge.
-The mapping is in `resolve_judge_family` in `core/llm_judge.py`.
-
-Explicit `--judge-family claude|gemini|openai` overrides the default.
-
-The cross-family default reduces the chance that a candidate model
-appears to perform unusually well or unusually badly because the same
-model is judging itself.
+**Cross-family default.** `--judge-family auto` picks a judge from a
+different model family than the candidate (Claude → Gemini, Gemini →
+OpenAI, OpenAI → Gemini); the mapping is in `resolve_judge_family`
+in `core/llm_judge.py`. Pass `--judge-family claude|gemini|openai`
+to override. The default is cross-family because a model judging
+itself can score itself too high or too low.
 
 ## Repair turn (Turn 3)
 

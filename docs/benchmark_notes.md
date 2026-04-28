@@ -6,27 +6,24 @@ contract, see [`benchmark_spec.md`](benchmark_spec.md).
 
 ## How to read the primary score
 
-The primary score is **balanced accuracy across `current` and `prior`
-on Turn 2 under the `baseline` prompt condition**.
-
-The headline number is the average of two per-class accuracies:
+The primary score is the **balanced accuracy on Turn 2 under
+`baseline`**: the average of two per-class numbers.
 
 ```text
 primary_score = mean(
-    current_accuracy,    # correct labels among target_context = current scenarios
-    prior_accuracy,      # correct labels among target_context = prior scenarios
+    current_accuracy,  # right when the answer is about the new frame
+    prior_accuracy,    # right when the answer is about the earlier frame
 )
 ```
 
-This is the right number to compare two candidate models on the same
-benchmark release. Score deltas between models on the same release
-matter more than absolute values. Read the absolute number as a rough
-indicator; read the delta as the actual signal.
+Use it to compare candidates on the same release. The gap between
+two candidates is the real signal; the absolute number is rough.
+Read deltas, not levels.
 
 `condition_a` and `condition_b` produce their own balanced accuracy
-numbers but should not replace `baseline` as the ranking reference.
-They tell you something about prompt sensitivity, not raw context
-tracking.
+numbers under different system prompts. They show how sensitive a
+candidate is to prompt structure, not how well it tracks context, so
+don't use them to rank.
 
 ## Per-class accuracy
 
