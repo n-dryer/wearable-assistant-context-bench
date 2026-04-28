@@ -1,18 +1,17 @@
 # Wearable Assistant Context Benchmark
 
-[![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 [![Wearable Assistant Context Benchmark: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A model-selection benchmark for live AI wearable assistants.
+A benchmark for comparing models for live AI wearable assistants.
 
-Wearable assistants need to follow what the user means during a live conversation. A user might be actively asking about one object, place, screen, or task, then move to something else without saying what changed. The assistant should use the latest audio, video, and text context instead of making the user explain every change.
+Wearable assistants need to keep up while a user talks and moves. A user might ask about a tool, look at a screen, walk to another place, or pick up a different object without explaining the change out loud. The assistant should use the latest audio, video, and text context, so the user does not have to narrate every shift.
 
-This benchmark tests one slice of that problem: context tracking when the visible scene changes. It checks whether a model answers from the scene the user means now, or whether it stays anchored to the earlier part of the conversation. In benchmark terms, this is cross-turn multimodal reference resolution.
+This benchmark tests one part of that problem: whether a model can answer the next question using the scene the user means now. In benchmark terms, it tests cross-turn multimodal reference resolution.
 
-v1 uses text as a proxy for real video and live audio. Spoken user turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real-video scenarios so the same reference-tracking task can be tested with visual input directly.
+v1 uses text stand-ins for live inputs. Spoken turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real-video scenarios, so the same reference-tracking task can be tested with visual input directly.
 
 Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
@@ -30,11 +29,14 @@ Use the score as one signal when comparing models for wearable assistant product
 
 ## Published results
 
-v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses a separate 20-scenario pack with more distractors.
+v1 includes six published runs.
 
-The primary score is **Balanced Turn 2 accuracy**. It averages two checks: how often the model answers correctly when the new scene matters, and how often it avoids switching when the earlier context is still the right answer.
+- Five runs use the 50-scenario Scenario Bank.
+- The `adversarial` run uses a separate 20-scenario pack where earlier objects or scenes may still be visible.
 
-The strongest published Scenario Bank result is `baseline-alt`, with a **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that the visual context channel is central to the task.
+The primary score is Balanced Turn 2 accuracy. It averages two checks: how often the model answers correctly when the new scene matters, and how often it avoids switching when the earlier context is still the right answer.
+
+The strongest published Scenario Bank result is `baseline-alt`, with a **77.7%** primary score. Without the camera channel, the same base model scores **14.4%**. That drop is the simplest check that the task depends on visual context.
 
 | Run | Candidate | Judge | Primary score (95% CI) |
 |---|---|---|---|
@@ -116,9 +118,10 @@ v1 does not use raw audio or raw video.
 - Audio is represented as text transcripts.
 - Video is represented as written scene descriptions.
 
-The next version is planned to include real-video test scenarios. The goal is to keep the same reference-tracking task while also testing whether models can read the visual scene directly.
+The next version is planned to include real-video test scenarios. The goal is to keep the same reference-tracking task while testing whether models can read the visual scene directly.
 
-For the full input design, see [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design). For limits of the benchmark, see [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
+For the full input design, see [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).  
+For limits of the benchmark, see [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
 
 ### Evaluation flow
 
@@ -136,7 +139,7 @@ flowchart LR
 
 ### Scenarios and packs
 
-Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2. The user does not announce the change. The model has to answer the Turn 2 question using the scene the user means at that point in the conversation.
+Each scenario is a three-turn conversation. Between Turn 1 and Turn 2, the user changes what they are holding, viewing, doing, or referring to. The user does not spell out the change. The model has to answer the Turn 2 question using the scene the user means at that moment.
 
 The scene descriptions include visible details such as shape, material, color, motion, and position. They avoid naming the object directly.
 
@@ -152,16 +155,16 @@ For category counts, scenario fields, and authoring rules, see the [dataset card
 
 ### Scoring and judging
 
-Each scenario is evaluated on Turn 2, after the user's situation has changed.
+Each scenario is scored on Turn 2, after the scene changes.
 
 | Label | Meaning |
 |---|---|
-| `current` | The response answers using the new situation |
-| `prior` | The response answers using the earlier situation |
+| `current` | The response answers using the new scene |
+| `prior` | The response answers using the earlier scene |
 | `clarify` | The response asks for clarification instead of answering |
 | `abstain` | The response avoids answering |
 
-The primary score measures how well the model separates answers based on the new situation from answers based on the earlier situation. `clarify` and `abstain` are reported separately.
+The primary score measures whether the model can separate the new scene from the earlier scene. `clarify` and `abstain` are counted separately.
 
 ```text
 primary_score = mean(current_accuracy, prior_accuracy)
