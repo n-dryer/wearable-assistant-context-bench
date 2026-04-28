@@ -6,9 +6,13 @@
 
 [![Wearable Assistant Context Benchmark: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
-A benchmark for testing whether multimodal wearable assistants follow the user's current context when the situation changes.
+A benchmark for comparing models for live AI wearable assistants.
 
-The benchmark focuses on a failure mode that matters for wearable assistants: the user's situation changes, but the assistant keeps answering as if the old context still applies. It tests whether a model uses current visual context, avoids stale prior context, and is a better fit for context dependent wearable assistant products.
+These assistants use audio, video, and text during an ongoing conversation. The user may be talking about one object, place, screen, or task, then shift to something else without saying exactly what changed. In a wearable setting, the user should not have to keep explaining what they are holding, looking at, or doing.
+
+This benchmark tests one part of that product problem: whether the model can follow the user’s reference after the visible scene changes. Specifically, it tests cross-turn multimodal reference resolution. The model should answer based on the object, place, screen, or task the user means now, not the one from the earlier turn.
+
+Use the score as one signal when comparing models for wearable-assistant products. It does not test the full device experience.
 
 ## Quick links
 
