@@ -5,7 +5,7 @@ Field definitions for `benchmark/v1/scenarios.json` and
 
 The benchmark uses a three-channel design. The candidate model sees two
 of these channels: the audio (user speech, represented as text
-transcripts in v1, not raw audio) and the camera (image descriptions,
+transcripts in v1, not raw audio) and the video (scene descriptions,
 represented as scene-description text, not real video frames). The
 third channel, ground truth answers, is visible only to the judge.
 
@@ -27,10 +27,10 @@ A flat JSON array. Each element is a scenario object.
 | `cognitive_load` | enum | yes | Internal complexity estimate. One of `single_referent`, `multi_referent`, `distractor_present`, `absent_referent`, `compound_shift`. | `"single_referent"` |
 | `difficulty_tier` | enum | yes | Internal difficulty estimate. One of `easy`, `medium`, `hard`. | `"medium"` |
 | `time_gap_bucket` | enum | no | Approximate time between Turn 1 and Turn 2. One of `seconds`, `minutes`, `hours`, `next_day`. | `"seconds"` |
-| `context_image` | string or null | yes | Camera description of what was visible **before the conversation started**. Null when `turn_1_image` already establishes the starting state. Required for scenarios where the user asks about a state from before Turn 1. | `null` |
-| `turn_1_image` | string or null | yes | Camera description at the moment Turn 1 is spoken. A scene description; describes physical properties without naming the object. | `"Hand resting on a slim metal handle..."` |
+| `context_image` | string or null | yes | Video frame description of what was visible **before the conversation started**. Null when `turn_1_image` already establishes the starting state. Required for scenarios where the user asks about a state from before Turn 1. | `null` |
+| `turn_1_image` | string or null | yes | Video frame description at the moment Turn 1 is spoken. A scene description; describes physical properties without naming the object. | `"Hand resting on a slim metal handle..."` |
 | `turn_1_user` | string | yes | First user message. Natural speech only. Must not narrate visible objects or evaluate technique. | `"How do I get more torque on this?"` |
-| `turn_2_image` | string or null | yes | Camera description at the moment Turn 2 is spoken. Different from `turn_1_image` (this is where the context shift becomes visible). | `"Hand wrapped around a wooden handle..."` |
+| `turn_2_image` | string or null | yes | Video frame description at the moment Turn 2 is spoken. Different from `turn_1_image` (this is where the context shift becomes visible). | `"Hand wrapped around a wooden handle..."` |
 | `turn_2_user` | string | yes | Second user message after the context change. Natural follow-up. Must not announce the shift. | `"Am I doing this right?"` |
 | `turn_3_repair_anchor` | string | yes | Named repair prompt fired after a Turn 2 miss. Canonical floor metric: maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
 | `turn_3_repair_anchor_deictic` | string or null | no | Deictic-only repair prompt for visible-referent `current`-target scenarios. Used when the runner is invoked with `--repair-style deictic`. Pure spatial/temporal pronouns ("this", "what I'm holding now") with no object names. Null for scenarios where a deictic gesture cannot resolve the reference (`absent_referent`, `pre_conversation_recall`, or `target_context != current`); the runner falls back to the named anchor in those cases. | `"I mean this thing in my hand right now."` |
@@ -40,7 +40,7 @@ A flat JSON array. Each element is a scenario object.
 
 | Value | Meaning |
 |---|---|
-| `current` | The correct answer refers to what the camera sees right now (Turn 2 frame). |
+| `current` | The correct answer refers to what the video shows right now (Turn 2 frame). |
 | `prior` | The correct answer refers to something from an earlier scene (Turn 1 or `context_image`). |
 | `clarify` | The question is ambiguous given the available context; the assistant should ask for clarification rather than guessing. |
 | `abstain` | The needed information is not present in the context; the assistant should decline to answer rather than hallucinating. |
@@ -53,11 +53,11 @@ types"; the JSON field name remains `cue_type`.)
 
 | Value | Description |
 |---|---|
-| `object_in_hand` | User puts down one object, picks up another. Camera sees a different object in the user's hand. |
+| `object_in_hand` | User puts down one object, picks up another. The video shows a different object in the user's hand. |
 | `object_state` | Same object, different state (cooking progress, paint drying, etc.). |
 | `sequential_task` | Same task, the user has progressed to a later step. |
 | `location` | Whole scene changes; user moves to a different room or work area. |
-| `object_in_view` | Camera stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
+| `object_in_view` | The video stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
 | `absent_referent` | The object the question is about is no longer in frame. |
 | `screen_content` | Both Turn 1 and Turn 2 are looking at a screen; the screen content has changed. |
 | `pre_conversation_recall` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
@@ -108,13 +108,13 @@ Centralized definitions for terms used throughout the docs:
   values are listed in
   [`benchmark_spec.md`](benchmark_spec.md#the-8-shift-type-categories).
 - **Scene description.** What a vision system would say about a
-  camera frame: shape, material, color, motion, position. v1 uses
+  video frame: shape, material, color, motion, position. v1 uses
   scene descriptions in text as a proxy for real video frames so
   the benchmark can isolate context-tracking ability from variability
   in the vision front-end.
 - **Deictic.** A word or phrase whose meaning depends on context
   ("this", "that", "it", "here", "now"). The benchmark's user speech
-  is intentionally deictic so the model has to use the camera channel
+  is intentionally deictic so the model has to use the video channel
   and conversation history to resolve the reference.
 - **Named repair anchor.** Turn 3 repair line that names both the
   intended and the wrong objects explicitly (`turn_3_repair_anchor`).

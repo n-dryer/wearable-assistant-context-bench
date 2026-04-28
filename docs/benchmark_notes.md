@@ -6,27 +6,24 @@ contract, see [`benchmark_spec.md`](benchmark_spec.md).
 
 ## How to read the primary score
 
-The primary score is **balanced accuracy across `current` and `prior`
-on Turn 2 under the `baseline` prompt condition**.
-
-The headline number is the average of two per-class accuracies:
+The primary score is the **balanced accuracy on Turn 2 under
+`baseline`**: the average of two per-class numbers.
 
 ```text
 primary_score = mean(
-    current_accuracy,    # correct labels among target_context = current scenarios
-    prior_accuracy,      # correct labels among target_context = prior scenarios
+    current_accuracy,  # right when the answer is about the new frame
+    prior_accuracy,    # right when the answer is about the earlier frame
 )
 ```
 
-This is the right number to compare two candidate models on the same
-benchmark release. Score deltas between models on the same release
-matter more than absolute values. Read the absolute number as a rough
-indicator; read the delta as the actual signal.
+Use it to compare candidates on the same release. The gap between
+two candidates is the real signal; the absolute number is rough.
+Read deltas, not levels.
 
 `condition_a` and `condition_b` produce their own balanced accuracy
-numbers but should not replace `baseline` as the ranking reference.
-They tell you something about prompt sensitivity, not raw context
-tracking.
+numbers under different system prompts. They show how sensitive a
+candidate is to prompt structure, not how well it tracks context, so
+don't use them to rank.
 
 ## Per-class accuracy
 
@@ -36,7 +33,7 @@ balanced mean. Read each one separately:
 - **`current` accuracy.** Fraction of `target_context = current`
   scenarios where the judge labeled the response `current`. A model
   with high `current` accuracy responds well when the question is
-  about what's in the camera right now.
+  about what's in the video right now.
 - **`prior` accuracy.** Fraction of `target_context = prior`
   scenarios where the judge labeled the response `prior`. A model with
   high `prior` accuracy correctly answers about an earlier state when
@@ -147,7 +144,7 @@ runner CLI).
 | `ablation-no-camera` | hidden (`--no-camera`) | 14.4% | 12.1% | 16.7% |
 | **Delta** | | **46.2 pp** | **75.8 pp** | **16.6 pp** |
 
-What the ablation shows: take the camera description away and the
+What the ablation shows: take the video description away and the
 model can't get the answers from the user's words alone. That rules
 out one alternative reading of the headline numbers, namely that the
 model is solving the task through question-phrasing patterns or
@@ -155,12 +152,12 @@ memorized priors. It can't.
 
 What the ablation does not show on its own: that the model is doing
 "context tracking" in a deep sense. A simpler reading consistent
-with the same data is that the model grounds in whatever the camera
+with the same data is that the model grounds in whatever the video
 most recently described, without any explicit notion of "this is
 the current context vs. the prior context." The per-class breakdown
 fills that in: the `current` class is where the model looks strong
 (87.9%); the `prior` class is where it falls apart (33.3%). The
-combined picture (reliance on camera input, high `current` accuracy,
+combined picture (reliance on video input, high `current` accuracy,
 low `prior` accuracy) reveals the capability gap the benchmark
 targets.
 
@@ -277,8 +274,8 @@ table below is the headline only.
 
 ### What the runs show
 
-- **The model is leaning heavily on the camera input.** Same
-  candidate and judge, only the camera description toggled:
+- **The model is leaning heavily on the video input.** Same
+  candidate and judge, only the video description toggled:
   `baseline` 60.6% → `ablation-no-camera` 14.4%. A 46.2 percentage
   point gap. This eliminates one alternative hypothesis: the
   model uses question-phrasing patterns instead of visual
@@ -288,7 +285,7 @@ table below is the headline only.
   `baseline-qwen-cross-family` is the clearest example: 100% on
   `current`, 8.3% on `prior`. The model grounds in the latest
   visual input and struggles to refer back. Together with the
-  camera ablation, this is the capability gap the benchmark
+  video ablation, this is the capability gap the benchmark
   targets.
 - **Bigger Gemini sibling helps** within the family:
   `baseline` (Flash-Lite) 60.6% → `baseline-alt` (Flash) 77.7%.
@@ -349,27 +346,26 @@ labels; v1 reports the single available cross-family run.
 
 ### Caveats
 
-- **Same-family judging on four of five Scenario Bank runs.** API
-  budget across providers (OpenRouter, OpenAI direct, HF Inference
-  Providers Pro) was exhausted mid-effort, leaving Gemini-direct
-  via LiteLLM as the only viable transport for the bulk of the
-  Scenario Bank runs. Gemini-Flash-Lite judges Gemini-Flash-Lite
-  and Gemini-Flash on `baseline`, `baseline-alt`,
-  `ablation-no-camera`, and `baseline-deictic-repair`, which admits
-  self-preference bias. The `baseline-qwen-cross-family` run is the
-  cross-family integrity reference for the Scenario Bank.
+- **Same-family judging on four of five Scenario Bank runs.** Mid-run,
+  the API budget ran out across non-Gemini providers (OpenRouter,
+  OpenAI direct, HF Inference Providers Pro), leaving Gemini-direct
+  via LiteLLM as the only working path. Gemini-Flash-Lite ended up
+  judging Gemini-Flash-Lite (and Gemini-Flash) on `baseline`,
+  `baseline-alt`, `ablation-no-camera`, and `baseline-deictic-repair`
+  — same-family pairings that can show self-preference bias.
+  `baseline-qwen-cross-family` is the cross-family reference for the
+  Scenario Bank.
 - **Two model-config families across v1.** The five Scenario Bank
-  runs use Gemini-direct + DashScope-International transports. The
-  `adversarial` run uses an OpenRouter setup with a Claude-Haiku
-  ranking judge. Each `findings.md` manifest names the candidate
-  and judge identifiers; comparing within a single run is fully
-  apples-to-apples.
-- **`baseline-qwen-cross-family` cannot yet be ranked head-to-head
+  runs use Gemini-direct + DashScope-International. The
+  `adversarial` run uses OpenRouter with a Claude-Haiku ranking
+  judge. Within a single run the candidate and judge stay fixed, so
+  comparisons there are direct. Across runs, check the candidate and
+  judge ids in each `findings.md` before comparing.
+- **`baseline-qwen-cross-family` cannot yet be ranked directly
   against the Gemini Scenario Bank runs.** Cross-candidate ranking
-  requires a fixed ranking judge held constant across candidates;
-  v1 demonstrates that mechanism on the adversarial run only.
-  Re-running the Scenario Bank with a fixed ranking judge across
-  all candidates is a v1.0.x follow-up.
+  needs the same judge across every candidate; v1 wires that in only
+  on `adversarial`. Re-running the Scenario Bank under one fixed
+  ranking judge is a v1.0.x follow-up.
 
 ## Open limitations (future follow-ups)
 
@@ -383,10 +379,10 @@ benchmark could do but does not yet.
   judge outputs, with kappa reported, remains the strongest
   defensibility move and is the highest-priority future follow-up.
 - **Real video is approximated by scene descriptions in text.** The
-  camera channel uses scene descriptions ("Hand wrapped around a
+  video channel uses scene descriptions ("Hand wrapped around a
   long wooden handle. Heavy metal head at the top...") as a proxy
   for what a real wearable's vision system would produce from a
-  camera frame. Performance on text scene descriptions is not a
+  video frame. Performance on text scene descriptions is not a
   guarantee of performance on actual video. Validation against
   held-out video footage on a representative sample is acknowledged
   as future work.
@@ -452,7 +448,7 @@ in the evaluation pipeline that fits your product.
   given that the user's situation changed between turns, did the
   model respond about the new situation or stay anchored to the old
   one. Used by MultiChallenge and other multi-turn benchmarks.
-- **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the camera channel and conversation history to figure out what the user means.
+- **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the video channel and conversation history to figure out what the user means.
 - **Turn.** One user message plus the assistant's response. Each
   scenario has up to three turns: Turn 1 (initial question), Turn 2
   (follow-up after the situation has changed), and an optional Turn 3
@@ -471,12 +467,12 @@ in the evaluation pipeline that fits your product.
   walking from the bedroom to the kitchen, finishing one step of a
   task and starting the next.
 - **`current`.** Judge label for a response that uses the current
-  Turn 2 context. This means the response is about what the camera
+  Turn 2 context. This means the response is about what the video
   sees right now.
 - **`prior`.** Judge label for a response that uses an earlier
   context: the Turn 1 frame, or the `context_image` (pre-conversation
   state) for recall scenarios. This means the response is about what
-  the camera saw earlier, not what it sees now.
+  the video showed earlier, not what it shows now.
 - **`clarify`.** Judge label for a response that asks the user to
   clear up an ambiguity rather than guessing.
 - **`abstain`.** Judge label for a response that declines to answer
@@ -520,7 +516,7 @@ in the evaluation pipeline that fits your product.
   metrics: Cohen's kappa (two raters), Fleiss' kappa (three or more),
   or simple percent agreement.
 - **Scene description.** What a vision system would say about a
-  camera frame: shape, material, color, motion, position. In this
+  video frame: shape, material, color, motion, position. In this
   benchmark, scene descriptions follow an authoring rule: they
   describe physical features without naming the object directly. The
   model has to identify what's in frame from those features.
@@ -532,7 +528,7 @@ in the evaluation pipeline that fits your product.
 - **Ablation.** A controlled experiment that tests how much a
   specific feature or input contributes to a model's performance, by
   running the same evaluation with that feature removed and comparing
-  scores. A "camera channel ablation" would compare runs with versus
+  scores. A "video channel ablation" would compare runs with versus
   without the `[Camera: ...]` blocks to quantify how much the camera
   channel actually contributes to the score.
 - **Hallucination.** When a model produces an answer that sounds
@@ -597,4 +593,5 @@ Quick reference for the abbreviated forms used throughout these docs:
 - **Cross-family judge.** A judge whose model family differs from
   the candidate's, used to reduce self-preference bias within a run.
 - **Fixed ranking judge.** A single judge held constant across runs,
-  used to compare candidates apples-to-apples.
+  so candidates can be compared directly without judge strictness
+  varying between them.

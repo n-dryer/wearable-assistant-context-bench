@@ -14,7 +14,7 @@ context?
 
 The benchmark measures **context tracking**: whether the model
 resolves the user's reference (their "this", "that", or "it") to the
-current camera frame instead of staying anchored to an earlier one.
+current video frame instead of staying anchored to an earlier one.
 (In standard ML and dialog terminology this is reference resolution
 under cross-turn context shift; this document uses **context tracking**
 throughout.)
@@ -67,21 +67,21 @@ different content and is visible to a different audience.
 | Ground truth | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
 
 The candidate model sees what a wearable would see: the user's spoken
-words, plus a scene description of the camera frame at each turn.
+words, plus a scene description of the video frame at each turn.
 
 In v1, both perceptual channels are text proxies. The user's spoken
 turns are represented as **text transcripts**, not raw audio; the
 benchmark does not test acoustic grounding, speaker attribution,
-addressee detection, or ambient audio cues. The camera channel is
+addressee detection, or ambient audio cues. The video channel is
 represented as **scene descriptions in text** (what a vision system
-would say about a camera frame: shape, material, color, motion,
+would say about a video frame: shape, material, color, motion,
 position, without naming the object directly), not raw video frames;
 the benchmark does not score performance on real video. Both proxies
 are deliberate: they let the benchmark isolate context-tracking
 ability from variability of the perceptual front-end. Raw-audio and
 real-video variants are future work.
 
-The judge sees the same audio and camera channels plus the
+The judge sees the same audio and video channels plus the
 ground-truth answer keys, which name the actual objects in frame. The
 candidate never sees the answer keys.
 
@@ -115,7 +115,7 @@ a Turn 2 miss is.
 
 Field reference is in [`schema.md`](schema.md).
 
-## Camera injection format
+## Video block injection format
 
 The runner builds each user turn as:
 
@@ -124,13 +124,13 @@ The runner builds each user turn as:
 {turn_N_user}
 ```
 
-When `turn_N_image` is null, the camera block is omitted and only the
+When `turn_N_image` is null, the `[Camera: ...]` block is omitted and only the
 user message is sent. When `context_image` is populated, it is injected
 as a `[Camera: ...]` block before Turn 1, with no accompanying user
-message. This represents what the wearable's camera saw before the
+message. This represents what the wearable's video showed before the
 user started speaking.
 
-The candidate model sees the camera block as part of the user turn.
+The candidate model sees the `[Camera: ...]` block as part of the user turn.
 The judge receives the same content plus a separate ground-truth
 section.
 
@@ -145,11 +145,11 @@ is stored as the `cue_type` field in the data files.
 
 | Category | Description |
 |---|---|
-| `object_in_hand` | User puts down one object, picks up another. Camera sees a different object in the user's hand. |
+| `object_in_hand` | User puts down one object, picks up another. The video shows a different object in the user's hand. |
 | `object_state` | Same object, different state (cooking progress, paint drying, plant growth). |
 | `sequential_task` | Same task, the user has progressed to a later step. |
 | `location` | Whole scene changes; user moves to a different room or work area. |
-| `object_in_view` | Camera stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
+| `object_in_view` | The video stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
 | `absent_referent` | The object the question is about is no longer in frame. |
 | `screen_content` | Both Turn 1 and Turn 2 are looking at a screen; the screen content has changed. |
 | `pre_conversation_recall` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
@@ -164,7 +164,7 @@ grounding target for a well-functioning assistant. One of:
 
 | Value | Meaning |
 |---|---|
-| `current` | The correct answer refers to what the camera sees right now (Turn 2 frame). |
+| `current` | The correct answer refers to what the video shows right now (Turn 2 frame). |
 | `prior` | The correct answer refers to something from an earlier scene (Turn 1 frame, or `context_image`). |
 | `clarify` | The question is ambiguous given the available context; the assistant should ask for clarification rather than guessing. |
 | `abstain` | The needed information is not present in the context; the assistant should decline rather than hallucinating. |
@@ -195,42 +195,34 @@ label.
 
 ## The judge
 
-A second LLM acts as the judge. The judge sees:
+A second LLM labels each Turn 2 response as `current`, `prior`,
+`clarify`, or `abstain`. It sees:
 
-1. A neutral scenario description naming the Turn 1 user message and
-   stating only that the user's context shifts between turns. It does
-   not name the target label, the shift type, or the authoring notes;
-   those would tell the judge the answer it is being asked to
-   produce.
+1. A neutral scenario description with the Turn 1 user message and
+   the fact that the user's context shifts between turns. It does
+   not see the target label, the shift type, or the authoring notes
+   — those would give away the answer.
 2. The Turn 2 user message.
 3. The candidate's Turn 2 response.
-4. The four answer lists for the scenario.
-5. A **ground-truth context section** containing the activity domain
-   and plain-language descriptions of the Turn 1 and Turn 2 (and
-   optional pre-conversation) camera frames. This is the perceptual
-   information the judge needs to determine whether the response
-   reflects the current or prior frame.
+4. The four answer lists.
+5. A **ground-truth context section** with plain-language
+   descriptions of the Turn 1 and Turn 2 video frames (plus the
+   pre-conversation frame for recall scenarios). This is what tells
+   the judge which frame the response actually matches.
 
-The judge emits a JSON verdict naming one of the four labels and a
-one-sentence rationale. See `core/llm_judge.py` for the prompt and
-parsing logic. The judge prompt is versioned (`JUDGE_PROMPT_VERSION`)
-and hashed into the run manifest. The privileged-field constraint
-(no `target_context`, no `cue_type`, no authoring `notes` in the
-rendered judge prompt) is enforced by
-`tests/test_judge_prompt_constraints.py`.
+The judge returns a JSON verdict with one label and a one-sentence
+rationale. See `core/llm_judge.py` for the prompt and parsing logic.
+The judge prompt is versioned (`JUDGE_PROMPT_VERSION`) and hashed
+into the run manifest. The privileged-field constraint (no
+`target_context`, `cue_type`, or authoring `notes` in the rendered
+prompt) is enforced by `tests/test_judge_prompt_constraints.py`.
 
-### Cross-family default
-
-By default, `--judge-family auto` resolves to a different model
-family than the candidate. For example, a Claude candidate gets a
-Gemini judge by default; a Gemini candidate gets an OpenAI judge.
-The mapping is in `resolve_judge_family` in `core/llm_judge.py`.
-
-Explicit `--judge-family claude|gemini|openai` overrides the default.
-
-The cross-family default reduces the chance that a candidate model
-appears to perform unusually well or unusually badly because the same
-model is judging itself.
+**Cross-family default.** `--judge-family auto` picks a judge from a
+different model family than the candidate (Claude → Gemini, Gemini →
+OpenAI, OpenAI → Gemini); the mapping is in `resolve_judge_family`
+in `core/llm_judge.py`. Pass `--judge-family claude|gemini|openai`
+to override. The default is cross-family because a model judging
+itself can score itself too high or too low.
 
 ## Repair turn (Turn 3)
 
@@ -283,7 +275,7 @@ This benchmark borrows two design moves from recent multimodal
 benchmarks. The semantic-leakage check (Check 5 in the validator) is
 adapted from MMStar (Chen et al., NeurIPS 2024), which proposed
 running questions through text-only models to filter items that don't
-actually require vision. The audio/camera channel separation is
+actually require vision. The audio/video channel separation is
 adapted from VLSBench (Hu et al., ACL 2025), which showed that text
 queries often leak the visual content of an image; we apply the same
 separation principle to context cues. The non-labeled scene

@@ -5,7 +5,7 @@
 A context-tracking evaluation set for multimodal AI assistants used
 actively for advice or coaching (wearable or handheld). Each
 scenario is a three-turn conversation with a deliberate context
-shift between Turn 1 and Turn 2 visible only in the camera channel.
+shift between Turn 1 and Turn 2 visible only in the video channel.
 The model must integrate scene descriptions with deictic user speech
 to determine which context the question refers to.
 
@@ -45,7 +45,7 @@ There is no train/val/test split. The bank is an evaluation set; all
 
 See [`../../docs/schema.md`](../../docs/schema.md) for the full field
 reference. The candidate model receives the audio (text-transcript)
-and camera (scene-description) channels; the judge additionally
+and video (scene-description) channels; the judge additionally
 receives the answer lists and a ground-truth section naming the
 actual objects in frame.
 
@@ -106,7 +106,7 @@ same validator.
 
 The audio channel uses natural deictic language without naming
 objects, describing visible properties, or announcing context shifts.
-The camera channel describes scene-level features (shape, material,
+The video channel describes scene-level features (shape, material,
 color, motion, position) without object names or technique
 evaluation. The ground-truth channel (judge-only) uses object names,
 technique vocabulary, and state descriptors freely.
@@ -151,8 +151,69 @@ Each run's full `findings.md` includes the reproducibility manifest.
 | `baseline-deictic-repair` | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | Scenario Bank | 60.6% (54.1–67.1) |
 | `adversarial` | `openrouter/google/gemini-2.5-flash-lite` | `openrouter/openai/gpt-4o-mini` (+ ranking judge `claude-haiku-4.5`) | adversarial 20 | 67.3% (55.5–79.1) |
 
-For the full per-class breakdown, see
-[`README.md#results`](../../README.md#results).
+### Per-class accuracy
+
+Per-class accuracy under `baseline` (full table per run in
+`runs/<name>/findings.md`):
+
+| Run | `current` | `prior` |
+|---|---|---|
+| baseline | 87.9% (82.0–92.0) | 33.3% (22.7–45.9) |
+| baseline-alt | 97.0% (93.1–98.7) | 58.3% (45.7–69.9) |
+| ablation-no-camera | 12.1% (8.0–18.0) | 16.7% (9.3–28.0) |
+| baseline-qwen-cross-family | 100.0% (97.7–100.0) | 8.3% (3.6–18.1) |
+| baseline-deictic-repair | 87.9% (82.0–92.0) | 33.3% (22.7–45.9) |
+| adversarial | 84.6% (73.9–91.4) | 50.0% (29.9–70.1) |
+
+### Reproducing the v1 runs
+
+Each leaderboard row above corresponds to one of the commands below.
+The model ids and flags are taken from each run's reproducibility
+manifest in `runs/<name>/findings.md`. Outputs land in
+`runs/<name>/`.
+
+```bash
+# baseline
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline
+
+# baseline-alt
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-alt
+
+# ablation-no-camera
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --no-camera \
+  --output-dir benchmark/v1/runs/ablation-no-camera
+
+# baseline-qwen-cross-family
+python -m benchmark.v1.run \
+  --model dashscope-intl/qwen3-vl-plus \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir benchmark/v1/runs/baseline-qwen-cross-family
+
+# baseline-deictic-repair
+python -m benchmark.v1.run \
+  --model gemini/gemini-2.5-flash-lite \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --repair-style deictic \
+  --output-dir benchmark/v1/runs/baseline-deictic-repair
+
+# adversarial
+python -m benchmark.v1.run \
+  --model openrouter/google/gemini-2.5-flash-lite \
+  --judge-model openrouter/openai/gpt-4o-mini --judge-family openai \
+  --pack adversarial \
+  --ranking-judge-model openrouter/anthropic/claude-haiku-4.5 \
+  --ranking-judge-family claude \
+  --output-dir benchmark/v1/runs/adversarial
+```
 
 ### Methodology features exercised
 
@@ -164,7 +225,7 @@ For the full per-class breakdown, see
   candidates is a v1.0.x follow-up.
 - **Cross-LLM judge agreement.** Cohen's kappa = 0.443 on
   `adversarial` (`gpt-4o-mini` vs `claude-haiku-4.5`).
-- **Camera-channel ablation.** `ablation-no-camera`. The 46.2 pp
+- **Video-channel ablation.** `ablation-no-camera`. The 46.2 pp
   drop from `baseline` is reported in
   [`../../docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
 - **Deictic vs named repair anchors.** `baseline-deictic-repair`
@@ -193,23 +254,22 @@ The benchmark does not measure these and does not intend to:
 
 ### Caveats on published v1 runs
 
-- **Same-family judging on four of five Scenario Bank runs.** API
-  budget across providers (OpenRouter, OpenAI direct, HF Inference
-  Providers Pro) was exhausted mid-effort, leaving Gemini-direct via
-  LiteLLM as the only viable transport. Gemini-Flash-Lite judging
-  Gemini-Flash-Lite (and Gemini-Flash) admits self-preference bias.
-  `baseline-qwen-cross-family` is the cross-family integrity
-  reference for the Scenario Bank.
-- **Two model-config families across v1.** Five Scenario Bank runs use
-  Gemini-direct + DashScope-International transports; `adversarial`
-  uses an OpenRouter setup. Each `findings.md` manifest carries
-  full identifiers.
+- **Same-family judging on four of five Scenario Bank runs.** Mid-run,
+  the API budget ran out across non-Gemini providers (OpenRouter,
+  OpenAI direct, HF Inference Providers Pro), leaving Gemini-direct
+  via LiteLLM as the only working path. Gemini-Flash-Lite ended up
+  judging Gemini-Flash-Lite (and Gemini-Flash) — same-family pairings
+  that can show self-preference bias. `baseline-qwen-cross-family` is
+  the cross-family reference for the Scenario Bank.
+- **Two model-config families across v1.** Five Scenario Bank runs
+  use Gemini-direct + DashScope-International; `adversarial` uses
+  OpenRouter. Each `findings.md` carries full candidate and judge
+  ids.
 
 ### v1.0.x follow-ups
 
-- Re-run the Scenario Bank with a single fixed ranking judge held
-  constant across all candidates so cross-candidate ranking is
-  apples-to-apples.
+- Re-run the Scenario Bank under one fixed ranking judge so candidates
+  can be ranked directly against each other.
 - Re-run `adversarial` under the same Gemini setup as the Scenario
   Bank so the model-config story across all six runs is consistent.
 
@@ -218,7 +278,7 @@ The benchmark does not measure these and does not intend to:
 - **Human inter-annotator agreement.** v1 reports cross-LLM judge
   agreement only. Human IAA on a 25% sample with Cohen's kappa is
   the highest-priority future follow-up.
-- **Real-video validation.** The camera channel uses text scene
+- **Real-video validation.** The video channel uses text scene
   descriptions as a stand-in for actual video. Held-out video
   validation on a representative sample is future work.
 - **Raw-audio validation.** v1 represents the user's spoken turns as

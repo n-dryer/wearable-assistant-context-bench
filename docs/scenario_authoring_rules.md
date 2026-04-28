@@ -42,7 +42,7 @@ about what it carries and who can see it.
 | Camera | `context_image`, `turn_1_image`, `turn_2_image` | Yes (as `[Camera: ...]` blocks) | Yes |
 | Ground truth | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
 
-The candidate model integrates audio and camera. The judge has
+The candidate model integrates audio and video. The judge has
 ground-truth access to evaluate which context the response reflects.
 
 ---
@@ -56,7 +56,7 @@ handheld) as a transcript: the words a speech-to-text system would
 emit. Acoustic grounding, speaker attribution, addressee
 detection, and ambient audio cues are out of scope; do not attempt
 to encode prosody, pauses, or non-lexical sounds. The user does not
-narrate what the camera sees.
+narrate what the video shows.
 
 ### Must
 
@@ -96,10 +96,10 @@ was previously visible.
 
 ---
 
-## Camera channel rules
+## Video channel rules
 
-Describe what a camera frame would contain at the scene level. Scene
-descriptions are what a vision system would say about a camera frame:
+Describe what a video frame would contain at the scene level. Scene
+descriptions are what a vision system would say about a video frame:
 shape, material, color, motion, position, without naming the
 object directly. Physical properties only. No object names. No
 technique evaluation.
@@ -173,7 +173,7 @@ Populate the deictic field only when **all three** are true:
    `screen_content`, `sequential_task`, `location`}. These are the
    visible-referent categories where a real wearable's vision system
    could resolve a deictic gesture.
-3. The Turn 2 referent is genuinely visible in the camera frame
+3. The Turn 2 referent is genuinely visible in the video frame
    (i.e. the deictic gesture is technically resolvable).
 
 Leave the field as `null` for `absent_referent`,
@@ -190,7 +190,7 @@ fields.
 
 ## Context shift rules
 
-The shift between Turn 1 and Turn 2 is visible only in the camera
+The shift between Turn 1 and Turn 2 is visible only in the video
 channel. It is never announced in the audio channel.
 
 - `turn_1_image` and `turn_2_image` describe different situations
@@ -268,11 +268,11 @@ The runner builds each user turn as:
 {turn_N_user}
 ```
 
-When the image field is null, the camera block is omitted and only the
+When the image field is null, the `[Camera: ...]` block is omitted and only the
 user message is sent. When `context_image` is populated, it is injected
 as a `[Camera: ...]` block before Turn 1, with no user message attached.
 
-The candidate model sees the camera block as part of the user turn.
+The candidate model sees the `[Camera: ...]` block as part of the user turn.
 The judge receives the same content plus the ground-truth answer keys
 in a separate ground-truth section.
 
