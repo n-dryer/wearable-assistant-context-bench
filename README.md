@@ -38,7 +38,7 @@ The Scenario Bank is **50 scenarios across 8 shift-type categories**
 `object_in_view`, `absent_referent`, `screen_content`,
 `pre_conversation_recall`; counts in
 [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type)).
-Each scenario has three turns. Camera frames inject as `[Camera: ...]`
+Each scenario has three turns. Video frames inject as `[Camera: ...]`
 blocks containing scene descriptions — shape, material, color,
 motion, position, without naming the object.
 
@@ -52,7 +52,7 @@ primary_score = mean(current_accuracy, prior_accuracy)
 
 The benchmark supports model-selection decisions for deployed
 multimodal coaching assistants. v1 channels are text proxies: spoken
-turns as text transcripts (not raw audio), camera frames as scene
+turns as text transcripts (not raw audio), video frames as scene
 descriptions (as a proxy for real video). Three-channel design and
 proxy rationale:
 [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).

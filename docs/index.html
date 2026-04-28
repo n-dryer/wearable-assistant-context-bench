@@ -301,7 +301,7 @@ ul.bullets li {
             what the right answer should refer to:</p>
             <ul class="bullets">
                 <li><strong><code>current</code></strong>: the
-                right answer is about what the camera shows in
+                right answer is about what the video shows in
                 Turn 2 (the user's situation right now).</li>
                 <li><strong><code>prior</code></strong>: the right
                 answer is about an earlier scene (Turn 1, or a
@@ -324,7 +324,7 @@ ul.bullets li {
             the content of a screen changing, and recall of
             something the device saw before the conversation
             began.</p>
-            <p><strong>Heads up.</strong> The camera and audio
+            <p><strong>Heads up.</strong> The video and audio
             inputs are text proxies (short scene descriptions and
             transcripts), not real video or raw audio. This keeps
             the benchmark cheap and reproducible, but a high score
@@ -385,7 +385,7 @@ ul.bullets li {
                     </tr>
                     <tr class="highlight">
                         <td><strong>ablation-no-camera</strong></td>
-                        <td>Camera channel stripped</td>
+                        <td>Video channel stripped</td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td><code>gemini-2.5-flash-lite</code></td>
                         <td>50</td>
@@ -428,12 +428,12 @@ ul.bullets li {
         </section>
 
         <section class="row">
-            <div class="label">Camera ablation</div>
+            <div class="label">Video ablation</div>
             <h2>Strip the scene description and accuracy collapses</h2>
             <div class="callout">
                 <div class="callout-title">Same model, scene description shown vs hidden</div>
                 <div class="callout-stat flow">60.6% &rarr; 14.4%</div>
-                <p>The <strong>camera ablation</strong> takes the
+                <p>The <strong>video ablation</strong> takes the
                 same candidate model and the same judge and runs
                 them twice: once with the scene description
                 included in the prompt (<code>baseline</code>),
@@ -460,7 +460,7 @@ ul.bullets li {
             <div class="callout">
                 <div class="callout-title">Cross-family integrity reference: Qwen3-VL-Plus + Gemini judge</div>
                 <div class="callout-stat flow">100.0% on <code>current</code> / 8.3% on <code>prior</code></div>
-                <p>When the right answer is about what the camera
+                <p>When the right answer is about what the video
                 shows now (<code>current</code>), the model is
                 strong; when the right answer requires referring
                 back to an earlier scene
@@ -473,7 +473,7 @@ ul.bullets li {
                 <code>current</code>, 8.3% when the target is
                 <code>prior</code>. The model grounds in the
                 latest visual input and struggles to refer back.
-                Together with the camera ablation, this is the
+                Together with the video ablation, this is the
                 capability gap the benchmark targets: a strong
                 read on what's in front of the model right now,
                 paired with a weak read on what the user is
@@ -621,7 +621,7 @@ ul.bullets li {
 
             <h3>Inputs</h3>
             <ul class="bullets">
-                <li><strong>Real video frames.</strong> The camera
+                <li><strong>Real video frames.</strong> The video channel
                     input is text descriptions of the scene, not
                     actual frames. A model that does well here
                     might not do well on real video.</li>

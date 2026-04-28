@@ -5,7 +5,7 @@
 A context-tracking evaluation set for multimodal AI assistants used
 actively for advice or coaching (wearable or handheld). Each
 scenario is a three-turn conversation with a deliberate context
-shift between Turn 1 and Turn 2 visible only in the camera channel.
+shift between Turn 1 and Turn 2 visible only in the video channel.
 The model must integrate scene descriptions with deictic user speech
 to determine which context the question refers to.
 
@@ -45,7 +45,7 @@ There is no train/val/test split. The bank is an evaluation set; all
 
 See [`../../docs/schema.md`](../../docs/schema.md) for the full field
 reference. The candidate model receives the audio (text-transcript)
-and camera (scene-description) channels; the judge additionally
+and video (scene-description) channels; the judge additionally
 receives the answer lists and a ground-truth section naming the
 actual objects in frame.
 
@@ -106,7 +106,7 @@ same validator.
 
 The audio channel uses natural deictic language without naming
 objects, describing visible properties, or announcing context shifts.
-The camera channel describes scene-level features (shape, material,
+The video channel describes scene-level features (shape, material,
 color, motion, position) without object names or technique
 evaluation. The ground-truth channel (judge-only) uses object names,
 technique vocabulary, and state descriptors freely.
@@ -225,7 +225,7 @@ python -m benchmark.v1.run \
   candidates is a v1.0.x follow-up.
 - **Cross-LLM judge agreement.** Cohen's kappa = 0.443 on
   `adversarial` (`gpt-4o-mini` vs `claude-haiku-4.5`).
-- **Camera-channel ablation.** `ablation-no-camera`. The 46.2 pp
+- **Video-channel ablation.** `ablation-no-camera`. The 46.2 pp
   drop from `baseline` is reported in
   [`../../docs/benchmark_notes.md`](../../docs/benchmark_notes.md).
 - **Deictic vs named repair anchors.** `baseline-deictic-repair`
@@ -278,7 +278,7 @@ The benchmark does not measure these and does not intend to:
 - **Human inter-annotator agreement.** v1 reports cross-LLM judge
   agreement only. Human IAA on a 25% sample with Cohen's kappa is
   the highest-priority future follow-up.
-- **Real-video validation.** The camera channel uses text scene
+- **Real-video validation.** The video channel uses text scene
   descriptions as a stand-in for actual video. Held-out video
   validation on a representative sample is future work.
 - **Raw-audio validation.** v1 represents the user's spoken turns as

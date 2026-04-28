@@ -49,7 +49,7 @@ For score interpretation, see [`benchmark_notes.md`](benchmark_notes.md).
 
 ## Why text transcripts and scene descriptions, not raw audio and real video
 
-**Decision.** Audio channel is text transcripts. Camera channel is text scene descriptions. The benchmark does not test acoustic grounding, speaker attribution, ambient audio, or real-video performance.
+**Decision.** Audio channel is text transcripts. Video channel is text scene descriptions. The benchmark does not test acoustic grounding, speaker attribution, ambient audio, or real-video performance.
 
 **Why proxies?** The v1 measurement is **context tracking under a cross-turn situation shift** — whether the model uses the latest perceptual frame or stays anchored to an earlier one. (In standard ML and dialog terminology this is reference resolution under cross-turn context shift.) That measurement is meaningfully testable from text-form transcripts and scene descriptions. Real audio and real video introduce variability in the perceptual front-end that obscures the context-tracking signal. Proxies isolate the measurement.
 

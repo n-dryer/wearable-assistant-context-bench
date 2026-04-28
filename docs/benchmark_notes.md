@@ -33,7 +33,7 @@ balanced mean. Read each one separately:
 - **`current` accuracy.** Fraction of `target_context = current`
   scenarios where the judge labeled the response `current`. A model
   with high `current` accuracy responds well when the question is
-  about what's in the camera right now.
+  about what's in the video right now.
 - **`prior` accuracy.** Fraction of `target_context = prior`
   scenarios where the judge labeled the response `prior`. A model with
   high `prior` accuracy correctly answers about an earlier state when
@@ -144,7 +144,7 @@ runner CLI).
 | `ablation-no-camera` | hidden (`--no-camera`) | 14.4% | 12.1% | 16.7% |
 | **Delta** | | **46.2 pp** | **75.8 pp** | **16.6 pp** |
 
-What the ablation shows: take the camera description away and the
+What the ablation shows: take the video description away and the
 model can't get the answers from the user's words alone. That rules
 out one alternative reading of the headline numbers, namely that the
 model is solving the task through question-phrasing patterns or
@@ -152,12 +152,12 @@ memorized priors. It can't.
 
 What the ablation does not show on its own: that the model is doing
 "context tracking" in a deep sense. A simpler reading consistent
-with the same data is that the model grounds in whatever the camera
+with the same data is that the model grounds in whatever the video
 most recently described, without any explicit notion of "this is
 the current context vs. the prior context." The per-class breakdown
 fills that in: the `current` class is where the model looks strong
 (87.9%); the `prior` class is where it falls apart (33.3%). The
-combined picture (reliance on camera input, high `current` accuracy,
+combined picture (reliance on video input, high `current` accuracy,
 low `prior` accuracy) reveals the capability gap the benchmark
 targets.
 
@@ -274,8 +274,8 @@ table below is the headline only.
 
 ### What the runs show
 
-- **The model is leaning heavily on the camera input.** Same
-  candidate and judge, only the camera description toggled:
+- **The model is leaning heavily on the video input.** Same
+  candidate and judge, only the video description toggled:
   `baseline` 60.6% → `ablation-no-camera` 14.4%. A 46.2 percentage
   point gap. This eliminates one alternative hypothesis: the
   model uses question-phrasing patterns instead of visual
@@ -285,7 +285,7 @@ table below is the headline only.
   `baseline-qwen-cross-family` is the clearest example: 100% on
   `current`, 8.3% on `prior`. The model grounds in the latest
   visual input and struggles to refer back. Together with the
-  camera ablation, this is the capability gap the benchmark
+  video ablation, this is the capability gap the benchmark
   targets.
 - **Bigger Gemini sibling helps** within the family:
   `baseline` (Flash-Lite) 60.6% → `baseline-alt` (Flash) 77.7%.
@@ -379,10 +379,10 @@ benchmark could do but does not yet.
   judge outputs, with kappa reported, remains the strongest
   defensibility move and is the highest-priority future follow-up.
 - **Real video is approximated by scene descriptions in text.** The
-  camera channel uses scene descriptions ("Hand wrapped around a
+  video channel uses scene descriptions ("Hand wrapped around a
   long wooden handle. Heavy metal head at the top...") as a proxy
   for what a real wearable's vision system would produce from a
-  camera frame. Performance on text scene descriptions is not a
+  video frame. Performance on text scene descriptions is not a
   guarantee of performance on actual video. Validation against
   held-out video footage on a representative sample is acknowledged
   as future work.
@@ -448,7 +448,7 @@ in the evaluation pipeline that fits your product.
   given that the user's situation changed between turns, did the
   model respond about the new situation or stay anchored to the old
   one. Used by MultiChallenge and other multi-turn benchmarks.
-- **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the camera channel and conversation history to figure out what the user means.
+- **Deictic.** A word or phrase whose meaning depends on context: "this", "that", "it", "here", "now", "earlier". Deictic references point at something rather than naming it. The benchmark's user speech is intentionally deictic so the model has to use the video channel and conversation history to figure out what the user means.
 - **Turn.** One user message plus the assistant's response. Each
   scenario has up to three turns: Turn 1 (initial question), Turn 2
   (follow-up after the situation has changed), and an optional Turn 3
@@ -467,12 +467,12 @@ in the evaluation pipeline that fits your product.
   walking from the bedroom to the kitchen, finishing one step of a
   task and starting the next.
 - **`current`.** Judge label for a response that uses the current
-  Turn 2 context. This means the response is about what the camera
+  Turn 2 context. This means the response is about what the video
   sees right now.
 - **`prior`.** Judge label for a response that uses an earlier
   context: the Turn 1 frame, or the `context_image` (pre-conversation
   state) for recall scenarios. This means the response is about what
-  the camera saw earlier, not what it sees now.
+  the video showed earlier, not what it shows now.
 - **`clarify`.** Judge label for a response that asks the user to
   clear up an ambiguity rather than guessing.
 - **`abstain`.** Judge label for a response that declines to answer
@@ -516,7 +516,7 @@ in the evaluation pipeline that fits your product.
   metrics: Cohen's kappa (two raters), Fleiss' kappa (three or more),
   or simple percent agreement.
 - **Scene description.** What a vision system would say about a
-  camera frame: shape, material, color, motion, position. In this
+  video frame: shape, material, color, motion, position. In this
   benchmark, scene descriptions follow an authoring rule: they
   describe physical features without naming the object directly. The
   model has to identify what's in frame from those features.
@@ -528,7 +528,7 @@ in the evaluation pipeline that fits your product.
 - **Ablation.** A controlled experiment that tests how much a
   specific feature or input contributes to a model's performance, by
   running the same evaluation with that feature removed and comparing
-  scores. A "camera channel ablation" would compare runs with versus
+  scores. A "video channel ablation" would compare runs with versus
   without the `[Camera: ...]` blocks to quantify how much the camera
   channel actually contributes to the score.
 - **Hallucination.** When a model produces an answer that sounds
