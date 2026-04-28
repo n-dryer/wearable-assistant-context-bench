@@ -329,12 +329,12 @@ def render_html() -> str:
         <div class="kicker">v1.0.0 &middot; April 2026</div>
         <h1>Wearable Assistant Context Benchmark</h1>
         <p class="subtitle">
-            A multimodal AI assistant the user is actively using
-            for advice or coaching (wearable or handheld) sees what
-            the user sees and hears what they say. When the user's
-            situation changes (they swap tools, walk into a new
-            room), does the assistant follow along, or stay stuck
-            on what was happening before? This benchmark measures
+            An AI wearable assistant the user is actively using
+            for advice or coaching sees what the user sees and
+            hears what they say. When the user's situation changes
+            (they swap tools, walk into a new room), does the
+            assistant follow along, or stay stuck on what was
+            happening before? This benchmark measures
             <strong>context tracking</strong>: whether the model's
             answer reflects the user's current situation or the
             previous one.

@@ -3,11 +3,9 @@
 ## Overview
 
 The Wearable Assistant Context Benchmark tests one specific failure
-mode of multimodal AI assistants the user is actively engaging with
-for advice or coaching. Form factors covered include wearable (smart
-glasses, ear-worn devices) and handheld (phone-as-coach apps, AR/MR
-devices held in hand), with audio/video/text input and audio/text
-output. When the user's
+mode of AI wearable assistants the user is actively engaging with
+for advice or coaching (smart glasses, ear worn devices), with
+audio/video/text input and audio/text output. When the user's
 situation changes between turns, does the model respond from the
 current situational evidence, or does it stay anchored to the prior
 context?
@@ -175,8 +173,9 @@ For each Turn 2 response, the judge emits exactly one of the four
 labels: `current`, `prior`, `clarify`, or `abstain`. A scenario is
 counted correct when the judge's label matches `target_context`.
 
-The primary score is **balanced accuracy across `current` and `prior`
-under the `baseline` prompt condition**. Balanced means the mean of
+The primary score is **Balanced Turn 2 accuracy**: balanced
+accuracy across `current` and `prior` under the `baseline` prompt
+condition. Balanced means the mean of
 per-class accuracy across the two scored classes, so one class does
 not dominate the headline number. `current` and `prior` are the two
 scored classes because the bank is dominated by them (33 and 12

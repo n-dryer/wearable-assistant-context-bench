@@ -56,19 +56,17 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
 def test_public_docs_use_v1_framing() -> None:
     """The four main framing docs must carry the v1 framing language:
 
-    - The product scope is a multimodal AI assistant the user is
-      actively engaging with for advice or coaching — wearable OR
-      handheld (not just smart glasses).
+    - The product scope is an AI wearable assistant the user is
+      actively engaging with for advice or coaching.
     - The camera channel uses scene descriptions.
     - The four judge labels (`current`, `prior`, `clarify`, `abstain`).
 
-    This is a positive check — if a future edit reverts to a
-    glasses-only framing or drops the camera channel / four-label
-    vocabulary, this test fails.
+    This is a positive check — if a future edit drops the wearable
+    framing, the camera channel, or the four-label vocabulary, this
+    test fails.
     """
     required = (
         "wearable",
-        "handheld",
         "camera",
         "scene description",
         "current",

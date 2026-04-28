@@ -2,9 +2,9 @@
 
 ## Dataset summary
 
-A context-tracking evaluation set for multimodal AI assistants used
-actively for advice or coaching (wearable or handheld). Each
-scenario is a three-turn conversation with a deliberate context
+A context-tracking evaluation set for AI wearable assistants used
+actively for advice or coaching (smart glasses, ear worn devices).
+Each scenario is a three-turn conversation with a deliberate context
 shift between Turn 1 and Turn 2 visible only in the video channel.
 The model must integrate scene descriptions with deictic user speech
 to determine which context the question refers to.

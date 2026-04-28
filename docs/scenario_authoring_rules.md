@@ -50,10 +50,9 @@ ground-truth access to evaluate which context the response reflects.
 ## Audio channel rules
 
 In v1, the audio channel is represented as **text transcripts**, not
-raw audio. Write what a person would actually say to a multimodal AI
-assistant they're actively using for advice or coaching (wearable or
-handheld) as a transcript: the words a speech-to-text system would
-emit. Acoustic grounding, speaker attribution, addressee
+raw audio. Write what a person would actually say to an AI wearable
+assistant they're actively using for advice or coaching as a
+transcript: the words a speech-to-text system would emit. Acoustic grounding, speaker attribution, addressee
 detection, and ambient audio cues are out of scope; do not attempt
 to encode prosody, pauses, or non-lexical sounds. The user does not
 narrate what the video shows.

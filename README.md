@@ -14,37 +14,44 @@ happening before? **This benchmark scores that.**
 
 ## What this benchmark measures
 
-This benchmark measures **context tracking** for multimodal AI
-assistants used actively for advice or coaching, on wearable (smart
-glasses, ear worn devices) and handheld (phone-as-coach apps, AR/MR
-devices) form factors. It supports model-selection decisions for
-deployed multimodal coaching assistants.
+This benchmark measures **context tracking** for AI wearable
+assistants used actively for advice or coaching (smart glasses, ear
+worn devices). It supports model-selection decisions for deployed
+multimodal coaching assistants.
 
-**The product problem.** A user asks about a hammer, puts it down,
-picks up a screwdriver, then asks, "how do I use this?" The
-assistant should answer about the screwdriver, without the user
-having to restate what they are holding.
+### The product problem
 
-**Scenarios.** The Scenario Bank is **50 scenarios across 8
-shift-type categories**: `object_in_hand`, `object_state`,
-`sequential_task`, `location`, `object_in_view`, `absent_referent`,
-`screen_content`, `pre_conversation_recall` (per-category counts in
+A user asks about a hammer, puts it down, picks up a screwdriver,
+then asks, "how do I use this?" The assistant should answer about
+the screwdriver, without the user having to restate what they are
+holding.
+
+### Scenarios
+
+The Scenario Bank is **50 scenarios across 8 shift-type categories**:
+`object_in_hand`, `object_state`, `sequential_task`, `location`,
+`object_in_view`, `absent_referent`, `screen_content`,
+`pre_conversation_recall` (per-category counts in
 [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type)).
 Each scenario runs three turns. Video frames inject as `[Camera: ...]`
 blocks carrying scene descriptions (shape, material, color, motion,
 position; never the object name).
 
-**Scoring.** The judge labels each Turn 2 response as `current`,
-`prior`, `clarify`, or `abstain`. The primary score is **Balanced
-Turn 2 accuracy**:
+### Scoring
+
+The judge labels each Turn 2 response as `current`, `prior`,
+`clarify`, or `abstain`. The primary score is **Balanced Turn 2
+accuracy**:
 
 ```text
 primary_score = mean(current_accuracy, prior_accuracy)
 ```
 
-**Proxies in v1.** Audio is text transcripts (not raw audio). Video
-is scene descriptions (as a proxy for real video). This isolates
-context tracking from variability in the perceptual front-end. Full
+### Proxies in v1
+
+Audio is text transcripts (not raw audio). Video is scene
+descriptions (as a proxy for real video). This isolates context
+tracking from variability in the perceptual front-end. Full
 three-channel design:
 [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).
 
@@ -144,7 +151,7 @@ candidates directly against each other, add `--ranking-judge-family`
 for one judge held constant across all of them. Full rationale:
 [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
-## Repository layout
+## Files
 
 **Docs**
 

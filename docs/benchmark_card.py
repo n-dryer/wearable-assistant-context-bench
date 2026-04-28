@@ -28,12 +28,12 @@ KICKER = "v1 &middot; scenario bank"
 TITLE = "Wearable Assistant Context Benchmark"
 
 SUBTITLE = (
-    "A model-selection benchmark for multimodal AI assistants used "
-    "actively for advice or coaching (wearable or handheld), with "
-    "audio/video/text input and audio/text output. Tests whether the "
-    "assistant updates to <strong>current context</strong> instead "
-    "of staying anchored to <strong>prior context</strong> as the "
-    "user's situation changes between turns."
+    "A model-selection benchmark for AI wearable assistants used "
+    "actively for advice or coaching (smart glasses, ear worn devices), "
+    "with audio/video/text input and audio/text output. Tests whether "
+    "the assistant updates to <strong>current context</strong> "
+    "instead of staying anchored to <strong>prior context</strong> "
+    "as the user's situation changes between turns."
 )
 
 HERO_BADGES = [
@@ -45,10 +45,10 @@ PRODUCT_PROBLEM_PARAGRAPHS = [
     (
         "An AI assistant used in-the-moment for advice or coaching "
         "fails if the user must constantly restate what they're "
-        "looking at, holding, or referring to. To be frictionless "
-        "(wearable or handheld), the assistant must silently track "
-        "the user's situational context as they move, look around, "
-        "or swap objects."
+        "looking at, holding, or referring to. To be frictionless on "
+        "an AI wearable, the assistant must silently track the user's "
+        "situational context as they move, look around, or swap "
+        "objects."
     ),
     "Examples:",
 ]
@@ -240,11 +240,11 @@ RESULTS_METRIC = {
 
 FOOTER_PARAGRAPH = (
     "This benchmark supports a practical model-selection decision "
-    "for a live multimodal AI assistant the user is actively engaging "
-    "with for advice or coaching (wearable or handheld). It is not a "
-    "general multimodal benchmark. A model that fails it cannot serve "
-    "as an in-the-moment multimodal assistant; a model that passes "
-    "still needs separate evaluation for advice quality, real video, "
+    "for a live AI wearable assistant the user is actively engaging "
+    "with for advice or coaching. It is not a general multimodal "
+    "benchmark. A model that fails it cannot serve as an "
+    "in-the-moment multimodal assistant; a model that passes still "
+    "needs separate evaluation for advice quality, real video, "
     "latency, and everything else outside the context-tracking "
     "question."
 )

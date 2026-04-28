@@ -3,7 +3,7 @@ message: "If you reference the Wearable Assistant Context Benchmark, cite this f
 title: "Wearable Assistant Context Benchmark"
 version: "v1.0.0"
 date-released: "2026-04-25"
-abstract: "Context-tracking benchmark for multimodal AI assistants used actively for advice or coaching. Form factors covered include wearable (smart glasses, ear-worn) and handheld (phone-as-coach apps, AR/MR), with audio/video/text input and audio/text output. Tests reference resolution under cross-turn context shift: whether a model uses current situational evidence visible in the camera frame, or stays anchored to prior context after a shift between turns. v1.0.0 uses a 50-scenario bank across 8 shift-type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees scene descriptions and the LLM judge receives a separate ground-truth section."
+abstract: "Context-tracking benchmark for AI wearable assistants used actively for advice or coaching (smart glasses, ear worn devices), with audio/video/text input and audio/text output. Tests reference resolution under cross-turn context shift: whether a model uses current situational evidence visible in the video frame, or stays anchored to prior context after a shift between turns. v1.0.0 uses a 50-scenario bank across 8 shift-type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees scene descriptions and the LLM judge receives a separate ground-truth section."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
@@ -15,8 +15,7 @@ keywords:
   - context shift
   - context tracking
   - multimodal AI assistant
-  - wearable assistant
-  - handheld assistant
+  - AI wearable assistant
   - cross-family judging
   - LLM-as-judge
   - model selection
