@@ -112,6 +112,11 @@ flowchart LR
     Label -->|clarify or abstain| Aux["Auxiliary diagnostics"]
 ```
 
+Each scenario is a three-turn conversation. The user's situation
+changes between Turn 1 and Turn 2, but only the video shows it (the
+user's words never announce the change); a second model labels the
+Turn 2 response as `current`, `prior`, `clarify`, or `abstain`.
+
 What's out of scope:
 [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
 
