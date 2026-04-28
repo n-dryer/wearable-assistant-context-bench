@@ -85,17 +85,6 @@ Run interpretation and score-reading:
 Per-row reproduction commands:
 [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
-### Caveats
-
-- Four of five Scenario Bank runs use same-family judging;
-  `baseline-qwen-cross-family` is the cross-family reference.
-- Two model-config families in v1 — compare within a run, or read
-  each `findings.md` manifest before comparing across runs.
-- Cross-candidate ranking under one fixed judge is a v1.0.x
-  follow-up.
-
-Full discussion: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#caveats).
-
 ## How it works
 
 ```mermaid
@@ -110,9 +99,9 @@ flowchart LR
     Label -->|clarify or abstain| Aux["Auxiliary diagnostics"]
 ```
 
-Each scenario is a three-turn conversation. The user's situation
+Each scenario is a three turn conversation. The user's situation
 changes between Turn 1 and Turn 2, but only the video shows it (the
-user's words never announce the change); a second model labels the
+user doesn't announce the change) and then the user asks the assistant a question related to the new setting or object; a second model labels the
 Turn 2 response as `current`, `prior`, `clarify`, or `abstain`.
 
 What's out of scope:
