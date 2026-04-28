@@ -1,10 +1,10 @@
-# Wearable Assistant Context Benchmark
+# Wearable Assistant Context Bench
 
 [![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-[![Wearable Assistant Context Benchmark: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
+[![Wearable Assistant Context Benchm: 70 scenarios and six published runs](docs/og-image.png)](https://n-dryer.github.io/wearable-assistant-context-bench/)
 
 A model-selection benchmark for live AI wearable assistants.
 
@@ -208,9 +208,9 @@ Released under the MIT License. See [LICENSE](LICENSE).
 If you reference this benchmark, use the citation metadata in [CITATION.cff](CITATION.cff) or copy the BibTeX entry below.
 
 ```bibtex
-@software{dryer_wearable_assistant_context_benchmark_2026,
+@software{dryer_wearable_assistant_context_bench_2026,
   author = {Dryer, Nate},
-  title = {{Wearable Assistant Context Benchmark}},
+  title = {{Wearable Assistant Context Bench}},
   year = {2026},
   url = {https://github.com/n-dryer/wearable-assistant-context-bench},
   version = {1.0.0},
