@@ -10,16 +10,16 @@ A benchmark for comparing models for live AI wearable assistants.
 
 These assistants use audio, video, and text during an ongoing conversation. The user may be talking about one object, place, screen, or task, then shift to something else without saying exactly what changed. In a wearable setting, the user should not have to keep explaining what they are holding, looking at, or doing.
 
-This benchmark tests one part of that product problem: whether the model can follow the user’s reference after the visible scene changes. Specifically, it tests cross-turn multimodal reference resolution. The model should answer based on the object, place, screen, or task the user means now, not the one from the earlier turn.
+This benchmark tests one part of that product problem: whether the model can follow the user’s reference after the visible scene changes. Specifically, it tests cross turn multimodal reference resolution. The model should answer based on the object, place, screen, or task the user means now, not the one from the earlier turn.
 
-Use the score as one signal when comparing models for wearable-assistant products. It does not test the full device experience.
+Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
 ## Quick links
 
 | Need | Start here |
 |---|---|
 | View published results | [Live results page](https://n-dryer.github.io/wearable-assistant-context-bench/) |
-| View the one-page overview | [`docs/benchmark_card.html`](docs/benchmark_card.html) |
+| View the one page overview | [`docs/benchmark_card.html`](docs/benchmark_card.html) |
 | Interpret scores | [`docs/benchmark_notes.md`](docs/benchmark_notes.md) |
 | Reproduce v1 runs | [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs) |
 | Understand the benchmark design | [`docs/benchmark_spec.md`](docs/benchmark_spec.md) |
@@ -29,7 +29,7 @@ Use the score as one signal when comparing models for wearable-assistant product
 
 ## Published results
 
-v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adversarial` run uses a separate 20-scenario pack with more distractors.
+v1 includes six published runs. Five use the 50 scenario Scenario Bank. The `adversarial` run uses a separate 20 scenario pack with more distractors.
 
 The strongest published Scenario Bank result is `baseline-alt` at **77.7%** primary score. The `ablation-no-camera` run drops to **14.4%**, showing that performance is highly sensitive to removing the visual context channel.
 
@@ -72,7 +72,7 @@ Copy [`.env.example`](.env.example) to `.env`:
 cp .env.example .env
 ```
 
-Provider-specific key details: [`docs/api_keys.md`](docs/api_keys.md).
+Provider- pecific key details: [`docs/api_keys.md`](docs/api_keys.md).
 
 ### Run a candidate model
 
@@ -82,7 +82,7 @@ python -m benchmark.v1.run --model <candidate_model_id>
 
 Published reproduction commands are listed in [`benchmark/v1/dataset_card.md`](benchmark/v1/dataset_card.md#reproducing-the-v1-runs).
 
-Open-weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
+Open weight Hugging Face candidates: [`docs/running_open_weights.md`](docs/running_open_weights.md).
 
 ### Common commands
 
@@ -117,22 +117,20 @@ flowchart LR
 
 ### Scenario design
 
-Each scenario is a three-turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the new situation.
+Each scenario is a three turn conversation. The user's situation changes between Turn 1 and Turn 2, but only the video channel shows the change. The user does not announce the shift. The assistant must answer the Turn 2 question using the new situation.
 
 Video frames are injected as `[Camera: ...]` blocks carrying scene descriptions: shape, material, color, motion, and position. They do not include the object name.
 
-### v1 modality scope
-
-v1 keeps perception out of scope so the benchmark can focus on cross-turn reference resolution.
+### Modality 
 
 - Audio is represented as text transcripts, not raw audio.
 - Video is represented as scene descriptions, not raw video.
 
-Full three-channel design: [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).
+Benchmark design: [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).
 
-What's out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
+Out of scope [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
 
-## Scenario packs
+## Scenarios
 
 | Pack | Size | Purpose | Status |
 |---|---:|---|---|
@@ -140,7 +138,7 @@ What's out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-th
 | Adversarial | 20 scenarios | Distractor-rich stress pack | Published |
 | Hard candidates | 15 scenarios | Ceiling-test candidates for frontier models | Wired via `--pack hard`; no published run yet |
 
-The Scenario Bank covers 8 shift-type categories: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
+The Scenario Bank covers 8 shift type categories: `object_in_hand`, `object_state`, `sequential_task`, `location`, `object_in_view`, `absent_referent`, `screen_content`, and `pre_conversation_recall`.
 
 For category counts, scenario fields, and authoring rules, see the [dataset card](benchmark/v1/dataset_card.md#shift-type-distribution-cue_type), [schema](docs/schema.md), and [authoring rules](docs/scenario_authoring_rules.md).
 
@@ -163,7 +161,7 @@ The primary score is **Balanced Turn 2 accuracy**:
 primary_score = mean(current_accuracy, prior_accuracy)
 ```
 
-By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same-family self-grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
+By default (`--judge-family auto`), the judge comes from a different model family than the candidate to reduce same family self-grading risk. To rank candidates directly against each other, add `--ranking-judge-family` for one judge held constant across all of them.
 
 Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging-by-default--a-fixed-ranking-judge).
 
@@ -179,7 +177,7 @@ Full rationale: [`docs/decisions.md`](docs/decisions.md#why-cross-family-judging
 
 ## Contributing and support
 
-Edits to scenario text, answer keys, prompt text, or scoring semantics are out of scope once the `v1.0.0` release tag is created.
+Edits to scenario text, answer keys, prompt text, or scoring semantics are out of scope once the `v1.0` release tag is created.
 
 Bug fixes, new model adapters, documentation fixes, and reproducibility improvements are welcome through issues and pull requests.
 
