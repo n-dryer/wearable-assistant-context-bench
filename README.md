@@ -35,9 +35,9 @@ v1 includes six published runs. Five use the 50-scenario Scenario Bank. The `adv
 |---|---|---|---|
 | **baseline** | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same-family) | **60.6%** (54.1&ndash;67.1) |
 | **baseline-alt** | `gemini-2.5-flash` | `gemini-2.5-flash-lite` (same-family) | **77.7%** (71.3&ndash;84.0) |
-| **ablation-no-camera** | `gemini-2.5-flash-lite`, `--no-camera` | `gemini-2.5-flash-lite` | **14.4%** (9.1&ndash;19.7) |
+| **ablation-no-camera** | `gemini-2.5-flash-lite` with `--no-camera` | `gemini-2.5-flash-lite` | **14.4%** (9.1&ndash;19.7) |
 | **baseline-qwen-cross-family** | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` (cross-family) | **54.2%** (50.7&ndash;57.7) |
-| **baseline-deictic-repair** | `gemini-2.5-flash-lite`, `--repair-style deictic` | `gemini-2.5-flash-lite` | **60.6%** (54.1&ndash;67.1) |
+| **baseline-deictic-repair** | `gemini-2.5-flash-lite` with `--repair-style deictic` | `gemini-2.5-flash-lite` | **60.6%** (54.1&ndash;67.1) |
 | **adversarial** | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` ranking judge | **67.3%** (55.5&ndash;79.1) |
 
 More detail:
@@ -110,6 +110,8 @@ This section summarizes the benchmark mechanics: the modality constraints, the e
 
 - **Audio** is represented as text transcripts, not raw audio.
 - **Video** is represented as scene descriptions, not raw video.
+
+A planned next version will add real-video test scenarios. The goal is to keep the same reference-tracking task while also testing whether models can read the visual scene directly, instead of relying on written scene descriptions.
 
 Benchmark design: [`docs/benchmark_spec.md`](docs/benchmark_spec.md#the-three-channel-design).  
 Out of scope: [`docs/benchmark_notes.md`](docs/benchmark_notes.md#what-this-benchmark-does-not-measure).
@@ -197,4 +199,15 @@ Released under the MIT License. See [LICENSE](LICENSE).
 
 ## Citation
 
-If you reference this benchmark, use the citation metadata in [CITATION.cff](CITATION.cff).
+If you reference this benchmark, use the citation metadata in [CITATION.cff](CITATION.cff) or copy the BibTeX entry below.
+
+```bibtex
+@software{dryer_wearable_assistant_context_benchmark_2026,
+  author = {Dryer, Nate},
+  title = {{Wearable Assistant Context Benchmark}},
+  year = {2026},
+  url = {https://github.com/n-dryer/wearable-assistant-context-bench},
+  version = {1.0.0},
+  license = {MIT}
+}
+```
