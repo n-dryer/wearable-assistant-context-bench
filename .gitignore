@@ -12,13 +12,18 @@ dist/
 .DS_Store
 .vscode/
 .idea/
-benchmark/v1/runs/*
-!benchmark/v1/runs/adversarial/
-!benchmark/v1/runs/baseline/
-!benchmark/v1/runs/baseline-alt/
-!benchmark/v1/runs/ablation-no-camera/
-!benchmark/v1/runs/baseline-qwen-cross-family/
-!benchmark/v1/runs/baseline-deictic-repair/
+
+# Run results: ignore everything by default, whitelist published baselines.
+runs/*
+!runs/baseline/
+!runs/baseline-alt/
+!runs/ablation-no-camera/
+!runs/baseline-qwen-cross-family/
+!runs/baseline-deictic-repair/
+!runs/contrast/
+runs/*/transcripts.jsonl
+
+# Local-only planning notes
 EXECUTION_PLAN.md
 REBUILD_PLAN.md
 AGENTS.md
@@ -32,3 +37,6 @@ audits/
 # Local-only working directories
 .claude/
 .herenow/
+
+# Presentation/marketing assets — out-of-tree, not part of the benchmark surface
+site/

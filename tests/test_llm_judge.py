@@ -1,4 +1,12 @@
-"""Unit tests for core.llm_judge label parsing and family selection."""
+"""Tests for the LLM judge: label parsing, family selection, and the
+no-leakage constraints on what the judge prompt may contain.
+
+The judge labels each Turn 2 response without seeing the scenario's
+``target_context`` label, the ``cue_type`` shift category, or the
+authoring ``notes``. Those fields would tell the judge the answer it
+is being asked to produce. These tests verify the prompt-building
+helpers respect those constraints.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +14,13 @@ from typing import Any
 
 import pytest
 
-from core.llm_judge import (
+from wearable_assistant_context_bench.runner import (
+    SCENARIOS_PATH,
+    _build_ground_truth_context,
+    _build_scenario_description,
+    load_scenarios,
+)
+from wearable_assistant_context_bench.llm_judge import (
     ALLOWED_POLICIES,
     JUDGE_MODEL_ID_CLAUDE,
     JUDGE_MODEL_ID_GEMINI,
@@ -17,11 +31,17 @@ from core.llm_judge import (
     LLMJudge,
     LiteLLMJudgeAdapter,
     OpenAIJudgeAdapter,
+    _build_user_prompt,
     build_judge,
     infer_candidate_family,
     parse_verdict,
     resolve_judge_family,
 )
+
+
+# ---------------------------------------------------------------------------
+# Verdict parsing
+# ---------------------------------------------------------------------------
 
 
 def test_judge_prompt_mentions_all_four_policies() -> None:
@@ -34,88 +54,75 @@ def test_judge_prompt_mentions_all_four_policies() -> None:
 def test_parse_verdict_extracts_current_policy() -> None:
     raw = (
         "reasoning...\n"
-        '{"selected_policy": "current", "rationale": "reflects new scene."}'
+        '{"selected_label": "current", "rationale": "reflects new scene."}'
     )
     verdict = parse_verdict(raw)
-    assert verdict.selected_policy == "current"
+    assert verdict.selected_label == "current"
     assert "reflects new scene" in verdict.rationale
 
 
 def test_parse_verdict_accepts_all_four_policies() -> None:
     for policy in ALLOWED_POLICIES:
-        raw = f'{{"selected_policy": "{policy}", "rationale": "ok"}}'
-        assert parse_verdict(raw).selected_policy == policy
+        raw = f'{{"selected_label": "{policy}", "rationale": "ok"}}'
+        assert parse_verdict(raw).selected_label == policy
 
 
 def test_parse_verdict_rejects_unknown_policy() -> None:
-    raw = '{"selected_policy": "nonsense", "rationale": "ok"}'
+    raw = '{"selected_label": "nonsense", "rationale": "ok"}'
     with pytest.raises(ValueError):
         parse_verdict(raw)
 
 
 def test_parse_verdict_falls_back_to_abstain_when_no_json_or_label_line() -> None:
-    """Verbose prose with no JSON block and no `selected_policy:` line
-    falls back to abstain rather than guessing from a bare label word.
-
-    This is the v1.1 hardening: the previous heuristic scanned for the
-    last bare label word, which would flip on contrastive prose like
-    "uses prior context but I will select current."
-    """
     verdict = parse_verdict("no JSON object here, just bare prose")
-    assert verdict.selected_policy == "abstain"
-    assert "no-verdict" in verdict.rationale.lower() or "fallback" in verdict.rationale.lower()
+    assert verdict.selected_label == "abstain"
+    assert (
+        "no-verdict" in verdict.rationale.lower()
+        or "fallback" in verdict.rationale.lower()
+    )
 
 
 def test_parse_verdict_does_not_flip_on_contrastive_prose() -> None:
-    """Verbose prose mentioning multiple labels but no explicit verdict
-    line falls back to abstain — the old heuristic would have returned
-    whichever label appeared last."""
     raw = (
         "Reasoning: the response discusses prior context briefly, but "
         "ultimately grounds in the current frame.\n"
         "(no JSON block, no selected_policy line)"
     )
     verdict = parse_verdict(raw)
-    assert verdict.selected_policy == "abstain"
+    assert verdict.selected_label == "abstain"
 
 
 def test_parse_verdict_recovers_from_explicit_label_line() -> None:
-    """When the judge skips JSON but emits an explicit
-    `selected_policy: current` line, the parser recovers it."""
     raw = (
         "Reasoning: the response describes the new frame.\n"
-        "selected_policy: current"
+        "selected_label: current"
     )
     verdict = parse_verdict(raw)
-    assert verdict.selected_policy == "current"
+    assert verdict.selected_label == "current"
     assert "recovered" in verdict.rationale.lower()
 
 
 def test_parse_verdict_falls_back_on_malformed_json() -> None:
-    """Malformed JSON inside a {...} block (e.g. stray escape) falls
-    through to the strict label-line check; if neither produces a
-    label, the parser returns abstain."""
-    verdict = parse_verdict('{"selected_policy": "prior", "rationale": }')
-    # No valid JSON, no explicit selected_policy line -> abstain.
-    assert verdict.selected_policy == "abstain"
+    verdict = parse_verdict('{"selected_label": "prior", "rationale": }')
+    assert verdict.selected_label == "abstain"
 
 
 def test_parse_verdict_falls_back_to_abstain_when_malformed_json_lacks_label_word() -> None:
-    """Malformed JSON with no recoverable label line returns abstain
-    so the runner doesn't abort."""
-    verdict = parse_verdict('{"selected_policy": , "rationale": }')
-    assert verdict.selected_policy == "abstain"
+    verdict = parse_verdict('{"selected_label": , "rationale": }')
+    assert verdict.selected_label == "abstain"
 
 
 def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
     raw = (
-        '{"selected_policy": "prior", "rationale": "first"}\n'
-        '{"selected_policy": "current", "rationale": "second"}'
+        '{"selected_label": "prior", "rationale": "first"}\n'
+        '{"selected_label": "current", "rationale": "second"}'
     )
-    assert parse_verdict(raw).selected_policy == "current"
+    assert parse_verdict(raw).selected_label == "current"
 
 
-# --- Family inference and auto resolution ---------------------------------
+# ---------------------------------------------------------------------------
+# Family inference and auto resolution
+# ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -132,12 +139,8 @@ def test_parse_verdict_takes_last_object_when_multiple_present() -> None:
         ("openai/gpt-4.1-mini", "openai"),
         ("openrouter/openai/gpt-4.1-mini", "openai"),
         ("gpt-4.1-mini", "openai"),
-        # HuggingFace Inference Providers routing.
-        # Closed-family models served via HF route through to the closed family.
         ("huggingface/together/openai/gpt-oss-120b", "openai"),
         ("huggingface/fireworks-ai/openai/gpt-oss-20b", "openai"),
-        # Open-weights candidates (Llama, Qwen, Mistral, etc.) return
-        # None — caller must pass --judge-family explicitly.
         ("huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct", None),
         ("huggingface/together/meta-llama/Llama-3.2-11B-Vision-Instruct", None),
         ("huggingface/fireworks-ai/Qwen/Qwen2.5-VL-72B-Instruct", None),
@@ -150,9 +153,6 @@ def test_infer_candidate_family(model_id: str, expected: str | None) -> None:
 
 
 def test_resolve_judge_family_auto_errors_for_open_hf_candidate() -> None:
-    """Open-weights HF candidates must be paired with an explicit
-    --judge-family, since the cross-family map only covers
-    Claude/Gemini/OpenAI today."""
     with pytest.raises(ValueError, match="could not infer the candidate family"):
         resolve_judge_family(
             "auto",
@@ -199,12 +199,12 @@ def test_resolve_judge_family_rejects_unknown_requested_value() -> None:
         resolve_judge_family("mistral", "claude-sonnet-4-6")
 
 
-# --- Judge adapter routing -----------------------------------------------
+# ---------------------------------------------------------------------------
+# Judge adapter routing
+# ---------------------------------------------------------------------------
 
 
 class _StubAdapter(JudgeAdapterBase):
-    """Stub JudgeAdapter that returns canned judge text."""
-
     family = "stub"
 
     def __init__(self, canned: str) -> None:
@@ -218,7 +218,7 @@ class _StubAdapter(JudgeAdapterBase):
 
 def test_judge_label_round_trips_through_stub_adapter() -> None:
     stub = _StubAdapter(
-        '{"selected_policy": "prior", "rationale": "answered from earlier clips"}'
+        '{"selected_label": "prior", "rationale": "answered from earlier clips"}'
     )
     judge = LLMJudge(adapter=stub, model_id="stub-model")
     verdict = judge.label(
@@ -230,7 +230,7 @@ def test_judge_label_round_trips_through_stub_adapter() -> None:
         clarify_indicators=[],
         abstain_indicators=["don't have access"],
     )
-    assert verdict.selected_policy == "prior"
+    assert verdict.selected_label == "prior"
     assert "earlier" in verdict.rationale
     assert len(stub.calls) == 1
     payload = stub.calls[0]["user"]
@@ -290,3 +290,106 @@ def test_openai_judge_adapter_family() -> None:
 
 def test_litellm_judge_adapter_family_is_configurable() -> None:
     assert LiteLLMJudgeAdapter(family="claude").family == "claude"
+
+
+# ---------------------------------------------------------------------------
+# No-leakage constraints on what the judge can see
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture(scope="module")
+def scenarios():
+    return load_scenarios(SCENARIOS_PATH)
+
+
+def _label_naming_phrases(target_context: str) -> tuple[str, ...]:
+    return (
+        f"target context for turn 2 is `{target_context}`",
+        f"target context for turn 2 is {target_context}",
+        f"target context: {target_context}",
+        f"target_context: {target_context}",
+        f"target context is `{target_context}`",
+        f"the correct label is {target_context}",
+        f"correct policy is {target_context}",
+        f"the answer is {target_context}",
+    )
+
+
+def test_scenario_description_does_not_name_target_context(scenarios) -> None:
+    leaks: list[str] = []
+    for scenario in scenarios:
+        rendered = _build_scenario_description(scenario).lower()
+        for phrase in _label_naming_phrases(scenario.target_context):
+            if phrase in rendered:
+                leaks.append(
+                    f"{scenario.scenario_id}: {phrase!r} found in scenario_description"
+                )
+    assert not leaks, (
+        "scenario_description names target_context for:\n  - "
+        + "\n  - ".join(leaks)
+    )
+
+
+def test_ground_truth_context_omits_target_cue_and_notes(scenarios) -> None:
+    leaks: list[str] = []
+    for scenario in scenarios:
+        rendered = _build_ground_truth_context(scenario)
+        rendered_lower = rendered.lower()
+        for phrase in _label_naming_phrases(scenario.target_context):
+            if phrase in rendered_lower:
+                leaks.append(
+                    f"{scenario.scenario_id}: {phrase!r} found in ground_truth_context"
+                )
+        if scenario.change_type and scenario.change_type.lower() in rendered_lower:
+            leaks.append(
+                f"{scenario.scenario_id}: cue_type {scenario.change_type!r} found in "
+                f"ground_truth_context"
+            )
+        if scenario.notes and len(scenario.notes) >= 8:
+            if scenario.notes.lower() in rendered_lower:
+                leaks.append(
+                    f"{scenario.scenario_id}: authoring notes appear in "
+                    f"ground_truth_context"
+                )
+    assert not leaks, (
+        "ground_truth_context exposes privileged fields for:\n  - "
+        + "\n  - ".join(leaks)
+    )
+
+
+def test_full_rendered_judge_prompt_omits_privileged_fields(scenarios) -> None:
+    """End-to-end: the full rendered judge user message contains no privileged fields."""
+    sample_response = "An assistant response that mentions some object."
+    leaks: list[str] = []
+    for scenario in scenarios:
+        rendered = _build_user_prompt(
+            response=sample_response,
+            scenario_description=_build_scenario_description(scenario),
+            turn_2_user=scenario.turn_2_user,
+            current_answers=scenario.gold.current_answers,
+            prior_answers=scenario.gold.prior_answers,
+            clarify_indicators=scenario.gold.clarify_indicators,
+            abstain_indicators=scenario.gold.abstain_indicators,
+            ground_truth_context=_build_ground_truth_context(scenario),
+        )
+        rendered_lower = rendered.lower()
+        for phrase in _label_naming_phrases(scenario.target_context):
+            if phrase in rendered_lower:
+                leaks.append(
+                    f"{scenario.scenario_id}: {phrase!r} found in rendered judge prompt"
+                )
+        if scenario.change_type and scenario.change_type.lower() in rendered_lower:
+            leaks.append(
+                f"{scenario.scenario_id}: cue_type {scenario.change_type!r} found in "
+                f"rendered judge prompt"
+            )
+        if scenario.notes and len(scenario.notes) >= 8:
+            if scenario.notes.lower() in rendered_lower:
+                leaks.append(
+                    f"{scenario.scenario_id}: authoring notes appear in rendered "
+                    f"judge prompt"
+                )
+    assert not leaks, (
+        "Rendered judge prompt exposes privileged fields for:\n  - "
+        + "\n  - ".join(leaks)
+    )

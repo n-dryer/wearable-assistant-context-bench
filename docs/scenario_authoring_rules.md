@@ -31,31 +31,32 @@ benchmark does not measure.
 
 ---
 
-## The three channels
+## What the model and judge see
 
-Every scenario uses three distinct channels. Each has different rules
-about what it carries and who can see it.
+Each scenario splits its content between what the candidate model
+sees and what the judge sees:
 
-| Channel | Field(s) | Visible to candidate | Visible to judge |
+| Field group | Fields | Visible to candidate | Visible to judge |
 |---|---|---|---|
-| Audio | `turn_1_user`, `turn_2_user`, `turn_3_repair_anchor` | Yes | Yes |
-| Camera | `context_image`, `turn_1_image`, `turn_2_image` | Yes (as `[Camera: ...]` blocks) | Yes |
-| Ground truth | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
+| User messages | `turn_1_user`, `turn_2_user`, `turn_3_repair_prompt` | Yes | Yes |
+| Scene descriptions | `context_image`, `turn_1_image`, `turn_2_image` | Yes (as `[Camera: ...]` blocks) | Yes |
+| Gold answers | `current_answers`, `prior_answers`, `clarify_indicators`, `abstain_indicators` | No | Yes |
 
-The candidate model integrates audio and video. The judge has
-ground-truth access to evaluate which context the response reflects.
+The candidate sees the user message and the scene description. The
+judge sees the same plus the gold answer keys, and uses them to
+score which context the candidate's response reflects.
 
 ---
 
-## Audio channel rules
+## User-message rules
 
-In v1, the audio channel is represented as **text transcripts**, not
-raw audio. Write what a person would actually say to an AI wearable
-assistant they're actively using for advice or coaching as a
-transcript: the words a speech-to-text system would emit. Acoustic grounding, speaker attribution, addressee
-detection, and ambient audio cues are out of scope; do not attempt
-to encode prosody, pauses, or non-lexical sounds. The user does not
-narrate what the video shows.
+The user message is represented as a **text transcript**, not raw
+audio. Write what a person would actually say to an AI wearable
+assistant they're actively using for advice or coaching: the words a
+speech-to-text system would emit. Acoustic grounding, speaker
+attribution, addressee detection, and ambient audio cues are out of
+scope; do not attempt to encode prosody, pauses, or non-lexical
+sounds. The user does not narrate what the video shows.
 
 ### Must
 
@@ -95,7 +96,7 @@ was previously visible.
 
 ---
 
-## Video channel rules
+## Scene-description rules
 
 Describe what a video frame would contain at the scene level. Scene
 descriptions are what a vision system would say about a video frame:
@@ -145,22 +146,22 @@ to be cryptic, only non-labeled.
 
 ## Repair anchor rules
 
-Every scenario must populate `turn_3_repair_anchor` (the named anchor).
+Every scenario must populate `turn_3_repair_prompt` (the named anchor).
 Visible-referent `current`-target scenarios additionally populate
-`turn_3_repair_anchor_deictic` (the deictic anchor).
+`turn_3_repair_prompt_deictic` (the deictic anchor).
 
 ### Named anchor: canonical floor metric
 
-`turn_3_repair_anchor` names both the intended object and the wrong
+`turn_3_repair_prompt` names both the intended object and the wrong
 object explicitly: *"I mean the hammer I'm holding now, not the
-screwdriver from before."* This measures floor recoverability: given a
+screwdriver from before."* This measures best-case recovery: given a
 maximally specific correction, can the model recover?
 
 The named anchor is required on every scenario.
 
 ### Deictic anchor: realistic recovery signal
 
-`turn_3_repair_anchor_deictic` uses pure spatial or temporal deictic
+`turn_3_repair_prompt_deictic` uses pure spatial or temporal deictic
 language: *"I mean this thing in my hand right now"* or *"I mean what
 I'm looking at."* It must not name either object.
 
@@ -168,7 +169,7 @@ Populate the deictic field only when **all three** are true:
 
 1. `target_context == "current"` (the user is repairing toward the
    present frame).
-2. `cue_type` ∈ {`object_in_hand`, `object_in_view`, `object_state`,
+2. `change_type` ∈ {`object_in_hand`, `object_in_view`, `object_state`,
    `screen_content`, `sequential_task`, `location`}. These are the
    visible-referent categories where a real wearable's vision system
    could resolve a deictic gesture.
@@ -176,7 +177,7 @@ Populate the deictic field only when **all three** are true:
    (i.e. the deictic gesture is technically resolvable).
 
 Leave the field as `null` for `absent_referent`,
-`pre_conversation_recall`, and any scenario whose target is `prior`,
+`cross_session_reference`, and any scenario whose target is `prior`,
 `clarify`, or `abstain`. The runner falls back to the named anchor in
 those cases when invoked with `--repair-style deictic`.
 
@@ -189,8 +190,8 @@ fields.
 
 ## Context shift rules
 
-The shift between Turn 1 and Turn 2 is visible only in the video
-channel. It is never announced in the audio channel.
+The shift between Turn 1 and Turn 2 is visible only in the scene
+description. It is never announced in the user message.
 
 - `turn_1_image` and `turn_2_image` describe different situations
   (different object, location, or state)
@@ -210,14 +211,14 @@ state that existed **before Turn 1 was spoken**. This applies to:
 
 - Recall scenarios where Turn 2 asks about something from before the
   conversation began
-- `pre_conversation_recall` shift type scenarios
+- `cross_session_reference` shift type scenarios
 
 For all other scenarios, `context_image` is null and `turn_1_image`
 establishes the initial state.
 
 ---
 
-## Ground truth channel rules
+## Gold-answer rules
 
 `current_answers` and `prior_answers` are for the judge. Object names
 and coaching vocabulary are permitted here. The candidate never sees
