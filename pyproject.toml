@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wearable-assistant-context-bench"
-version = "1.0.0"
-description = "Context-tracking benchmark for multimodal AI assistants used actively for advice or coaching, wearable or handheld."
+version = "0.1.0"
+description = "Cross-turn reference-resolution benchmark for multimodal AI assistants used actively for advice or coaching, wearable or handheld."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
@@ -13,12 +13,12 @@ authors = [
   { name = "Nate Dryer" },
 ]
 keywords = [
-  "context-tracking",
+  "reference-resolution",
+  "cross-turn",
   "multimodal",
   "wearable",
   "handheld",
   "ai-coach",
-  "reference-resolution",
   "model-selection",
   "llm-as-judge",
   "scene-description",
@@ -38,10 +38,8 @@ classifiers = [
 dependencies = [
   "google-genai==1.73.1",
   "litellm==1.83.7",
-  "spacy==3.8.13",
   "rapidfuzz==3.14.5",
   "python-dotenv==1.0.1",
-  "weasyprint==68.1",
 ]
 
 [project.optional-dependencies]
@@ -54,8 +52,11 @@ Homepage = "https://github.com/n-dryer/wearable-assistant-context-bench"
 Repository = "https://github.com/n-dryer/wearable-assistant-context-bench"
 Issues = "https://github.com/n-dryer/wearable-assistant-context-bench/issues"
 
+[project.scripts]
+wac-bench = "wearable_assistant_context_bench.runner:main"
+
 [tool.setuptools]
-packages = ["core", "benchmark", "benchmark.v1"]
+packages = ["wearable_assistant_context_bench"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

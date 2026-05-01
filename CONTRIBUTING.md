@@ -12,15 +12,14 @@ quality, or domain expertise are not.
 
 ## Release policy
 
-Once the `v1.0.0` release tag is created, the following stay stable
-across patch releases so cross-model comparisons remain valid:
+The following stay stable across patch releases so cross-model
+comparisons remain valid:
 
-- `benchmark/v1/scenarios.json`: scenario text
-- `benchmark/v1/expected_answers.json`: answer keys
-- `benchmark/v1/interventions.json`: prompt conditions
+- `data/scenarios.jsonl`: scenario text + inline gold labels
+- `data/prompt_conditions.json`: prompt conditions
 - The four judge labels (`current`, `prior`, `clarify`, `abstain`)
-- The primary scoring rule (balanced accuracy across `current` and
-  `prior` under `baseline`)
+- The primary scoring rule: `mean(current_recall, prior_recall)`
+  under `baseline` (class recall, not overall accuracy)
 - The default comparison condition (`baseline`)
 
 Edits that change scenario meaning, answer-key vocabulary, prompt
@@ -34,34 +33,28 @@ benchmark release rather than an in-place edit.
 - New candidate-model adapter support that preserves benchmark
   semantics
 - Documentation improvements, typo fixes, broken-link fixes
-- Test coverage for existing behavior (`core/statistics.py` has no
-  tests yet — `wilson_ci`, `mcnemar_test`, `per_shift_type_accuracy`,
-  `empirical_difficulty`, and `minimum_detectable_effect` are all
-  untested)
+- Test coverage for existing behavior
 - Reproducibility improvements (better manifest fields, cache hygiene,
   run-output clarity)
 - Validator improvements (new programmatic checks, better diagnostics)
 
 ## How to add a new model adapter
 
-Adapters live in [`core/`](core). The existing examples are:
+Adapters live in [`wearable_assistant_context_bench/`](wearable_assistant_context_bench). The existing examples are:
 
-- `core/models.py`: Claude adapter
-- `core/gemini_adapter.py`: Gemini adapter
-- `core/litellm_adapter.py`: LiteLLM-backed adapter for OpenAI-family
-  and provider-qualified model IDs
+- `wearable_assistant_context_bench/gemini_adapter.py`: native Google Gemini SDK adapter
+- `wearable_assistant_context_bench/litellm_adapter.py`: LiteLLM-backed adapter for Claude, OpenAI, OpenRouter, and any provider-qualified model IDs
 
 Each adapter exposes a `query(messages, system, config)` method
 returning a string. To add a new adapter:
 
-1. Implement the adapter in a new module under `core/`.
+1. Implement the adapter in a new module under `wearable_assistant_context_bench/`.
 2. Add tests under `tests/` that stub the underlying client and
    exercise the adapter contract (the existing adapter tests are
    templates).
-3. Update `_build_adapter` in `benchmark/v1/run.py` to dispatch to the
-   new family.
+3. Update `_build_adapter` in `wearable_assistant_context_bench/runner.py` to dispatch to the new family.
 4. Update `infer_candidate_family` and the cross-family map in
-   `core/llm_judge.py` if the new family should participate in
+   `wearable_assistant_context_bench/llm_judge.py` if the new family should participate in
    `--judge-family auto` resolution.
 
 If your adapter is for a routing layer that supports multiple
@@ -72,27 +65,27 @@ families (like LiteLLM), keep family detection in
 
 Scenarios are written from scratch following the rules in
 [`docs/scenario_authoring_rules.md`](docs/scenario_authoring_rules.md).
-That document is the source of truth for the audio, camera, and
-ground-truth channel rules, and it includes the full validation
-checklist.
+That document is the source of truth for user-message,
+scene-description, and gold-answer rules, and it includes the full
+validation checklist.
 
 Quick summary:
 
-- **Audio channel** (user speech): natural and deictic. No object
+- **User message** (`turn_*_user`): natural, deictic. No object
   names, no property descriptions, no shift announcements, no answer
   vocabulary.
-- **Camera channel** (image descriptions): scene-level features
-  only. No object names, no functional labels, no technique
-  evaluation. Detailed enough that a fresh reader can identify the
-  object with high confidence.
-- **Ground truth channel** (answer keys): judge-only. Object names
-  permitted. Each `current_answers` and `prior_answers` list must
-  cover three vocabulary categories: object name, technique vocabulary,
-  state descriptors.
+- **Scene description** (`turn_*_image`): scene-level features only.
+  No object names, no functional labels, no technique evaluation.
+  Detailed enough that a fresh reader can identify the object with
+  high confidence.
+- **Gold answers** (`gold.*`): judge-only. Object names permitted.
+  Each `current_answers` and `prior_answers` list must cover three
+  vocabulary categories: object name, technique vocabulary, state
+  descriptors.
 
-After the `v1.0.0` tag, new scenarios are not accepted into the
-v1 scenario bank. Authoring rules remain published as a contributor
-reference and as documentation for future benchmark releases.
+New scenarios are not accepted into the frozen v1 scenario bank.
+Authoring rules remain published as a contributor reference and as
+documentation for future benchmark releases.
 
 ## Validation
 
@@ -113,9 +106,9 @@ The full 10-point validation checklist is in
 
 ### Static asset lockfile
 
-`benchmark/v1/MANIFEST.lock.json` pins SHA256 hashes of the scenario
-bank, expected answers, prompt conditions, and the judge-prompt
-template alongside the benchmark and judge-prompt versions. The
+`data/MANIFEST.lock.json` pins SHA256 hashes of the scenario
+bank, prompt conditions, and the judge-prompt template alongside the
+benchmark and judge-prompt versions. The
 validator's lockfile check fails if any of those drift. After a
 deliberate, coordinated content change (with a corresponding
 `BENCHMARK_VERSION` or `JUDGE_PROMPT_VERSION` bump in code), regenerate
@@ -129,16 +122,23 @@ This is the only sanctioned way to update the lockfile.
 
 ## Setup
 
-The one-step setup script creates a venv, installs pinned
-dependencies, and downloads the spaCy `en_core_web_sm` model:
+With [`uv`](https://docs.astral.sh/uv/) (recommended):
 
 ```bash
-./scripts/setup.sh
-. .venv/bin/activate
+uv sync --extra dev
+uv run pytest -q
 ```
 
-Override the Python interpreter with `PYTHON=python3.13
-./scripts/setup.sh`. CI tests Python 3.11–3.14.
+With pip:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
+```
+
+CI tests Python 3.11, 3.12, and 3.13.
 
 ## Test requirements
 
@@ -156,7 +156,7 @@ without API access. CI runs both commands on every PR.
 
 - Python 3.11+ with type hints on every public function
 - Docstrings on every public function and module-level docstrings on
-  files in `core/` and `benchmark/`
+  files in `wearable_assistant_context_bench/`
 - Dataclasses for structured payloads where they improve readability
 - No bare `except:` clauses
 - Preserve the runner CLI contract unless a change is explicitly
@@ -164,20 +164,10 @@ without API access. CI runs both commands on every PR.
 
 ## Build / packaging
 
-The project ships both a top-level `requirements.txt` (direct deps,
-pinned for human readability and CI install) and a `pyproject.toml`
-(PEP 621 metadata for tooling that prefers it). For full
-reproducibility the resolved environment is captured in
-`requirements.lock`:
-
-```bash
-# Refresh the lock from a clean install:
-python -m pip install -r requirements.txt
-python -m pip freeze | sort > requirements.lock
-```
-
-The lockfile is regenerated on intentional dependency bumps; do not
-edit it by hand.
+[`pyproject.toml`](pyproject.toml) is the single source of truth for
+runtime and dev dependencies. The runtime deps are pinned by exact
+version under `[project.dependencies]`; pytest sits under
+`[project.optional-dependencies]` `dev`.
 
 ## PR process
 

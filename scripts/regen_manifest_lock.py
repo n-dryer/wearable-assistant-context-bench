@@ -1,6 +1,6 @@
-"""Regenerate the static asset lockfile at ``benchmark/v1/MANIFEST.lock.json``.
+"""Regenerate the static asset lockfile at ``data/MANIFEST.lock.json``.
 
-The lockfile pins SHA256 hashes of the scenario bank, expected answers,
+The lockfile pins SHA256 hashes of the unified scenario bank,
 prompt-condition definitions, and the judge-prompt template, alongside
 the benchmark and judge-prompt versions. ``scripts/validate_scenarios.py``
 compares the computed hashes against this lockfile and fails CI if any
@@ -12,6 +12,10 @@ the lockfile.
 
 Usage:
     python scripts/regen_manifest_lock.py
+
+Note: if multiple manifest lock files accumulate over time (e.g. one
+per benchmark version archived for reproducibility), consider moving
+them under ``data/manifests/`` rather than the data root.
 """
 
 from __future__ import annotations
@@ -22,14 +26,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-LOCKFILE_PATH = REPO_ROOT / "benchmark" / "v1" / "MANIFEST.lock.json"
-SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios.json"
-EXPECTED_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers.json"
-INTERVENTIONS_PATH = REPO_ROOT / "benchmark" / "v1" / "interventions.json"
-ADV_SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios_adversarial.json"
-ADV_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers_adversarial.json"
-HARD_SCENARIOS_PATH = REPO_ROOT / "benchmark" / "v1" / "scenarios_v2_candidates.json"
-HARD_ANSWERS_PATH = REPO_ROOT / "benchmark" / "v1" / "expected_answers_v2_candidates.json"
+DATA_DIR = REPO_ROOT / "data"
+LOCKFILE_PATH = DATA_DIR / "MANIFEST.lock.json"
+SCENARIOS_PATH = DATA_DIR / "scenarios.jsonl"
+PROMPT_CONDITIONS_PATH = DATA_DIR / "prompt_conditions.json"
 
 LOCKFILE_NOTE = (
     "Static lockfile. scripts/validate_scenarios.py compares computed "
@@ -45,8 +45,8 @@ def _sha256(path: Path) -> str:
 
 def build_lockfile() -> dict:
     sys.path.insert(0, str(REPO_ROOT))
-    from core.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
-    from core.report import BENCHMARK_VERSION, SCHEMA_REVISION
+    from wearable_assistant_context_bench.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
+    from wearable_assistant_context_bench.report import BENCHMARK_VERSION, SCHEMA_REVISION
 
     lockfile = {
         "benchmark_version": BENCHMARK_VERSION,
@@ -56,15 +56,8 @@ def build_lockfile() -> dict:
             JUDGE_SYSTEM_PROMPT.encode("utf-8")
         ).hexdigest(),
         "scenarios_sha256": _sha256(SCENARIOS_PATH),
-        "expected_answers_sha256": _sha256(EXPECTED_ANSWERS_PATH),
-        "interventions_sha256": _sha256(INTERVENTIONS_PATH),
+        "prompt_conditions_sha256": _sha256(PROMPT_CONDITIONS_PATH),
     }
-    if ADV_SCENARIOS_PATH.exists() and ADV_ANSWERS_PATH.exists():
-        lockfile["adversarial_scenarios_sha256"] = _sha256(ADV_SCENARIOS_PATH)
-        lockfile["adversarial_expected_answers_sha256"] = _sha256(ADV_ANSWERS_PATH)
-    if HARD_SCENARIOS_PATH.exists() and HARD_ANSWERS_PATH.exists():
-        lockfile["hard_scenarios_sha256"] = _sha256(HARD_SCENARIOS_PATH)
-        lockfile["hard_expected_answers_sha256"] = _sha256(HARD_ANSWERS_PATH)
     lockfile["_note"] = LOCKFILE_NOTE
     return lockfile
 

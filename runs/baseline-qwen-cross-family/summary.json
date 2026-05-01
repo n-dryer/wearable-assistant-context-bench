@@ -1,0 +1,75 @@
+{
+  "run_label": "baseline-qwen-cross-family",
+  "n_trials": 750,
+  "n_scenarios": 50,
+  "candidate_model": "dashscope-intl/qwen3-vl-plus",
+  "judge_model": "gemini/gemini-2.5-flash-lite",
+  "judge_family": "gemini",
+  "ranking_condition": "baseline",
+  "primary_score_mean_recall": {
+    "point": 0.5416666666666666,
+    "ci_95": [
+      0.5066997313530405,
+      0.5766336019802928
+    ]
+  },
+  "per_class_recall": {
+    "current": {
+      "point": 1.0,
+      "ci_95": [
+        0.9772481305982218,
+        0.9999999999999998
+      ]
+    },
+    "prior": {
+      "point": 0.08333333333333333,
+      "ci_95": [
+        0.03612045660173077,
+        0.18068942018334405
+      ]
+    }
+  },
+  "per_pack_recall": {
+    "bank": {
+      "point": 0.5416666666666666,
+      "ci_95": [
+        0.5066997313530405,
+        0.5766336019802928
+      ]
+    }
+  },
+  "clarify_rate": {
+    "point": 0.02,
+    "ci_95": [
+      0.0085723243840582,
+      0.04595564313156857
+    ]
+  },
+  "abstain_rate": {
+    "point": 0.02,
+    "ci_95": [
+      0.0085723243840582,
+      0.04595564313156857
+    ]
+  },
+  "coverage_rate": {
+    "point": 0.96,
+    "ci_95": [
+      0.9279472764187334,
+      0.9781300880454574
+    ]
+  },
+  "manifest_versions": {
+    "benchmark_version": "v1",
+    "judge_prompt_version": "v1.1.0",
+    "schema_revision": 3
+  },
+  "config_snapshot": {
+    "trials": 5,
+    "temperature": 0.0,
+    "pack": "canonical",
+    "no_camera": false,
+    "enable_repair": null
+  },
+  "_note": "Generated from transcripts.jsonl. Full transcripts are gitignored as of v1.1; regenerate via `python -m benchmark.v1.run --output-dir <run_dir>`."
+}

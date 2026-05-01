@@ -39,11 +39,11 @@ based on availability and pricing.
 ## Worked example
 
 ```bash
-python -m benchmark.v1.run \
+wac-bench \
   --model huggingface/together/Qwen/Qwen2.5-VL-7B-Instruct \
   --judge-family openai \
   --judge-model openrouter/openai/gpt-4o-mini \
-  --output-dir benchmark/v1/runs/qwen-vl-7b
+  --output-dir runs/qwen-vl-7b
 ```
 
 `--judge-family` is required for open-weights HF candidates; the

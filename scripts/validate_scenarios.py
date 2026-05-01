@@ -22,14 +22,9 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-SCENARIOS_PATH = Path("benchmark/v1/scenarios.json")
-ANSWERS_PATH = Path("benchmark/v1/expected_answers.json")
-INTERVENTIONS_PATH = Path("benchmark/v1/interventions.json")
-LOCKFILE_PATH = Path("benchmark/v1/MANIFEST.lock.json")
-ADVERSARIAL_SCENARIOS_PATH = Path("benchmark/v1/scenarios_adversarial.json")
-ADVERSARIAL_ANSWERS_PATH = Path("benchmark/v1/expected_answers_adversarial.json")
-HARD_SCENARIOS_PATH = Path("benchmark/v1/scenarios_v2_candidates.json")
-HARD_ANSWERS_PATH = Path("benchmark/v1/expected_answers_v2_candidates.json")
+SCENARIOS_PATH = Path("data/scenarios.jsonl")
+PROMPT_CONDITIONS_PATH = Path("data/prompt_conditions.json")
+LOCKFILE_PATH = Path("data/MANIFEST.lock.json")
 
 # Common-object blocklist for image descriptions. Image descriptions must
 # NOT name the object directly. This list is non-exhaustive but catches
@@ -69,34 +64,45 @@ def word_match(token: str, text: str) -> bool:
     return bool(re.search(pattern, text.lower()))
 
 
-def check_1_token_leakage(scenarios, answers):
-    """Check 1: No `current_answers` or `prior_answers` token appears in
+def _load_scenarios_jsonl(path: Path) -> list[dict]:
+    out: list[dict] = []
+    with path.open("r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line:
+                continue
+            out.append(json.loads(line))
+    return out
+
+
+def check_1_token_leakage(scenarios):
+    """Check 1: No ``current_answers`` or ``prior_answers`` token appears in
     any user speech field (including the optional deictic repair anchor).
 
-    The named repair anchor (``turn_3_repair_anchor``) is exempt because
+    The named repair anchor (``turn_3_repair_prompt``) is exempt because
     it deliberately names the intended and wrong objects to measure
     floor recoverability.
     """
     fails = []
     for sc in scenarios:
         sid = sc["scenario_id"]
-        ea = answers.get(sid, {})
+        gold = sc.get("gold") or {}
         speech_fields = [
             ("turn_1_user", sc.get("turn_1_user", "") or ""),
             ("turn_2_user", sc.get("turn_2_user", "") or ""),
         ]
-        deictic = sc.get("turn_3_repair_anchor_deictic")
+        deictic = sc.get("turn_3_repair_prompt_deictic")
         if deictic:
-            speech_fields.append(("turn_3_repair_anchor_deictic", deictic))
+            speech_fields.append(("turn_3_repair_prompt_deictic", deictic))
         for field_name, text in speech_fields:
-            for token in ea.get("current_answers", []):
+            for token in gold.get("current_answers", []):
                 if word_match(token, text):
                     fails.append({
                         "scenario_id": sid,
                         "check": "token_leakage",
                         "detail": f"current_answers token {token!r} appears in {field_name}",
                     })
-            for token in ea.get("prior_answers", []):
+            for token in gold.get("prior_answers", []):
                 if word_match(token, text):
                     fails.append({
                         "scenario_id": sid,
@@ -129,28 +135,30 @@ def check_2_object_name_in_images(scenarios):
     return fails
 
 
-def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = True):
+def check_3_schema_validation(scenarios, enforce_distribution: bool = True):
     """Check 3: Required fields present, types correct, IDs unique,
     distributions match.
 
     ``enforce_distribution`` toggles the bank-level cue_type distribution
-    check. The canonical 50-scenario bank pins exact counts; the
-    adversarial pack uses its own distribution and skips this check.
+    check. The frozen 50-scenario bank pins exact counts; the contrast
+    pack uses its own distribution and skips this check.
     """
     fails = []
     required_scenario_fields = {
-        "scenario_id", "target_context", "cue_type", "activity_domain",
-        "cognitive_load", "difficulty_tier",
+        "scenario_id", "subset", "target_context", "change_type", "activity_domain",
+        "referent_complexity", "difficulty_tier",
         "context_image", "turn_1_image", "turn_1_user",
-        "turn_2_image", "turn_2_user", "turn_3_repair_anchor",
+        "turn_2_image", "turn_2_user", "turn_3_repair_prompt",
+        "gold",
     }
     valid_target_context = {"current", "prior", "clarify", "abstain"}
-    valid_cue_type = {
+    valid_change_type = {
         "object_in_hand", "object_state", "sequential_task", "location",
         "object_in_view", "absent_referent", "screen_content",
-        "pre_conversation_recall",
+        "cross_session_reference",
     }
     valid_difficulty = {"easy", "medium", "hard"}
+    valid_subset = {"bank", "contrast"}
 
     seen_ids = set()
     for sc in scenarios:
@@ -172,17 +180,23 @@ def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = T
             })
         seen_ids.add(sid)
         # Enum validation
+        if sc.get("subset") not in valid_subset:
+            fails.append({
+                "scenario_id": sid,
+                "check": "schema",
+                "detail": f"invalid subset: {sc.get('subset')!r}",
+            })
         if sc.get("target_context") not in valid_target_context:
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
                 "detail": f"invalid target_context: {sc.get('target_context')!r}",
             })
-        if sc.get("cue_type") not in valid_cue_type:
+        if sc.get("change_type") not in valid_change_type:
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
-                "detail": f"invalid cue_type: {sc.get('cue_type')!r}",
+                "detail": f"invalid change_type: {sc.get('change_type')!r}",
             })
         if sc.get("difficulty_tier") not in valid_difficulty:
             fails.append({
@@ -190,12 +204,12 @@ def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = T
                 "check": "schema",
                 "detail": f"invalid difficulty_tier: {sc.get('difficulty_tier')!r}",
             })
-        # pre_conversation_recall must have non-null context_image
-        if sc.get("cue_type") == "pre_conversation_recall" and not sc.get("context_image"):
+        # cross_session_reference must have non-null context_image
+        if sc.get("change_type") == "cross_session_reference" and not sc.get("context_image"):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
-                "detail": "pre_conversation_recall scenarios must have context_image populated",
+                "detail": "cross_session_reference scenarios must have context_image populated",
             })
         # turn_1_image and turn_2_image must be populated
         if not sc.get("turn_1_image"):
@@ -210,70 +224,70 @@ def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = T
                 "check": "schema",
                 "detail": "turn_2_image must be non-null",
             })
-        # Answers entry must exist
-        ea = answers.get(sid)
-        if ea is None:
+        # gold answers entry must exist
+        gold = sc.get("gold")
+        if gold is None or not isinstance(gold, dict):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
-                "detail": "no entry in expected_answers.json",
+                "detail": "missing or invalid `gold` field",
             })
             continue
         # Three-category answer rule for current and prior
         target = sc.get("target_context")
         if target == "current":
-            if not ea.get("current_answers"):
+            if not gold.get("current_answers"):
                 fails.append({
                     "scenario_id": sid,
                     "check": "schema",
                     "detail": "current target_context but current_answers is empty",
                 })
-            if len(ea.get("current_answers", [])) < 3:
+            if len(gold.get("current_answers", [])) < 3:
                 fails.append({
                     "scenario_id": sid,
                     "check": "schema",
                     "detail": "current_answers must include 3+ items (object name, technique, state) — fewer than 3 found",
                 })
         if target == "prior":
-            if not ea.get("prior_answers"):
+            if not gold.get("prior_answers"):
                 fails.append({
                     "scenario_id": sid,
                     "check": "schema",
                     "detail": "prior target_context but prior_answers is empty",
                 })
-            if len(ea.get("prior_answers", [])) < 3:
+            if len(gold.get("prior_answers", [])) < 3:
                 fails.append({
                     "scenario_id": sid,
                     "check": "schema",
                     "detail": "prior_answers must include 3+ items (object name, technique, state) — fewer than 3 found",
                 })
-        if target == "abstain" and not ea.get("abstain_indicators"):
+        if target == "abstain" and not gold.get("abstain_indicators"):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
                 "detail": "abstain target_context but abstain_indicators is empty",
             })
-        if target == "clarify" and not ea.get("clarify_indicators"):
+        if target == "clarify" and not gold.get("clarify_indicators"):
             fails.append({
                 "scenario_id": sid,
                 "check": "schema",
                 "detail": "clarify target_context but clarify_indicators is empty",
             })
 
-    # Distribution checks (canonical bank only).
+    # Distribution checks (bank only).
     if enforce_distribution:
-        cue_counts = Counter(sc.get("cue_type") for sc in scenarios)
+        cue_counts = Counter(sc.get("change_type") for sc in scenarios)
         expected_cue_counts = {
             "object_in_hand": 12, "object_state": 8, "sequential_task": 6,
             "location": 6, "object_in_view": 5, "absent_referent": 5,
-            "screen_content": 4, "pre_conversation_recall": 4,
+            "screen_content": 4, "cross_session_reference": 4,
         }
         for cue, expected_count in expected_cue_counts.items():
             if cue_counts[cue] != expected_count:
                 fails.append({
                     "scenario_id": "<bank>",
                     "check": "schema",
-                    "detail": f"cue_type {cue} count {cue_counts[cue]} does not match expected {expected_count}",
+                    "detail": f"change_type {cue} count {cue_counts[cue]} does not match expected {expected_count}",
                 })
 
     return fails
@@ -282,10 +296,10 @@ def check_3_schema_validation(scenarios, answers, enforce_distribution: bool = T
 def check_7_lockfile_drift():
     """Check 7: Computed asset hashes match the static MANIFEST.lock.json.
 
-    Catches silent mutations to the scenario bank, expected answers,
-    prompt conditions, or judge-prompt template that ship without a
-    coordinated benchmark_version (or judge_prompt_version) bump. To
-    refresh the lockfile after a deliberate content change, run
+    Catches silent mutations to the scenario bank, prompt conditions, or
+    judge-prompt template that ship without a coordinated
+    benchmark_version (or judge_prompt_version) bump. To refresh the
+    lockfile after a deliberate content change, run
     ``python scripts/regen_manifest_lock.py``.
     """
     fails = []
@@ -314,8 +328,8 @@ def check_7_lockfile_drift():
     try:
         repo_root = Path(__file__).resolve().parent.parent
         sys.path.insert(0, str(repo_root))
-        from core.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
-        from core.report import BENCHMARK_VERSION, SCHEMA_REVISION
+        from wearable_assistant_context_bench.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
+        from wearable_assistant_context_bench.report import BENCHMARK_VERSION, SCHEMA_REVISION
     except ImportError as exc:
         return [{
             "scenario_id": "<bank>",
@@ -334,19 +348,8 @@ def check_7_lockfile_drift():
             JUDGE_SYSTEM_PROMPT.encode("utf-8")
         ).hexdigest(),
         "scenarios_sha256": _sha(SCENARIOS_PATH),
-        "expected_answers_sha256": _sha(ANSWERS_PATH),
-        "interventions_sha256": _sha(INTERVENTIONS_PATH),
+        "prompt_conditions_sha256": _sha(PROMPT_CONDITIONS_PATH),
     }
-    if ADVERSARIAL_SCENARIOS_PATH.exists():
-        expected["adversarial_scenarios_sha256"] = _sha(ADVERSARIAL_SCENARIOS_PATH)
-    if ADVERSARIAL_ANSWERS_PATH.exists():
-        expected["adversarial_expected_answers_sha256"] = _sha(
-            ADVERSARIAL_ANSWERS_PATH
-        )
-    if HARD_SCENARIOS_PATH.exists():
-        expected["hard_scenarios_sha256"] = _sha(HARD_SCENARIOS_PATH)
-    if HARD_ANSWERS_PATH.exists():
-        expected["hard_expected_answers_sha256"] = _sha(HARD_ANSWERS_PATH)
     for key, value in expected.items():
         if lockfile.get(key) != value:
             fails.append({
@@ -364,7 +367,7 @@ def check_7_lockfile_drift():
 
 def check_6_duplication(scenarios):
     """Check 6: Cross-scenario near-duplication on T2 user + T2 image +
-    (cue_type, target_context, difficulty_tier) signature."""
+    (change_type, target_context, difficulty_tier) signature."""
     fails = []
     seen_t2_user = {}
     seen_t2_image = {}
@@ -374,7 +377,7 @@ def check_6_duplication(scenarios):
         sid = sc["scenario_id"]
         t2u = (sc.get("turn_2_user") or "").strip().lower()
         t2i = (sc.get("turn_2_image") or "").strip().lower()
-        sig = (sc.get("cue_type"), sc.get("target_context"), sc.get("difficulty_tier"), sc.get("activity_domain"))
+        sig = (sc.get("change_type"), sc.get("target_context"), sc.get("difficulty_tier"), sc.get("activity_domain"))
 
         if t2u and t2u in seen_t2_user:
             fails.append({
@@ -414,65 +417,35 @@ def main() -> int:
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
-    scenarios = json.loads(SCENARIOS_PATH.read_text())
-    answers = json.loads(ANSWERS_PATH.read_text())
+    all_records = _load_scenarios_jsonl(SCENARIOS_PATH)
+    bank = [r for r in all_records if r.get("subset") == "bank"]
+    contrast = [r for r in all_records if r.get("subset") == "contrast"]
 
     all_fails = []
-    all_fails.extend(check_1_token_leakage(scenarios, answers))
-    all_fails.extend(check_2_object_name_in_images(scenarios))
-    all_fails.extend(check_3_schema_validation(scenarios, answers))
-    all_fails.extend(check_6_duplication(scenarios))
+    # Bank checks (with change_type distribution enforcement)
+    all_fails.extend(check_1_token_leakage(bank))
+    all_fails.extend(check_2_object_name_in_images(bank))
+    all_fails.extend(check_3_schema_validation(bank, enforce_distribution=True))
+    all_fails.extend(check_6_duplication(bank))
     all_fails.extend(check_7_lockfile_drift())
 
-    # Adversarial pack: same checks except the canonical-bank cue-type
-    # distribution. Run only if the pack files exist (they are part of
-    # the v1 release; missing means a slimmed checkout).
-    if ADVERSARIAL_SCENARIOS_PATH.exists() and ADVERSARIAL_ANSWERS_PATH.exists():
-        adv_scenarios = json.loads(ADVERSARIAL_SCENARIOS_PATH.read_text())
-        adv_answers = json.loads(ADVERSARIAL_ANSWERS_PATH.read_text())
-        all_fails.extend(check_1_token_leakage(adv_scenarios, adv_answers))
-        all_fails.extend(check_2_object_name_in_images(adv_scenarios))
+    # Contrast pack: same checks except change_type distribution.
+    if contrast:
+        all_fails.extend(check_1_token_leakage(contrast))
+        all_fails.extend(check_2_object_name_in_images(contrast))
         all_fails.extend(
-            check_3_schema_validation(
-                adv_scenarios, adv_answers, enforce_distribution=False
-            )
+            check_3_schema_validation(contrast, enforce_distribution=False)
         )
-        all_fails.extend(check_6_duplication(adv_scenarios))
-
-    # Hard pack: same checks except canonical-bank distribution. Same
-    # rationale as the adversarial pack — separately tagged scenarios
-    # validated under their own distribution rules.
-    if HARD_SCENARIOS_PATH.exists() and HARD_ANSWERS_PATH.exists():
-        hard_scenarios = json.loads(HARD_SCENARIOS_PATH.read_text())
-        hard_answers = json.loads(HARD_ANSWERS_PATH.read_text())
-        all_fails.extend(check_1_token_leakage(hard_scenarios, hard_answers))
-        all_fails.extend(check_2_object_name_in_images(hard_scenarios))
-        all_fails.extend(
-            check_3_schema_validation(
-                hard_scenarios, hard_answers, enforce_distribution=False
-            )
-        )
-        all_fails.extend(check_6_duplication(hard_scenarios))
+        all_fails.extend(check_6_duplication(contrast))
 
     if args.json:
         print(json.dumps(all_fails, indent=2, ensure_ascii=False))
     else:
         if not all_fails:
-            adv_count = (
-                len(json.loads(ADVERSARIAL_SCENARIOS_PATH.read_text()))
-                if ADVERSARIAL_SCENARIOS_PATH.exists()
-                else 0
-            )
-            hard_count = (
-                len(json.loads(HARD_SCENARIOS_PATH.read_text()))
-                if HARD_SCENARIOS_PATH.exists()
-                else 0
-            )
-            adv_note = f" + {adv_count} adversarial" if adv_count else ""
-            hard_note = f" + {hard_count} hard" if hard_count else ""
+            contrast_note = f" + {len(contrast)} contrast" if contrast else ""
             print(
-                f"All checks passed ({len(scenarios)} canonical"
-                f"{adv_note}{hard_note} scenarios validated)."
+                f"All checks passed ({len(bank)} bank{contrast_note} "
+                "scenarios validated)."
             )
         else:
             print(f"{len(all_fails)} validation failure(s):")

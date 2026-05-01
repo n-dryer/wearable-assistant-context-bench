@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you reference the Wearable Assistant Context Benchmark, cite this file."
 title: "Wearable Assistant Context Benchmark"
-version: "v1.0.0"
-date-released: "2026-04-25"
-abstract: "Context-tracking benchmark for AI wearable assistants used actively for advice or coaching (smart glasses, ear worn devices), with audio/video/text input and audio/text output. Tests reference resolution under cross-turn context shift: whether a model uses current situational evidence visible in the video frame, or stays anchored to prior context after a shift between turns. v1.0.0 uses a 50-scenario bank across 8 shift-type categories, with a three-channel design (audio, camera, ground truth) where the candidate sees scene descriptions and the LLM judge receives a separate ground-truth section."
+version: "v0.1.0"
+date-released: "2026-05-01"
+abstract: "Cross-turn reference-resolution benchmark for AI wearable assistants used actively for advice or coaching (smart glasses, ear-worn devices). Each scenario is a short conversation in which the user's situation changes between turns. The candidate sees the user's message and a scene description of the visible frame; an LLM judge labels each Turn 2 response as current, prior, clarify, or abstain against gold answer keys. v0.1.0 ships 50 scenarios in the primary bank plus a 20-scenario contrast pack across 8 shift-type categories."
 authors:
   - family-names: "Dryer"
     given-names: "Nate"
@@ -11,13 +11,11 @@ repository-code: "https://github.com/n-dryer/wearable-assistant-context-bench"
 url: "https://github.com/n-dryer/wearable-assistant-context-bench"
 keywords:
   - reference resolution
-  - cross-turn dialog
+  - cross-turn reference resolution
   - context shift
-  - context tracking
-  - multimodal AI assistant
+  - multimodal benchmark
   - AI wearable assistant
-  - cross-family judging
-  - LLM-as-judge
+  - cross-family LLM-as-judge
   - model selection
   - scene description
   - coaching assistant

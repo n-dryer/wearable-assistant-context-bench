@@ -1,30 +1,33 @@
 # Schema Reference
 
-Field definitions for `benchmark/v1/scenarios.json` and
-`benchmark/v1/expected_answers.json`.
+Field definitions for `data/scenarios.jsonl` (one JSON
+object per line, with inline gold labels under the `gold` field).
 
-The benchmark uses a three-channel design. The candidate model sees two
+The benchmark uses a split between what the candidate model sees and what the judge sees. The candidate model sees two
 of these channels: the audio (user speech, represented as text
-transcripts in v1, not raw audio) and the video (scene descriptions,
+transcripts, not raw audio) and the video (scene descriptions,
 represented as scene-description text, not real video frames). The
-third channel, ground truth answers, is visible only to the judge.
+third part, the gold answer keys, is visible only to the judge.
 
-For the rules that govern how each channel is written, see
+For the rules that govern how each field is written, see
 [scenario_authoring_rules.md](scenario_authoring_rules.md).
 
 ---
 
-## scenarios.json
+## scenarios.jsonl
 
-A flat JSON array. Each element is a scenario object.
+JSON Lines: one scenario object per line.
 
 | Field | Type | Required | Description | Example |
 |---|---|---|---|---|
-| `scenario_id` | string | yes | Unique identifier. Format `sc-NN`. | `"sc-01"` |
+| `scenario_id` | string | yes | Unique identifier. Format `sc-NN` for bank, `adv-NN` for contrast. | `"sc-01"` |
+| `subset` | enum | yes | `"bank"` or `"contrast"`. The 50-scenario primary bank vs the 20-scenario distractor-rich contrast pack. | `"bank"` |
+| `pair_id` | string or null | no | Optional grouping key for contrast A/B pairs. Used by the contrast-pair-consistency report metric. | `null` |
+| `gold` | object | yes | Inline gold-label dict. See "gold field" below. Replaces the legacy `expected_answers.json` join. | `{"current_answers": [...], ...}` |
 | `target_context` | enum | yes | The correct grounding target for a well-functioning assistant. One of `current`, `prior`, `clarify`, `abstain`. | `"current"` |
-| `cue_type` | enum | yes | The category of context shift between Turn 1 and Turn 2 (the shift type). See list below. | `"object_in_hand"` |
+| `change_type` | enum | yes | The category of context shift between Turn 1 and Turn 2 (the shift type). See list below. | `"object_in_hand"` |
 | `activity_domain` | string | yes | Domain tag (e.g., `workshop`, `kitchen`, `garden`). Used for coverage reporting. | `"workshop"` |
-| `cognitive_load` | enum | yes | Internal complexity estimate. One of `single_referent`, `multi_referent`, `distractor_present`, `absent_referent`, `compound_shift`. | `"single_referent"` |
+| `referent_complexity` | enum | yes | Internal complexity estimate. One of `single_referent`, `multi_referent`, `distractor_present`, `absent_referent`, `compound_shift`. | `"single_referent"` |
 | `difficulty_tier` | enum | yes | Internal difficulty estimate. One of `easy`, `medium`, `hard`. | `"medium"` |
 | `time_gap_bucket` | enum | no | Approximate time between Turn 1 and Turn 2. One of `seconds`, `minutes`, `hours`, `next_day`. | `"seconds"` |
 | `context_image` | string or null | yes | Video frame description of what was visible **before the conversation started**. Null when `turn_1_image` already establishes the starting state. Required for scenarios where the user asks about a state from before Turn 1. | `null` |
@@ -32,8 +35,8 @@ A flat JSON array. Each element is a scenario object.
 | `turn_1_user` | string | yes | First user message. Natural speech only. Must not narrate visible objects or evaluate technique. | `"How do I get more torque on this?"` |
 | `turn_2_image` | string or null | yes | Video frame description at the moment Turn 2 is spoken. Different from `turn_1_image` (this is where the context shift becomes visible). | `"Hand wrapped around a wooden handle..."` |
 | `turn_2_user` | string | yes | Second user message after the context change. Natural follow-up. Must not announce the shift. | `"Am I doing this right?"` |
-| `turn_3_repair_anchor` | string | yes | Named repair prompt fired after a Turn 2 miss. Canonical floor metric: maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
-| `turn_3_repair_anchor_deictic` | string or null | no | Deictic-only repair prompt for visible-referent `current`-target scenarios. Used when the runner is invoked with `--repair-style deictic`. Pure spatial/temporal pronouns ("this", "what I'm holding now") with no object names. Null for scenarios where a deictic gesture cannot resolve the reference (`absent_referent`, `pre_conversation_recall`, or `target_context != current`); the runner falls back to the named anchor in those cases. | `"I mean this thing in my hand right now."` |
+| `turn_3_repair_prompt` | string | yes | Named repair prompt fired after a Turn 2 miss. Canonical floor metric: maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
+| `turn_3_repair_prompt_deictic` | string or null | no | Deictic-only repair prompt for visible-referent `current`-target scenarios. Used when the runner is invoked with `--repair-style deictic`. Pure spatial/temporal pronouns ("this", "what I'm holding now") with no object names. Null for scenarios where a deictic gesture cannot resolve the reference (`absent_referent`, `cross_session_reference`, or `target_context != current`); the runner falls back to the named anchor in those cases. | `"I mean this thing in my hand right now."` |
 | `notes` | string | no | Authoring commentary. Not used by the runner. | `"Object swap mid-task; Turn 2 deictic."` |
 
 ### target_context values
@@ -45,11 +48,11 @@ A flat JSON array. Each element is a scenario object.
 | `clarify` | The question is ambiguous given the available context; the assistant should ask for clarification rather than guessing. |
 | `abstain` | The needed information is not present in the context; the assistant should decline to answer rather than hallucinating. |
 
-### cue_type values
+### change_type values
 
 The eight shift-type categories of context shift. Each scenario fits
 exactly one. (In prose throughout the docs we call these "shift
-types"; the JSON field name remains `cue_type`.)
+types"; the JSON field name remains `change_type`.)
 
 | Value | Description |
 |---|---|
@@ -60,14 +63,14 @@ types"; the JSON field name remains `cue_type`.)
 | `object_in_view` | The video stays roughly in place; the user's attention has shifted to a different object visible in the scene. |
 | `absent_referent` | The object the question is about is no longer in frame. |
 | `screen_content` | Both Turn 1 and Turn 2 are looking at a screen; the screen content has changed. |
-| `pre_conversation_recall` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
+| `cross_session_reference` | Requires `context_image`; Turn 2 asks about a state that existed before Turn 1. |
 
 ---
 
-## expected_answers.json
+## gold field (inline on each scenario)
 
-A dict keyed by `scenario_id`. Each value is an object with four lists.
-**This file is judge-only.** The candidate model never sees it.
+Each scenario carries its gold labels inline under the `gold` key.
+**These labels are judge-only.** The candidate model never sees them.
 
 | Field | Type | Description |
 |---|---|---|
@@ -103,7 +106,7 @@ rules.
 
 Centralized definitions for terms used throughout the docs:
 
-- **Shift type** (stored as `cue_type`). Scenario category describing
+- **Shift type** (stored as `change_type`). Scenario category describing
   the shape of the context shift between Turn 1 and Turn 2. The 8
   values are listed in
   [`benchmark_spec.md`](benchmark_spec.md#the-8-shift-type-categories).
@@ -114,15 +117,15 @@ Centralized definitions for terms used throughout the docs:
   in the vision front-end.
 - **Deictic.** A word or phrase whose meaning depends on context
   ("this", "that", "it", "here", "now"). The benchmark's user speech
-  is intentionally deictic so the model has to use the video channel
+  is intentionally deictic so the model has to use the scene description
   and conversation history to resolve the reference.
 - **Named repair anchor.** Turn 3 repair line that names both the
-  intended and the wrong objects explicitly (`turn_3_repair_anchor`).
-  Floor recoverability metric: maximally specific user correction.
+  intended and the wrong objects explicitly (`turn_3_repair_prompt`).
+  Recovery rate metric: maximally specific user correction.
 - **Deictic repair anchor.** Turn 3 repair line using only deictic
   pronouns ("no, this, what I'm holding now"; field
-  `turn_3_repair_anchor_deictic`). Realistic-recovery signal,
+  `turn_3_repair_prompt_deictic`). Realistic-recovery signal,
   populated only on visible-referent `current`-target scenarios.
-- **Cross-family judge / fixed ranking judge.** See
+- **Cross-family judge / shared judge for candidate ranking.** See
   [`benchmark_spec.md`](benchmark_spec.md#the-judge) and the
   `--judge-family` / `--ranking-judge-family` runner flags.

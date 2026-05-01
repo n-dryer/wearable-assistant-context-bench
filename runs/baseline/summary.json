@@ -1,0 +1,75 @@
+{
+  "run_label": "baseline",
+  "n_trials": 750,
+  "n_scenarios": 50,
+  "candidate_model": "gemini/gemini-2.5-flash-lite",
+  "judge_model": "gemini/gemini-2.5-flash-lite",
+  "judge_family": "gemini",
+  "ranking_condition": "baseline",
+  "primary_score_mean_recall": {
+    "point": 0.6060606060606061,
+    "ci_95": [
+      0.5414317188899067,
+      0.6706894932313054
+    ]
+  },
+  "per_class_recall": {
+    "current": {
+      "point": 0.8787878787878788,
+      "ci_95": [
+        0.820191796460943,
+        0.920147696416498
+      ]
+    },
+    "prior": {
+      "point": 0.3333333333333333,
+      "ci_95": [
+        0.2272926152352268,
+        0.459431335478803
+      ]
+    }
+  },
+  "per_pack_recall": {
+    "bank": {
+      "point": 0.6060606060606061,
+      "ci_95": [
+        0.5414317188899067,
+        0.6706894932313054
+      ]
+    }
+  },
+  "clarify_rate": {
+    "point": 0.12,
+    "ci_95": [
+      0.08536319974216684,
+      0.16613810787437097
+    ]
+  },
+  "abstain_rate": {
+    "point": 0.0,
+    "ci_95": [
+      0.0,
+      0.015133299495444563
+    ]
+  },
+  "coverage_rate": {
+    "point": 0.88,
+    "ci_95": [
+      0.833861892125629,
+      0.914636800257833
+    ]
+  },
+  "manifest_versions": {
+    "benchmark_version": "v1",
+    "judge_prompt_version": "v1.1.0",
+    "schema_revision": 3
+  },
+  "config_snapshot": {
+    "trials": 5,
+    "temperature": 0.0,
+    "pack": "canonical",
+    "no_camera": false,
+    "enable_repair": null
+  },
+  "_note": "Generated from transcripts.jsonl. Full transcripts are gitignored as of v1.1; regenerate via `python -m benchmark.v1.run --output-dir <run_dir>`."
+}
