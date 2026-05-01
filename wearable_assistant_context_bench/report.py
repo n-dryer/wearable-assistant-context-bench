@@ -2,7 +2,7 @@
 
 The runner produces one result dict per trial. This module rolls
 those up into a findings report for the situated context-tracking
-benchmark v1:
+benchmark:
 
 1. **Benchmark summary.** Headline primary score (mean of per-class
    recall under the default comparison condition), per-class recall

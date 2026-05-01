@@ -1,7 +1,7 @@
 """LLM-as-judge with support for multiple provider families.
 
 The judge labels each Turn 2 response with exactly one label:
-`current`, `prior`, `clarify`, or `abstain`. In v1, `prior` and
+`current`, `prior`, `clarify`, or `abstain`. `prior` and
 `current` are the scored labels; `clarify` and `abstain` stay visible
 for diagnostics but count as wrong for the primary score (see
 docs/benchmark_spec.md).

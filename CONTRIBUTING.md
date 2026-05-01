@@ -83,7 +83,7 @@ Quick summary:
   vocabulary categories: object name, technique vocabulary, state
   descriptors.
 
-New scenarios are not accepted into the frozen v1 scenario bank.
+New scenarios are not accepted into the frozen scenario bank.
 Authoring rules remain published as a contributor reference and as
 documentation for future benchmark releases.
 

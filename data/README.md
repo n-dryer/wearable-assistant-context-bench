@@ -1,4 +1,4 @@
-# Dataset Card: Wearable Assistant Context Benchmark v1
+# Dataset Card: Wearable Assistant Context Benchmark
 
 ## Dataset summary
 
@@ -226,7 +226,7 @@ wac-bench \
   (see Caveats).
 - **Shared judge for ranking** (`--ranking-judge-family`). Demonstrated
   on `contrast` with `claude-haiku-4.5`. Rolling out to all
-  candidates is a v1.x follow-up.
+  candidates is a future follow-up.
 - **Cross-LLM judge agreement.** Cohen's kappa = 0.443 on
   `contrast` (`gpt-4o-mini` vs `claude-haiku-4.5`).
 - **Vision ablation.** `ablation-no-camera`. The 46.2 pp
@@ -269,12 +269,12 @@ The benchmark does not measure these and does not intend to:
   can show self-preference bias.
   `baseline-qwen-cross-family` is the cross-family reference for the
   Scenario Bank.
-- **Two model-config families across v1.** Five Scenario Bank runs
+- **Two model-config families across the published runs.** Five Scenario Bank runs
   use Gemini-direct + DashScope-International; `contrast` uses
   OpenRouter. Each `summary.json` carries full candidate and judge
   ids.
 
-### v1.x follow-ups
+### Future follow-ups
 
 - Re-run the Scenario Bank under one shared judge so candidates
   can be ranked directly against each other.
@@ -283,13 +283,13 @@ The benchmark does not measure these and does not intend to:
 
 ### Future follow-ups
 
-- **Human inter-annotator agreement.** v1 reports cross-LLM judge
+- **Human inter-annotator agreement.** The benchmark currently reports cross-LLM judge
   agreement only. Human IAA on a 25% sample with Cohen's kappa is
   the highest-priority future follow-up.
 - **Real-video validation.** The scene description uses text scene
   descriptions as a stand-in for actual video. Held-out video
   validation on a representative sample is future work.
-- **Raw-audio validation.** v1 represents the user's spoken turns as
+- **Raw-audio validation.** The benchmark represents the user's spoken turns as
   text transcripts.
 - **Multi-trial generalization.** Default is one trial at
   temperature 0. Multi-seed generalization at non-zero temperature

@@ -10,7 +10,7 @@ Wearable assistants need to keep up while a user talks and moves. A user might a
 
 This benchmark tests one part of that problem: cross-turn reference resolution. Can a model answer the next question using the scene the user means now? In benchmark terms, it tests cross-turn multimodal reference resolution. This is not dialogue state tracking; the resolution depends on a perceptual frame, not on slot-filling intent.
 
-v0.1 uses text as a proxy for real video and live audio. Spoken turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real video scenarios, so the same reference-tracking task can be tested with visual input directly.
+The current version uses text as a proxy for real video and live audio. Spoken turns are represented as transcripts. Video frames are represented as written scene descriptions. A planned next version will add real video scenarios, so the same reference-tracking task can be tested with visual input directly.
 
 Use the score as one signal when comparing models for wearable assistant products. It does not test the full device experience.
 
@@ -108,7 +108,7 @@ This section explains what the benchmark sends to the model, how the scenarios w
 
 ### Inputs
 
-v1 does not use raw audio or raw video.
+The current version does not use raw audio or raw video.
 
 - Audio is represented as text transcripts.
 - Video is represented as written scene descriptions.
