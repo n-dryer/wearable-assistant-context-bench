@@ -262,7 +262,7 @@ def test_abstain_target_has_abstain_indicators(all_records: list[dict]) -> None:
         )
 
 
-def test_v1_composition_includes_all_four_contexts(all_records: list[dict]) -> None:
+def test_composition_includes_all_four_contexts(all_records: list[dict]) -> None:
     counts: dict[str, int] = {}
     for entry in all_records:
         counts[entry["target_context"]] = counts.get(entry["target_context"], 0) + 1
@@ -272,7 +272,7 @@ def test_v1_composition_includes_all_four_contexts(all_records: list[dict]) -> N
         )
 
 
-def test_no_legacy_v1_fields_present(all_records: list[dict]) -> None:
+def test_no_removed_fields_present(all_records: list[dict]) -> None:
     removed_fields = {
         "surface",
         "authoring_basis",

@@ -912,6 +912,20 @@ def test_public_docs_avoid_legacy_reference_state_language() -> None:
         "post-shift",
         "implicit context tracking",
         "with-prior-q",
+        # Version-anchored prose. Public docs use generic language ("the
+        # current version", "the benchmark", "currently") rather than
+        # naming a specific release. The three version constants and the
+        # formal metadata fields carry version strings; prose does not.
+        "v1 release",
+        "v1 publishes",
+        "v1 release runs",
+        "v1.x",
+        "v2-dev",
+        "v0.1 ships",
+        "v0.1 uses",
+        "as of v0.1",
+        "in v0.1",
+        "in v1",
     )
     for path in PUBLIC_PATHS:
         lowered = _read(path).lower()
@@ -928,7 +942,7 @@ def test_public_docs_avoid_legacy_pack_name() -> None:
             assert term not in lowered, f"{path} still contains {term!r}"
 
 
-def test_public_docs_use_v1_framing() -> None:
+def test_public_docs_use_correct_framing() -> None:
     required = (
         "wearable",
         "camera",
