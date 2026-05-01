@@ -24,6 +24,7 @@ Use the score as one signal when comparing models for wearable assistant product
 | Configure API keys | [`docs/api_keys.md`](docs/api_keys.md) |
 | Run open-weight models | [`docs/running_open_weights.md`](docs/running_open_weights.md) |
 | Read the published findings | [`RESULTS.md`](RESULTS.md) |
+| Look up a term | [`docs/glossary.md`](docs/glossary.md) |
 | Report an issue | [GitHub Issues](https://github.com/n-dryer/wearable-assistant-context-bench/issues) |
 
 ## Published results
