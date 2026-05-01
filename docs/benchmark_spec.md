@@ -276,7 +276,7 @@ manifest fields include:
 - `schema_revision`: internal scenario data-format counter (integer)
 - `camera_injection`: boolean; always `true`
 - `subset`: `"bank"` or `"contrast"`, naming the pack the run evaluated
-- `scenarios_sha256`: hash of `data/scenarios.jsonl`
+- `scenarios_sha256`: hash of `data/wacb.jsonl`
 - `interventions_sha256`: hash of `data/prompt_conditions.json`
 - `judge_prompt_version`, `judge_prompt_sha256`: judge prompt
   identification
