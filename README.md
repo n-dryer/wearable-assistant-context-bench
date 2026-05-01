@@ -27,7 +27,7 @@ Use the score as one signal when comparing models for wearable assistant product
 | Look up a term | [`docs/glossary.md`](docs/glossary.md) |
 | Report an issue | [GitHub Issues](https://github.com/n-dryer/wearable-assistant-context-bench/issues) |
 
-## Published results
+## Results
 
 Six published runs ship with the release.
 
@@ -47,13 +47,26 @@ The strongest published Scenario Bank result is `baseline-alt`, with a **77.7%**
 | **baseline-deictic-repair** | `gemini-2.5-flash-lite` with `--repair-style deictic` | `gemini-2.5-flash-lite` | **60.6%** (54.1&ndash;67.1) |
 | **contrast** | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` shared judge | **67.3%** (55.5&ndash;79.1) |
 
+*Runs dated 2026-04-25; manifest hashes pinned in [`data/MANIFEST.lock.json`](data/MANIFEST.lock.json).*
+
+Reproduce `baseline-alt` (the strongest published score):
+
+```bash
+wac-bench \
+  --model gemini/gemini-2.5-flash \
+  --judge-model gemini/gemini-2.5-flash-lite --judge-family gemini \
+  --output-dir runs/baseline-alt
+```
+
+The other rows are documented in [`data/README.md`](data/README.md#reproducing-the-published-runs).
+
 More detail:
 
 - Per-class recall (current vs prior): [`data/README.md`](data/README.md#per-class-recall)
 - Score interpretation: [`docs/benchmark_spec.md`](docs/benchmark_spec.md)
 - Reproduction commands: [`data/README.md`](data/README.md#reproducing-the-published-runs)
 
-## Quickstart
+## Quick Start
 
 Requires Python 3.11+. The fastest path uses [`uv`](https://docs.astral.sh/uv/), Astral's Python project manager.
 
@@ -84,7 +97,7 @@ cp .env.example .env
 wac-bench --help
 ```
 
-See [`docs/api_keys.md`](docs/api_keys.md) for provider-specific key setup.
+All runs default to temperature 0.0 for reproducibility. See [`docs/api_keys.md`](docs/api_keys.md) for provider-specific key setup.
 
 ### Run a candidate model
 
@@ -169,6 +182,17 @@ By default (`--judge-family auto`), the judge comes from a different model famil
 
 Full rationale: [`docs/benchmark_spec.md`](docs/benchmark_spec.md).
 
+## What this benchmark does not measure
+
+Evaluate these separately:
+
+- Coaching advice quality (correctness, safety, domain appropriateness)
+- Multi-turn dynamics beyond three turns
+- Latency, cost, and serving characteristics
+- Speaker attribution, addressee detection, ambient audio
+
+For the full scope statement, see [`docs/benchmark_spec.md`](docs/benchmark_spec.md#scope-boundaries-out-of-scope-by-design-vs-limitations).
+
 ## Code layout
 
 | Path | Purpose |
@@ -180,7 +204,7 @@ Full rationale: [`docs/benchmark_spec.md`](docs/benchmark_spec.md).
 | [`scripts/`](scripts) | `validate_scenarios.py`, `regen_manifest_lock.py`, `analyze_runs.py` |
 | [`.env.example`](.env.example) | Environment variable template |
 
-## Contributing and support
+## Contributing
 
 Edits that change scenario text, gold-label vocabulary, prompt text, or scoring semantics are out of scope between releases. Those changes break cross-model comparability and require a coordinated `BENCHMARK_VERSION` bump rather than an in-place edit.
 
@@ -190,15 +214,13 @@ For bugs, failed reproduction attempts, or unclear documentation, open a GitHub 
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full policy.
 
-## Maintainer
-
-Nate Dryer ([@n-dryer](https://github.com/n-dryer)).
-
 ## License
 
 Released under the MIT License. See [LICENSE](LICENSE).
 
 ## Citation
+
+Maintained by Nate Dryer ([@n-dryer](https://github.com/n-dryer)).
 
 If you reference this benchmark, use the citation metadata in [CITATION.cff](CITATION.cff) or copy the BibTeX entry below.
 
