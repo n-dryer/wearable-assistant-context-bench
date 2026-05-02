@@ -1,4 +1,4 @@
-"""Runner for the Wearable Assistant Context Benchmark.
+"""Runner for the Wearable Assistant Context Bench.
 
 Implements the cross-turn reference-resolution task over the scenario
 bank. Each scenario is a 2-turn conversation; on Turn 2 the runner
@@ -21,7 +21,7 @@ import hashlib
 import json
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +34,8 @@ except ImportError:
     # slimmed environments. Keys must come from the shell in that case.
     pass
 
-from wearable_assistant_context_bench.prompt_conditions import PromptCondition, load_prompt_conditions
+from wearable_assistant_context_bench.gemini_adapter import GeminiAdapter
+from wearable_assistant_context_bench.litellm_adapter import LiteLLMAdapter
 from wearable_assistant_context_bench.llm_judge import (
     JUDGE_PROMPT_VERSION,
     JUDGE_SYSTEM_PROMPT,
@@ -44,9 +45,11 @@ from wearable_assistant_context_bench.llm_judge import (
     infer_candidate_family,
     resolve_judge_family,
 )
-from wearable_assistant_context_bench.gemini_adapter import GeminiAdapter
-from wearable_assistant_context_bench.litellm_adapter import LiteLLMAdapter
 from wearable_assistant_context_bench.models import ModelConfig
+from wearable_assistant_context_bench.prompt_conditions import (
+    PromptCondition,
+    load_prompt_conditions,
+)
 from wearable_assistant_context_bench.report import (
     BENCHMARK_VERSION,
     DEFAULT_RANKING_CONDITION,
@@ -329,7 +332,7 @@ def _build_manifest(
         "temperature": float(effective_config["temperature"]),
         "ranking_condition": effective_config["ranking_condition"],
         "enable_repair": bool(effective_config.get("enable_repair", False)),
-        "timestamp_utc": datetime.now(timezone.utc).isoformat(
+        "timestamp_utc": datetime.now(UTC).isoformat(
             timespec="seconds"
         ),
         "runner_git_commit": _current_git_commit(),
@@ -751,7 +754,7 @@ def _build_context_image_message(image: str) -> dict[str, str]:
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the Wearable Assistant Context Benchmark."
+            "Run the Wearable Assistant Context Bench."
         ),
         epilog=(
             "Example: python -m wearable_assistant_context_bench.runner "

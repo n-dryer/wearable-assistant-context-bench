@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 SCENARIOS_PATH = REPO_ROOT / "data" / "scenarios.jsonl"
@@ -67,7 +66,7 @@ SCENARIO_ID_PATTERN = re.compile(r"^(sc|adv)-\d{2}$")
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-import validate_scenarios  # type: ignore[import-not-found]
+import validate_scenarios  # type: ignore[import-not-found]  # noqa: E402
 
 
 def _load_records() -> list[dict]:
@@ -109,9 +108,7 @@ def test_scenarios_jsonl_is_non_empty(all_records: list[dict]) -> None:
 def test_every_scenario_has_required_fields(all_records: list[dict]) -> None:
     for entry in all_records:
         missing = REQUIRED_FIELDS - entry.keys()
-        assert not missing, (
-            f"scenario {entry.get('scenario_id')!r} missing fields: {missing}"
-        )
+        assert not missing, f"scenario {entry.get('scenario_id')!r} missing fields: {missing}"
 
 
 def test_scenario_ids_are_unique(all_records: list[dict]) -> None:
@@ -130,8 +127,7 @@ def test_scenario_ids_follow_format(all_records: list[dict]) -> None:
 def test_target_contexts_in_allowed_set(all_records: list[dict]) -> None:
     for entry in all_records:
         assert entry["target_context"] in ALLOWED_TARGET_CONTEXTS, (
-            f"{entry['scenario_id']}: unexpected target_context "
-            f"{entry['target_context']!r}"
+            f"{entry['scenario_id']}: unexpected target_context {entry['target_context']!r}"
         )
 
 
@@ -145,24 +141,21 @@ def test_packs_in_allowed_set(all_records: list[dict]) -> None:
 def test_cue_types_in_allowed_set(all_records: list[dict]) -> None:
     for entry in all_records:
         assert entry["change_type"] in ALLOWED_CUE_TYPES, (
-            f"{entry['scenario_id']}: unexpected cue_type "
-            f"{entry['cue_type']!r}"
+            f"{entry['scenario_id']}: unexpected cue_type {entry['cue_type']!r}"
         )
 
 
 def test_difficulty_tiers_in_allowed_set(all_records: list[dict]) -> None:
     for entry in all_records:
         assert entry["difficulty_tier"] in ALLOWED_DIFFICULTIES, (
-            f"{entry['scenario_id']}: unexpected difficulty_tier "
-            f"{entry['difficulty_tier']!r}"
+            f"{entry['scenario_id']}: unexpected difficulty_tier {entry['difficulty_tier']!r}"
         )
 
 
 def test_cognitive_loads_in_allowed_set(all_records: list[dict]) -> None:
     for entry in all_records:
         assert entry["referent_complexity"] in ALLOWED_COGNITIVE_LOADS, (
-            f"{entry['scenario_id']}: unexpected cognitive_load "
-            f"{entry['cognitive_load']!r}"
+            f"{entry['scenario_id']}: unexpected cognitive_load {entry['cognitive_load']!r}"
         )
 
 
@@ -198,8 +191,7 @@ def test_cross_session_reference_has_context_image(all_records: list[dict]) -> N
             continue
         sid = entry["scenario_id"]
         assert entry["context_image"], (
-            f"{sid}: cross_session_reference scenarios must have a non-null "
-            f"context_image populated"
+            f"{sid}: cross_session_reference scenarios must have a non-null context_image populated"
         )
 
 
@@ -285,9 +277,7 @@ def test_no_removed_fields_present(all_records: list[dict]) -> None:
     for entry in all_records:
         sid = entry["scenario_id"]
         present = removed_fields & entry.keys()
-        assert not present, (
-            f"{sid}: removed earlier-design fields reappeared: {sorted(present)}"
-        )
+        assert not present, f"{sid}: removed earlier-design fields reappeared: {sorted(present)}"
 
 
 # ---------------------------------------------------------------------------
@@ -296,40 +286,34 @@ def test_no_removed_fields_present(all_records: list[dict]) -> None:
 
 
 def _format_fails(fails: list[dict]) -> str:
-    return "\n".join(
-        f"  [{f['check']}] {f['scenario_id']}: {f['detail']}" for f in fails
-    )
+    return "\n".join(f"  [{f['check']}] {f['scenario_id']}: {f['detail']}" for f in fails)
 
 
 def test_check_1_token_leakage_passes(bank: list[dict]) -> None:
     fails = validate_scenarios.check_1_token_leakage(bank)
     assert not fails, (
-        f"check_1_token_leakage produced {len(fails)} failure(s):\n"
-        f"{_format_fails(fails)}"
+        f"check_1_token_leakage produced {len(fails)} failure(s):\n{_format_fails(fails)}"
     )
 
 
 def test_check_2_object_names_in_images_passes(bank: list[dict]) -> None:
     fails = validate_scenarios.check_2_object_name_in_images(bank)
     assert not fails, (
-        f"check_2_object_name_in_images produced {len(fails)} failure(s):\n"
-        f"{_format_fails(fails)}"
+        f"check_2_object_name_in_images produced {len(fails)} failure(s):\n{_format_fails(fails)}"
     )
 
 
 def test_check_3_schema_validation_passes(bank: list[dict]) -> None:
     fails = validate_scenarios.check_3_schema_validation(bank)
     assert not fails, (
-        f"check_3_schema_validation produced {len(fails)} failure(s):\n"
-        f"{_format_fails(fails)}"
+        f"check_3_schema_validation produced {len(fails)} failure(s):\n{_format_fails(fails)}"
     )
 
 
 def test_check_6_duplication_passes(bank: list[dict]) -> None:
     fails = validate_scenarios.check_6_duplication(bank)
     assert not fails, (
-        f"check_6_duplication produced {len(fails)} failure(s):\n"
-        f"{_format_fails(fails)}"
+        f"check_6_duplication produced {len(fails)} failure(s):\n{_format_fails(fails)}"
     )
 
 
@@ -337,8 +321,7 @@ def test_check_7_lockfile_drift_passes(monkeypatch) -> None:
     monkeypatch.chdir(REPO_ROOT)
     fails = validate_scenarios.check_7_lockfile_drift()
     assert not fails, (
-        f"check_7_lockfile_drift produced {len(fails)} failure(s):\n"
-        f"{_format_fails(fails)}"
+        f"check_7_lockfile_drift produced {len(fails)} failure(s):\n{_format_fails(fails)}"
     )
 
 
@@ -348,9 +331,7 @@ def test_check_7_lockfile_drift_detects_mutation(monkeypatch, tmp_path) -> None:
     fake_root = tmp_path
     (fake_root / "data").mkdir(parents=True)
     original_scenarios = SCENARIOS_PATH.read_bytes()
-    (fake_root / "data" / "scenarios.jsonl").write_bytes(
-        original_scenarios + b"\n"
-    )
+    (fake_root / "data" / "scenarios.jsonl").write_bytes(original_scenarios + b"\n")
     (fake_root / "data" / "prompt_conditions.json").write_bytes(
         (REPO_ROOT / "data" / "prompt_conditions.json").read_bytes()
     )
@@ -359,10 +340,9 @@ def test_check_7_lockfile_drift_detects_mutation(monkeypatch, tmp_path) -> None:
     )
     monkeypatch.chdir(fake_root)
     fails = validate_scenarios.check_7_lockfile_drift()
-    assert any(
-        f["check"] == "lockfile" and "scenarios_sha256" in f["detail"]
-        for f in fails
-    ), f"expected a scenarios_sha256 mismatch, got: {fails}"
+    assert any(f["check"] == "lockfile" and "scenarios_sha256" in f["detail"] for f in fails), (
+        f"expected a scenarios_sha256 mismatch, got: {fails}"
+    )
 
 
 def test_validator_main_returns_zero(monkeypatch, capsys) -> None:

@@ -14,7 +14,7 @@ Reference for the terms used throughout this repo. Sections collapse — click a
 ### Wearable assistant
 An AI assistant the user is actively engaging with for advice or coaching, typically on smart glasses, an ear-worn device, or a phone. Sees the world through a camera and microphone and replies with text or audio. The benchmark targets this product context, not background or passive assistants.
 
-### Wearable Assistant Context Benchmark
+### Wearable Assistant Context Bench
 The benchmark itself. Tests one specific failure mode: when the user's context changes between turns, does the model respond from the current situational evidence, or stay anchored to the prior context?
 
 ### `wearable-assistant-context-bench`
@@ -34,6 +34,9 @@ The console-script entry point registered by `pyproject.toml`. `wac-bench --help
 
 ### Cross-turn reference resolution
 The task the benchmark measures. Whether the model resolves the user's reference (their "this", "that", "it") to the current video frame instead of staying anchored to an earlier one.
+
+### Deictic reference
+A reference whose meaning depends on the situational context — gesture, gaze, position in the scene — rather than naming the thing directly. "This", "that", "the one over there", "what I'm holding" are all deictic. Resolving a deictic reference requires the perceptual frame; that's why the benchmark's `--no-camera` ablation drops accuracy so sharply. The term comes from linguistics (Greek *deixis*, "pointing").
 
 ### Scenario
 One conversational unit. Three turns: optional pre-conversation frame, Turn 1 (initial state), Turn 2 (after a context shift), and a Turn 3 repair prompt fired only when `--enable-repair` is set. Stored as one JSON line in `data/scenarios.jsonl`.

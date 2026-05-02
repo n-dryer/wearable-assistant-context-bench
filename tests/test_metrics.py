@@ -48,7 +48,6 @@ from wearable_assistant_context_bench.scoring import (
 )
 from wearable_assistant_context_bench.statistics import bootstrap_ci
 
-
 # ===========================================================================
 # core.scoring — per-trial code signals
 # ===========================================================================
@@ -271,7 +270,7 @@ def _fixture_results() -> list[dict]:
         ("condition_b", [True, True], [None, None]),
     ]
     for condition, passes, repairs in prior_cells:
-        for i, (passed, repaired) in enumerate(zip(passes, repairs)):
+        for i, (passed, repaired) in enumerate(zip(passes, repairs, strict=False)):
             results.append(
                 _trial(
                     scenario_id="sc-03",

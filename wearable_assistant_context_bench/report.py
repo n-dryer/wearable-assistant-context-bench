@@ -51,8 +51,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
-from wearable_assistant_context_bench.statistics import bootstrap_ci, wilson_ci
-
+from wearable_assistant_context_bench.statistics import wilson_ci
 
 # 95% normal-distribution z-score for Wilson score interval
 WILSON_Z_95: float = 1.959964
@@ -89,7 +88,7 @@ AUXILIARY_POLICY_NOTE: str = (
     "auxiliary; not included in the primary current/prior score"
 )
 
-BENCHMARK_NAME: str = "Wearable Assistant Context Benchmark"
+BENCHMARK_NAME: str = "Wearable Assistant Context Bench"
 BENCHMARK_VERSION: str = "0.1"
 BENCHMARK_LABEL: str = (
     "situated context-tracking benchmark for multimodal AI assistants "
@@ -589,7 +588,7 @@ def cohens_kappa(labels_a: list[str], labels_b: list[str]) -> float | None:
     if n < 2:
         return None
     classes = set(labels_a) | set(labels_b)
-    matches = sum(1 for a, b in zip(labels_a, labels_b) if a == b)
+    matches = sum(1 for a, b in zip(labels_a, labels_b, strict=False) if a == b)
     p_observed = matches / n
     p_expected = 0.0
     for c in classes:
@@ -623,9 +622,9 @@ def inter_judge_agreement_summary(
     if not paired_a:
         return None
     confusion: dict[tuple[str, str], int] = defaultdict(int)
-    for a, b in zip(paired_a, paired_b):
+    for a, b in zip(paired_a, paired_b, strict=False):
         confusion[(a, b)] += 1
-    matches = sum(1 for a, b in zip(paired_a, paired_b) if a == b)
+    matches = sum(1 for a, b in zip(paired_a, paired_b, strict=False) if a == b)
     return {
         "kappa": cohens_kappa(paired_a, paired_b),
         "observed_agreement": matches / len(paired_a),

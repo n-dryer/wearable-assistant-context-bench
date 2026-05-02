@@ -1,7 +1,7 @@
 # Scenario Authoring Rules
 
 These rules govern how scenarios are written for the Wearable Assistant
-Context Benchmark. Every scenario must follow them. The validation
+Context Bench. Every scenario must follow them. The validation
 script in `scripts/validate_scenarios.py` enforces them programmatically;
 the writing-rule sections of this document explain what to write and
 why.

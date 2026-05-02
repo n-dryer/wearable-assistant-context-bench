@@ -20,7 +20,6 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any
 
 SCENARIOS_PATH = Path("data/scenarios.jsonl")
 PROMPT_CONDITIONS_PATH = Path("data/prompt_conditions.json")
@@ -328,7 +327,10 @@ def check_7_lockfile_drift():
     try:
         repo_root = Path(__file__).resolve().parent.parent
         sys.path.insert(0, str(repo_root))
-        from wearable_assistant_context_bench.llm_judge import JUDGE_PROMPT_VERSION, JUDGE_SYSTEM_PROMPT
+        from wearable_assistant_context_bench.llm_judge import (
+            JUDGE_PROMPT_VERSION,
+            JUDGE_SYSTEM_PROMPT,
+        )
         from wearable_assistant_context_bench.report import BENCHMARK_VERSION, SCHEMA_REVISION
     except ImportError as exc:
         return [{

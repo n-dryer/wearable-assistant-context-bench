@@ -1,7 +1,7 @@
 # Wearable Assistant Context Bench
 
 [![tests](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/n-dryer/wearable-assistant-context-bench/actions/workflows/test.yml)
-[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
+[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/downloads/)
 [![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A model-selection benchmark for live AI wearable assistants.
@@ -25,6 +25,8 @@ The benchmark uses text transcripts of speech and text scene descriptions of vid
 ## Quick Start
 
 Requires Python 3.11+. The fastest path uses [`uv`](https://docs.astral.sh/uv/), Astral's Python project manager.
+
+This benchmark runs from a repo clone. After install, run `wac-bench` from the repo root — scenario data lives in `data/` and is loaded by relative path.
 
 ### Install with uv (recommended)
 
@@ -148,7 +150,7 @@ For the full scope statement, see [`docs/benchmark_spec.md`](docs/benchmark_spec
 | [`wearable_assistant_context_bench/`](wearable_assistant_context_bench) | Package: adapters, judge, scoring, report, runner |
 | [`data/`](data) | Frozen scenario bank, prompt conditions, runtime config, lockfile |
 | [`tests/`](tests) | Runtime and input-validation tests |
-| [`scripts/`](scripts) | `validate_scenarios.py`, `regen_manifest_lock.py` |
+| [`scripts/`](scripts) | Helper scripts — see [`scripts/README.md`](scripts/README.md) |
 | [`.env.example`](.env.example) | Environment variable template |
 
 ## Contributing
