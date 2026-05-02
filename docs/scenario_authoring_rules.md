@@ -150,16 +150,15 @@ Every scenario must populate `turn_3_repair_prompt` (the named anchor).
 Visible-referent `current`-target scenarios additionally populate
 `turn_3_repair_prompt_deictic` (the deictic anchor).
 
-### Named anchor: canonical floor metric
+### Named anchor
 
 `turn_3_repair_prompt` names both the intended object and the wrong
 object explicitly: *"I mean the hammer I'm holding now, not the
-screwdriver from before."* This measures best-case recovery: given a
-maximally specific correction, can the model recover?
+screwdriver from before."*
 
 The named anchor is required on every scenario.
 
-### Deictic anchor: realistic recovery signal
+### Deictic anchor
 
 `turn_3_repair_prompt_deictic` uses pure spatial or temporal deictic
 language: *"I mean this thing in my hand right now"* or *"I mean what

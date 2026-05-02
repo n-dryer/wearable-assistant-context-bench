@@ -89,7 +89,7 @@ AUXILIARY_POLICY_NOTE: str = (
 )
 
 BENCHMARK_NAME: str = "Wearable Assistant Context Bench"
-BENCHMARK_VERSION: str = "v0.1"
+BENCHMARK_VERSION: str = "0.1"
 BENCHMARK_LABEL: str = (
     "situated context-tracking benchmark for multimodal AI assistants "
     "used actively for advice or coaching (wearable or handheld)"

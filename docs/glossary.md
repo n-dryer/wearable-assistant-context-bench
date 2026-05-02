@@ -15,7 +15,7 @@ Reference for the terms used throughout this repo. Sections collapse — click a
 An AI assistant the user is actively engaging with for advice or coaching, typically on smart glasses, an ear-worn device, or a phone. Sees the world through a camera and microphone and replies with text or audio. The benchmark targets this product context, not background or passive assistants.
 
 ### Wearable Assistant Context Bench
-The benchmark itself. Tests one specific failure mode: when the user's context changes between turns, does the model respond from the current situational evidence, or stay anchored to the prior context? Pre-release v0.1.
+The benchmark itself. Tests one specific failure mode: when the user's context changes between turns, does the model respond from the current situational evidence, or stay anchored to the prior context?
 
 ### `wearable-assistant-context-bench`
 The package install name (kebab-case). Maps to the Python package `wearable_assistant_context_bench` (snake_case) at the top level of the repo.
@@ -33,7 +33,7 @@ The console-script entry point registered by `pyproject.toml`. `wac-bench --help
 <summary><strong>What the benchmark measures and how it relates to standard NLP terminology</strong></summary>
 
 ### Cross-turn reference resolution
-The task the benchmark measures. Whether the model resolves the user's reference (their "this", "that", "it") to the current video frame instead of staying anchored to an earlier one. This is distinct from dialogue state tracking; the resolution depends on a perceptual frame, not slot-filling intent.
+The task the benchmark measures. Whether the model resolves the user's reference (their "this", "that", "it") to the current video frame instead of staying anchored to an earlier one.
 
 ### Deictic reference
 A reference whose meaning depends on the situational context — gesture, gaze, position in the scene — rather than naming the thing directly. "This", "that", "the one over there", "what I'm holding" are all deictic. Resolving a deictic reference requires the perceptual frame; that's why the benchmark's `--no-camera` ablation drops accuracy so sharply. The term comes from linguistics (Greek *deixis*, "pointing").
@@ -57,13 +57,13 @@ Synonym for the published scenarios in `data/scenarios.jsonl`. The benchmark is 
 <summary><strong>Subsets, scenario fields, and how scenarios are categorized</strong></summary>
 
 ### Subset
-A grouping of scenarios. The `subset` field on every scenario marks which one it belongs to. Two subsets ship in v0.1: `bank` and `contrast`. Filterable on the runner via `--subset {bank,contrast}`. Aligns with the HuggingFace `datasets` convention.
+A grouping of scenarios. The `subset` field on every scenario marks which one it belongs to. Two subsets: `bank` and `contrast`. Filterable on the runner via `--subset {bank,contrast}`.
 
 ### `bank` (Scenario Bank)
 The primary 50-scenario subset. Distribution is pinned: 12 / 8 / 6 / 6 / 5 / 5 / 4 / 4 across the 8 change types.
 
 ### `contrast` (Contrast Subset)
-A separately-tagged 20-scenario subset of distractor-rich minimal pairs. The earlier object or scene may still be visible at Turn 2. Used to discriminate at the top of the score range. Named "contrast" rather than "adversarial" because these are controlled minimal pairs, not adversarial examples in the ML sense (inputs optimized to attack a specific model).
+A 20-scenario subset of distractor-rich minimal pairs. The earlier object or scene may still be visible at Turn 2.
 
 ### `change_type`
 The category of context shift between Turn 1 and Turn 2. One of eight values:
@@ -159,10 +159,10 @@ Dataclass with `selected_label` and `rationale` (one-sentence justification). Re
 The provider family the judge runs against: `claude`, `gemini`, or `openai`. Set by `--judge-family`.
 
 ### Cross-family judging (`--judge-family auto`)
-Default behavior. Picks a judge from a different family than the candidate (Claude → Gemini, Gemini → OpenAI, OpenAI → Gemini). Removes self-preference confounds for per-run integrity.
+Default behavior. Picks a judge from a different family than the candidate (Claude → Gemini, Gemini → OpenAI, OpenAI → Gemini).
 
 ### Shared judge (`--ranking-judge-family`)
-Optional second judge held constant across all candidate runs in a comparison sweep. Lets you isolate candidate quality from judge strictness when ranking multiple candidates. The auto-resolved primary judge handles per-run integrity; the shared judge is for cross-run comparability.
+Optional second judge held constant across all candidate runs in a comparison sweep.
 
 ### Judge prompt
 The system prompt that defines the judge's task and JSON output contract. Versioned (`JUDGE_PROMPT_VERSION`) and hashed into every run's manifest. Lives in `wearable_assistant_context_bench/llm_judge.py`. Privileged-field constraint enforced by `tests/test_llm_judge.py`.
@@ -254,7 +254,7 @@ Three rates that surface how often the candidate refuses to commit:
 |---|---|
 | Clarification rate | Share of trials labeled `clarify`. |
 | Abstention rate | Share of trials labeled `abstain`. |
-| Coverage | `1 − (clarification + abstention)` — share of substantive responses. Below ~0.6 the model is hedging on a majority of trials. |
+| Coverage | `1 − (clarification + abstention)` — share of substantive responses. |
 
 ### Cohen's kappa
 Inter-rater agreement statistic. Reported when a shared (`ranking`) judge is used, comparing primary-judge and shared-judge labels.
@@ -272,28 +272,25 @@ Fraction of Turn 2 misses that pass on Turn 3. Reported only when `--enable-repa
 ## Run outputs
 
 <details>
-<summary><strong>The three artifacts every run produces, plus the six published runs</strong></summary>
+<summary><strong>The three artifacts every run produces</strong></summary>
 
 ### Run
-One execution of the runner. Identified by its `output_dir`. Six runs ship as published baselines under `runs/`.
+One execution of the runner. Identified by its `output_dir`.
 
 ### `transcripts.jsonl`
-Per-trial result dicts, one per line. Gitignored as of v0.1; users regenerate by re-running the matching command from `data/README.md#reproducing-the-published-runs`.
+Per-trial result dicts, one per line. Gitignored; regenerate by re-running the matching command.
 
 ### `findings.md`
 Auto-generated Markdown report rendered by `wearable_assistant_context_bench.report.render_findings_markdown`. Includes the benchmark summary, per-class / per-subset / per-change-type breakdowns, hedging behavior, the scenario × condition matrix, and the reproducibility manifest as a JSON code block.
 
 ### `summary.json`
-Machine-readable companion to `findings.md`. Aggregate metrics + manifest in JSON for downstream tooling. Committed for each published run; transcripts are not.
+Machine-readable companion to `findings.md`. Aggregate metrics + manifest in JSON for downstream tooling. Committed alongside `findings.md`; transcripts are not.
 
 ### Reproducibility manifest
 A JSON block embedded in every `findings.md` (and a `manifest_versions` field in every `summary.json`). Names the benchmark version, judge prompt version, content hashes (`scenarios_sha256`, `prompt_conditions_sha256`, `judge_prompt_sha256`), candidate / judge model IDs, trials, temperature, subset, and the runner's git commit. Two runs with matching hashes evaluate against the same content.
 
 ### Ablation
-A category of run that holds everything constant except one variable to measure that variable's contribution. `ablation-no-camera` is the only published ablation in v0.1.
-
-### Published runs
-Six runs ship with v0.1 (five on the `bank` subset plus one on `contrast`). For the headline numbers see [`RESULTS.md`](../RESULTS.md); for per-class recall, model IDs, and the manifest of each run see [`data/README.md`](../data/README.md#reproducing-the-published-runs).
+A category of run that holds everything constant except one variable to measure that variable's contribution.
 
 </details>
 
@@ -311,10 +308,10 @@ Static lockfile at `data/MANIFEST.lock.json`. Pins SHA256 hashes of `scenarios.j
 `scripts/validate_scenarios.py`. Runs five programmatic checks: token leakage, object-name leakage, schema validation, cross-scenario duplication, and manifest-lock drift. Run by CI on every PR.
 
 ### `BENCHMARK_VERSION`
-String constant in `wearable_assistant_context_bench/report.py`. Currently `v0.1`. Bumps coordinated with content changes; reported in every run's manifest.
+String constant in `wearable_assistant_context_bench/report.py`. Currently `0.1`. Bumps coordinated with content changes; reported in every run's manifest.
 
 ### `JUDGE_PROMPT_VERSION`
-String constant in `wearable_assistant_context_bench/llm_judge.py`. Currently `v0.1.0`. Bumps when the judge prompt template changes.
+String constant in `wearable_assistant_context_bench/llm_judge.py`. Currently `0.1.0`. Bumps when the judge prompt template changes.
 
 ### `SCHEMA_REVISION`
 Integer counter for the on-disk scenario format. Currently `1`. Bumps when the schema fields change in incompatible ways.
@@ -343,9 +340,8 @@ Integer counter for the on-disk scenario format. Currently `1`. Bumps when the s
 
 | File | Purpose |
 |---|---|
-| [`README.md`](../README.md) | Project README. Quickstart, leaderboard, code layout. |
-| [`RESULTS.md`](../RESULTS.md) | Top-level findings file consolidating the six published runs. |
-| [`docs/benchmark_spec.md`](benchmark_spec.md) | The benchmark specification — task, inputs, scoring, judge, design decisions. The "benchmark card" in the academic paper-card sense. |
+| [`README.md`](../README.md) | Project README. Quickstart and code layout. |
+| [`docs/benchmark_spec.md`](benchmark_spec.md) | The benchmark specification — task, inputs, scoring, judge. |
 | [`docs/schema.md`](schema.md) | The JSON Lines schema reference for `data/scenarios.jsonl`. Field-by-field type and meaning. |
 | [`docs/scenario_authoring_rules.md`](scenario_authoring_rules.md) | Authoring rules for new scenarios + the validation checklist. |
 | [`docs/api_keys.md`](api_keys.md) | Provider-specific environment-variable setup. |

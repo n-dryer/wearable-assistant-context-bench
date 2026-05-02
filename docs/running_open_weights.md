@@ -1,9 +1,7 @@
 # Running open-weights candidates via Hugging Face Inference Providers
 
-The README quickstart shows the canonical run command against a
-closed-weights model. This page covers running open-weights multimodal
-candidates through [HF Inference
-Providers](https://huggingface.co/docs/inference-providers/index)
+This page covers running open-weights multimodal candidates through
+[HF Inference Providers](https://huggingface.co/docs/inference-providers/index)
 (`router.huggingface.co`).
 
 ## Authentication
@@ -18,9 +16,7 @@ rates with no markup.
 
 Model ids use `huggingface/<inference_provider>/<hf_org>/<hf_model>`.
 The benchmark works with any chat-completion-capable vision-language
-model. Candidates must support real AI wearable deployment
-(multimodal: live audio in/out, streaming, video). The v1 measurement
-is text-form, but the deployment target needs vision.
+model.
 
 ## Recommended candidates
 

@@ -23,9 +23,7 @@ comparisons remain valid:
 - The default comparison condition (`baseline`)
 
 Edits that change scenario meaning, answer-key vocabulary, prompt
-text, or scoring semantics are out of scope after the tag. Those
-changes would alter benchmark comparability and would require a new
-benchmark release rather than an in-place edit.
+text, or scoring semantics are out of scope after the tag.
 
 ## What is welcome at any time
 
@@ -84,8 +82,7 @@ Quick summary:
   descriptors.
 
 New scenarios are not accepted into the frozen scenario bank.
-Authoring rules remain published as a contributor reference and as
-documentation for future benchmark releases.
+Authoring rules are published as contributor reference.
 
 ## Validation
 
@@ -106,13 +103,12 @@ The full 10-point validation checklist is in
 
 ### Static asset lockfile
 
-`data/MANIFEST.lock.json` pins SHA256 hashes of the scenario
-bank, prompt conditions, and the judge-prompt template alongside the
-benchmark and judge-prompt versions. The
-validator's lockfile check fails if any of those drift. After a
-deliberate, coordinated content change (with a corresponding
-`BENCHMARK_VERSION` or `JUDGE_PROMPT_VERSION` bump in code), regenerate
-the lockfile:
+`data/MANIFEST.lock.json` pins SHA256 hashes of the scenario bank,
+prompt conditions, and the judge-prompt template alongside the
+benchmark and judge-prompt versions. The validator's lockfile check
+fails if any of those drift. After a content change (with a
+corresponding `BENCHMARK_VERSION` or `JUDGE_PROMPT_VERSION` bump in
+code), regenerate the lockfile:
 
 ```bash
 python scripts/regen_manifest_lock.py

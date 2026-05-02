@@ -35,7 +35,7 @@ JSON Lines: one scenario object per line.
 | `turn_1_user` | string | yes | First user message. Natural speech only. Must not narrate visible objects or evaluate technique. | `"How do I get more torque on this?"` |
 | `turn_2_image` | string or null | yes | Video frame description at the moment Turn 2 is spoken. Different from `turn_1_image` (this is where the context shift becomes visible). | `"Hand wrapped around a wooden handle..."` |
 | `turn_2_user` | string | yes | Second user message after the context change. Natural follow-up. Must not announce the shift. | `"Am I doing this right?"` |
-| `turn_3_repair_prompt` | string | yes | Named repair prompt fired after a Turn 2 miss. Canonical floor metric: maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
+| `turn_3_repair_prompt` | string | yes | Named repair prompt fired after a Turn 2 miss. Maximally specific user correction that names both the intended and the wrong objects. | `"I mean the hammer I'm holding now, not the screwdriver from before."` |
 | `turn_3_repair_prompt_deictic` | string or null | no | Deictic-only repair prompt for visible-referent `current`-target scenarios. Used when the runner is invoked with `--repair-style deictic`. Pure spatial/temporal pronouns ("this", "what I'm holding now") with no object names. Null for scenarios where a deictic gesture cannot resolve the reference (`absent_referent`, `cross_session_reference`, or `target_context != current`); the runner falls back to the named anchor in those cases. | `"I mean this thing in my hand right now."` |
 | `notes` | string | no | Authoring commentary. Not used by the runner. | `"Object swap mid-task; Turn 2 deictic."` |
 
@@ -95,10 +95,23 @@ context the model used.
 
 ### Scoring contract
 
-Scoring is deterministic substring containment with word-boundary
-matching: `re.search(r'\b<token>\b', response, re.IGNORECASE)`. See
-[`docs/benchmark_spec.md`](benchmark_spec.md) for the full scoring
-rules.
+The deterministic helpers in
+`wearable_assistant_context_bench/scoring.py` compute auxiliary code
+signals on each response.
+
+- `current_answers` and `prior_answers` are matched with
+  `rapidfuzz.partial_ratio` at threshold 85, case-insensitive.
+- `clarify_indicators` and `abstain_indicators` are matched with
+  case-insensitive substring containment.
+- A refusal-pattern heuristic flags hedge phrasings.
+- A contrastive-pattern suppressor demotes `has_prior` to `False`
+  when the response explicitly contrasts an earlier state with the
+  current one. The pre-suppression value is preserved as
+  `has_prior_raw`.
+
+The judge label is the score. Code signals travel with the trial
+record as auxiliary diagnostics. See
+[`docs/benchmark_spec.md`](benchmark_spec.md) for the scoring rules.
 
 ---
 
@@ -111,10 +124,7 @@ Centralized definitions for terms used throughout the docs:
   values are listed in
   [`benchmark_spec.md`](benchmark_spec.md#the-8-shift-type-categories).
 - **Scene description.** What a vision system would say about a
-  video frame: shape, material, color, motion, position. v1 uses
-  scene descriptions in text as a proxy for real video frames so
-  the benchmark can isolate context-tracking ability from variability
-  in the vision front-end.
+  video frame: shape, material, color, motion, position.
 - **Deictic.** A word or phrase whose meaning depends on context
   ("this", "that", "it", "here", "now"). The benchmark's user speech
   is intentionally deictic so the model has to use the scene description

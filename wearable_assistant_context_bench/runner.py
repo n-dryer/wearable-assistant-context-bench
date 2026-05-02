@@ -89,8 +89,8 @@ CONFIG: dict[str, Any] = {
     "output_dir": str(DEFAULT_OUTPUT_DIR),
     "ranking_condition": DEFAULT_RANKING_CONDITION,
     "no_camera": False,
-    # `named` uses scenario.turn_3_repair_prompt (canonical floor
-    # metric: maximally specific user correction). `deictic` uses
+    # `named` uses scenario.turn_3_repair_prompt (floor metric:
+    # maximally specific user correction). `deictic` uses
     # scenario.turn_3_repair_prompt_deictic when populated and falls
     # back to named for scenarios where a deictic gesture cannot
     # resolve the reference (absent_referent, cross_session_reference,
@@ -152,7 +152,7 @@ class Scenario:
         turn_1_user: str
         turn_2_image: str          # camera description at T2
         turn_2_user: str
-        turn_3_repair_prompt: str  # named repair (canonical floor metric)
+        turn_3_repair_prompt: str  # named repair (floor metric)
         turn_3_repair_prompt_deictic: str | None  # deictic-only repair
             for visible-referent scenarios; None when a deictic gesture
             wouldn't resolve the reference (absent_referent,
@@ -882,15 +882,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help=(
             "Turn 3 repair anchor style. Only meaningful with "
-            "--enable-repair. `named` (default, canonical floor metric) "
-            "uses the explicit repair line that names both the intended "
-            "and the wrong objects. `deictic` uses the deictic-only "
-            "anchor when populated and falls back to named for scenarios "
-            "where a deictic gesture cannot resolve the reference (e.g. "
+            "--enable-repair. `named` (default) uses the explicit "
+            "repair line that names both the intended and the wrong "
+            "objects. `deictic` uses the deictic-only anchor when "
+            "populated and falls back to named for scenarios where a "
+            "deictic gesture cannot resolve the reference (e.g. "
             "absent_referent, cross_session_reference, target_context "
-            "!= current). Compare runs across both styles to read the "
-            "gap between floor recoverability and realistic "
-            "user-correction recovery."
+            "!= current)."
         ),
     )
     return parser.parse_args(argv)
