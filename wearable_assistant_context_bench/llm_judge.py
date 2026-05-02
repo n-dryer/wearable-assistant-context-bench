@@ -26,7 +26,6 @@ from typing import Any
 from wearable_assistant_context_bench.litellm_adapter import LiteLLMAdapter
 from wearable_assistant_context_bench.models import ModelConfig
 
-
 _logger = logging.getLogger(__name__)
 
 

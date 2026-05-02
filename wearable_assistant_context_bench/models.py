@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-
 DEFAULT_MODEL_ID = "openrouter/anthropic/claude-sonnet-4.6"
 
 

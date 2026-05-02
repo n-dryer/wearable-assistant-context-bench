@@ -17,7 +17,6 @@ import re
 
 from rapidfuzz import fuzz
 
-
 _CONTRASTIVE_RE = re.compile(
     r"\b(earlier|was|used to be|previously)\b.*?\b(now|currently|is)\b",
     re.IGNORECASE | re.DOTALL,

@@ -1,4 +1,4 @@
-# Wearable Assistant Context Benchmark: Findings
+# Wearable Assistant Context Bench: Findings
 
 **Benchmark:** context-tracking benchmark for multimodal AI assistants used actively for advice or coaching (wearable or handheld)
 

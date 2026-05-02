@@ -15,20 +15,19 @@ from typing import Any
 import pytest
 
 from wearable_assistant_context_bench import runner as run_module
+from wearable_assistant_context_bench.llm_judge import _build_user_prompt
+from wearable_assistant_context_bench.models import ModelConfig
+from wearable_assistant_context_bench.prompt_conditions import (
+    PromptCondition,
+    get_prompt_condition_by_name,
+    load_prompt_conditions,
+)
 from wearable_assistant_context_bench.runner import (
     AnswerSet,
     Scenario,
     _build_context_image_message,
     _build_message,
 )
-from wearable_assistant_context_bench.prompt_conditions import (
-    PromptCondition,
-    get_prompt_condition_by_name,
-    load_prompt_conditions,
-)
-from wearable_assistant_context_bench.llm_judge import _build_user_prompt
-from wearable_assistant_context_bench.models import ModelConfig
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -159,12 +158,8 @@ def test_run_produces_expected_trial_count_and_jsonl_shape(tmp_path: Path) -> No
     )
 
     scenario_count = len(run_module.load_scenarios(subset="bank"))
-    condition_count = len(
-        run_module.load_prompt_conditions(run_module.PROMPT_CONDITIONS_PATH)
-    )
-    expected_trials = scenario_count * condition_count * run_module.CONFIG[
-        "trials_per_cell"
-    ]
+    condition_count = len(run_module.load_prompt_conditions(run_module.PROMPT_CONDITIONS_PATH))
+    expected_trials = scenario_count * condition_count * run_module.CONFIG["trials_per_cell"]
     assert len(results) == expected_trials
 
     transcript_path = output_dir / "transcripts.jsonl"
@@ -614,9 +609,7 @@ def test_context_image_injected_as_separate_message_before_t1() -> None:
         clarify_indicators=[],
         abstain_indicators=[],
     )
-    condition = PromptCondition(
-        name="test", description="d", system_prompt="sys", token_count=0
-    )
+    condition = PromptCondition(name="test", description="d", system_prompt="sys", token_count=0)
     adapter = _CapturingAdapter()
     judge = _PassingJudge()
 
@@ -653,9 +646,7 @@ def test_no_context_image_message_when_field_is_null() -> None:
         clarify_indicators=[],
         abstain_indicators=[],
     )
-    condition = PromptCondition(
-        name="test", description="d", system_prompt="sys", token_count=0
-    )
+    condition = PromptCondition(name="test", description="d", system_prompt="sys", token_count=0)
     adapter = _CapturingAdapter()
     run_module._run_one_trial(
         scenario=scenario,
@@ -682,9 +673,7 @@ def test_t2_message_contains_camera_block_when_image_set() -> None:
         clarify_indicators=[],
         abstain_indicators=[],
     )
-    condition = PromptCondition(
-        name="test", description="d", system_prompt="sys", token_count=0
-    )
+    condition = PromptCondition(name="test", description="d", system_prompt="sys", token_count=0)
     adapter = _CapturingAdapter()
     run_module._run_one_trial(
         scenario=scenario,
@@ -713,8 +702,7 @@ def test_judge_receives_ground_truth_context() -> None:
         clarify_indicators=[],
         abstain_indicators=[],
         ground_truth_context=(
-            "Cue type: object_in_hand. "
-            "Turn 1 was a screwdriver, Turn 2 is a hammer."
+            "Cue type: object_in_hand. Turn 1 was a screwdriver, Turn 2 is a hammer."
         ),
     )
     assert "GROUND TRUTH" in prompt
@@ -760,9 +748,7 @@ def test_runner_passes_ground_truth_to_judge() -> None:
 
             return JudgeVerdict(selected_label="current", rationale="stub")
 
-    condition = PromptCondition(
-        name="test", description="d", system_prompt="sys", token_count=0
-    )
+    condition = PromptCondition(name="test", description="d", system_prompt="sys", token_count=0)
     adapter = _CapturingAdapter()
     run_module._run_one_trial(
         scenario=scenario,
@@ -790,9 +776,7 @@ def test_runner_passes_ground_truth_to_judge() -> None:
 PROJECT_INTERVENTIONS = REPO_ROOT / "data" / "prompt_conditions.json"
 
 
-EXPECTED_BASELINE = (
-    "You are an assistant helping a user with an ongoing project."
-)
+EXPECTED_BASELINE = "You are an assistant helping a user with an ongoing project."
 EXPECTED_CONDITION_A_FRAGMENT = "visual context"
 EXPECTED_CONDITION_B_FRAGMENT = "RELEVANT CONTEXT"
 
@@ -823,7 +807,7 @@ def test_load_prompt_conditions_raises_on_malformed_json(tmp_path: Path) -> None
         load_prompt_conditions(bad)
 
 
-def test_get_prompt_condition_by_name_returns_correct_condition(
+def test_get_prompt_condition_by_name_returns_condition_a(
     interventions_sample_path: Path,
 ) -> None:
     conditions = load_prompt_conditions(interventions_sample_path)
@@ -832,7 +816,7 @@ def test_get_prompt_condition_by_name_returns_correct_condition(
     assert "visual context" in condition.system_prompt.lower()
 
 
-def test_get_prompt_condition_by_name_returns_correct_condition(
+def test_get_prompt_condition_by_name_returns_condition_b(
     interventions_sample_path: Path,
 ) -> None:
     conditions = load_prompt_conditions(interventions_sample_path)
@@ -877,8 +861,7 @@ def test_interventions_are_policy_neutral() -> None:
         lowered = condition.system_prompt.lower()
         for snippet in forbidden_snippets:
             assert snippet not in lowered, (
-                f"{condition.name} contains policy-forcing snippet: "
-                f"{snippet!r}"
+                f"{condition.name} contains policy-forcing snippet: {snippet!r}"
             )
 
 
@@ -954,6 +937,4 @@ def test_public_docs_use_correct_framing() -> None:
     for path in ("README.md", "docs/benchmark_spec.md"):
         lowered = _read(path).lower()
         for phrase in required:
-            assert phrase in lowered, (
-                f"{path} is missing required phrase {phrase!r}"
-            )
+            assert phrase in lowered, f"{path} is missing required phrase {phrase!r}"

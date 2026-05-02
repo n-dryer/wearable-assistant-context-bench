@@ -13,12 +13,12 @@ import hashlib
 import json
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from wearable_assistant_context_bench.models import ModelConfig
-
 
 _logger = logging.getLogger(__name__)
 
