@@ -1,4 +1,4 @@
-# Dataset Card: Wearable Assistant Context Benchmark
+# Dataset Card: Wearable Assistant Context Bench
 
 ## Dataset summary
 

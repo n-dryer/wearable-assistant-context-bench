@@ -1,8 +1,8 @@
-# Benchmark Spec: Wearable Assistant Context Benchmark
+# Benchmark Spec: Wearable Assistant Context Bench
 
 ## Overview
 
-The Wearable Assistant Context Benchmark tests one specific failure
+The Wearable Assistant Context Bench tests one specific failure
 mode of AI wearable assistants the user is actively engaging with
 for advice or coaching (smart glasses, ear worn devices), with
 audio/video/text input and audio/text output. When the user's

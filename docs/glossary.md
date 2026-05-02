@@ -14,7 +14,7 @@ Reference for the terms used throughout this repo. Sections collapse — click a
 ### Wearable assistant
 An AI assistant the user is actively engaging with for advice or coaching, typically on smart glasses, an ear-worn device, or a phone. Sees the world through a camera and microphone and replies with text or audio. The benchmark targets this product context, not background or passive assistants.
 
-### Wearable Assistant Context Benchmark
+### Wearable Assistant Context Bench
 The benchmark itself. Tests one specific failure mode: when the user's context changes between turns, does the model respond from the current situational evidence, or stay anchored to the prior context? Pre-release v0.1.
 
 ### `wearable-assistant-context-bench`
@@ -34,6 +34,9 @@ The console-script entry point registered by `pyproject.toml`. `wac-bench --help
 
 ### Cross-turn reference resolution
 The task the benchmark measures. Whether the model resolves the user's reference (their "this", "that", "it") to the current video frame instead of staying anchored to an earlier one. This is distinct from dialogue state tracking; the resolution depends on a perceptual frame, not slot-filling intent.
+
+### Deictic reference
+A reference whose meaning depends on the situational context — gesture, gaze, position in the scene — rather than naming the thing directly. "This", "that", "the one over there", "what I'm holding" are all deictic. Resolving a deictic reference requires the perceptual frame; that's why the benchmark's `--no-camera` ablation drops accuracy so sharply. The term comes from linguistics (Greek *deixis*, "pointing").
 
 ### Scenario
 One conversational unit. Three turns: optional pre-conversation frame, Turn 1 (initial state), Turn 2 (after a context shift), and a Turn 3 repair prompt fired only when `--enable-repair` is set. Stored as one JSON line in `data/scenarios.jsonl`.
@@ -290,22 +293,7 @@ A JSON block embedded in every `findings.md` (and a `manifest_versions` field in
 A category of run that holds everything constant except one variable to measure that variable's contribution. `ablation-no-camera` is the only published ablation in v0.1.
 
 ### Published runs
-
-| Run | Candidate | Judge | Subset | Primary metric |
-|---|---|---|---|---|
-| `baseline` | `gemini-2.5-flash-lite` | `gemini-2.5-flash-lite` (same-family) | bank | 60.6% |
-| `baseline-alt` | `gemini-2.5-flash` | `gemini-2.5-flash-lite` (same-family) | bank | 77.7% |
-| `ablation-no-camera` | `gemini-2.5-flash-lite` with `--no-camera` | `gemini-2.5-flash-lite` | bank | 14.4% |
-| `baseline-qwen-cross-family` | `dashscope-intl/qwen3-vl-plus` | `gemini-2.5-flash-lite` (cross-family) | bank | 54.2% |
-| `baseline-deictic-repair` | `gemini-2.5-flash-lite` with `--repair-style deictic` | `gemini-2.5-flash-lite` | bank | 60.6% |
-| `contrast` | `gemini-2.5-flash-lite` (OpenRouter) | `gpt-4o-mini` (cross-family); `claude-haiku-4.5` shared judge | contrast | 67.3% |
-
-Per-run notes:
-- **`baseline-alt`** is the strongest published bank result. Most of the lift over `baseline` is in `prior_recall`.
-- **`ablation-no-camera`** drops 46.2 pp from `baseline` — the simplest evidence that the task depends on the visual input.
-- **`baseline-qwen-cross-family`** is the cross-family reference for the bank.
-- **`baseline-deictic-repair`** matches `baseline` on Turn 2 (60.6%); the runs differ only in the Turn 3 branch, which is meaningful only with `--enable-repair`.
-- **`contrast`** reports Cohen's kappa 0.443 across the two judges.
+Six runs ship with v0.1 (five on the `bank` subset plus one on `contrast`). For the headline numbers see [`RESULTS.md`](../RESULTS.md); for per-class recall, model IDs, and the manifest of each run see [`data/README.md`](../data/README.md#reproducing-the-published-runs).
 
 </details>
 

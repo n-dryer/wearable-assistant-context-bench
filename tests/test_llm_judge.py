@@ -14,12 +14,6 @@ from typing import Any
 
 import pytest
 
-from wearable_assistant_context_bench.runner import (
-    SCENARIOS_PATH,
-    _build_ground_truth_context,
-    _build_scenario_description,
-    load_scenarios,
-)
 from wearable_assistant_context_bench.llm_judge import (
     ALLOWED_POLICIES,
     JUDGE_MODEL_ID_CLAUDE,
@@ -28,8 +22,8 @@ from wearable_assistant_context_bench.llm_judge import (
     JUDGE_SYSTEM_PROMPT,
     GeminiJudgeAdapter,
     JudgeAdapterBase,
-    LLMJudge,
     LiteLLMJudgeAdapter,
+    LLMJudge,
     OpenAIJudgeAdapter,
     _build_user_prompt,
     build_judge,
@@ -37,7 +31,12 @@ from wearable_assistant_context_bench.llm_judge import (
     parse_verdict,
     resolve_judge_family,
 )
-
+from wearable_assistant_context_bench.runner import (
+    SCENARIOS_PATH,
+    _build_ground_truth_context,
+    _build_scenario_description,
+    load_scenarios,
+)
 
 # ---------------------------------------------------------------------------
 # Verdict parsing

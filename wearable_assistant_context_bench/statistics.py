@@ -1,4 +1,4 @@
-"""Statistical utilities for the Wearable Assistant Context Benchmark.
+"""Statistical utilities for the Wearable Assistant Context Bench.
 
 Provides Wilson score confidence intervals for binary proportions and
 non-parametric percentile bootstrap CIs for arbitrary statistics. The
@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from typing import Callable, Sequence
 
 
 @dataclass

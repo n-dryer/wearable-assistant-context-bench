@@ -9,6 +9,12 @@ dist/
 *.egg-info/
 .cache/
 .pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 .DS_Store
 .vscode/
 .idea/

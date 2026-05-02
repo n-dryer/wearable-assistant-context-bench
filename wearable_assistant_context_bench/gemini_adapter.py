@@ -17,7 +17,6 @@ from typing import Any
 
 from wearable_assistant_context_bench.models import ModelConfig
 
-
 DEFAULT_GEMINI_CACHE_DIR = Path(".cache/gemini_models")
 
 
@@ -26,7 +25,7 @@ class _FallbackPart:
     text: str
 
     @classmethod
-    def from_text(cls, text: str) -> "_FallbackPart":
+    def from_text(cls, text: str) -> _FallbackPart:
         return cls(text=text)
 
 
