@@ -22,7 +22,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-SCENARIOS_PATH = Path("data/scenarios.jsonl")
+SCENARIOS_PATH = Path("data/wacb.jsonl")
 PROMPT_CONDITIONS_PATH = Path("data/prompt_conditions.json")
 LOCKFILE_PATH = Path("data/MANIFEST.lock.json")
 

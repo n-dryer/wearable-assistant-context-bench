@@ -36,13 +36,13 @@ The console-script entry point registered by `pyproject.toml`. `wac-bench --help
 The task the benchmark measures. Whether the model resolves the user's reference (their "this", "that", "it") to the current video frame instead of staying anchored to an earlier one. This is distinct from dialogue state tracking; the resolution depends on a perceptual frame, not slot-filling intent.
 
 ### Scenario
-One conversational unit. Three turns: optional pre-conversation frame, Turn 1 (initial state), Turn 2 (after a context shift), and a Turn 3 repair prompt fired only when `--enable-repair` is set. Stored as one JSON line in `data/scenarios.jsonl`.
+One conversational unit. Three turns: optional pre-conversation frame, Turn 1 (initial state), Turn 2 (after a context shift), and a Turn 3 repair prompt fired only when `--enable-repair` is set. Stored as one JSON line in `data/wacb.jsonl`.
 
 ### `scenario_id`
 Unique identifier for a scenario. Format `sc-NN` for the bank, `adv-NN` for the contrast subset.
 
 ### Test scenarios
-Synonym for the published scenarios in `data/scenarios.jsonl`. The benchmark is an evaluation set — there is no train/val/test split; every scenario is for inference and labeling.
+Synonym for the published scenarios in `data/wacb.jsonl`. The benchmark is an evaluation set — there is no train/val/test split; every scenario is for inference and labeling.
 
 </details>
 
@@ -317,7 +317,7 @@ Per-run notes:
 <summary><strong>Versioning, the lockfile, and the validator</strong></summary>
 
 ### `MANIFEST.lock.json`
-Static lockfile at `data/MANIFEST.lock.json`. Pins SHA256 hashes of `scenarios.jsonl`, `prompt_conditions.json`, and the judge-prompt template, plus `BENCHMARK_VERSION`, `JUDGE_PROMPT_VERSION`, and `SCHEMA_REVISION`. Hash drift without a coordinated version bump fails CI.
+Static lockfile at `data/MANIFEST.lock.json`. Pins SHA256 hashes of `wacb.jsonl`, `prompt_conditions.json`, and the judge-prompt template, plus `BENCHMARK_VERSION`, `JUDGE_PROMPT_VERSION`, and `SCHEMA_REVISION`. Hash drift without a coordinated version bump fails CI.
 
 ### Validator
 `scripts/validate_scenarios.py`. Runs five programmatic checks: token leakage, object-name leakage, schema validation, cross-scenario duplication, and manifest-lock drift. Run by CI on every PR.
@@ -345,7 +345,7 @@ Integer counter for the on-disk scenario format. Currently `1`. Bumps when the s
 | Path | What's there |
 |---|---|
 | `wearable_assistant_context_bench/` | The single Python package. Adapters, judge, runner, scoring, report, statistics. |
-| `data/` | Frozen content used at runtime: `scenarios.jsonl`, `prompt_conditions.json`, `config.json`, `MANIFEST.lock.json`, `README.md` (dataset card). |
+| `data/` | Frozen content used at runtime: `wacb.jsonl`, `prompt_conditions.json`, `config.json`, `MANIFEST.lock.json`, `README.md` (dataset card). |
 | `runs/` | Published baseline run results. One subdirectory per run; each contains `findings.md` and `summary.json`. |
 | `tests/` | Five test files mirroring module names: `test_adapters.py`, `test_llm_judge.py`, `test_metrics.py`, `test_runner.py`, `test_schema.py`, plus `conftest.py`. |
 | `scripts/` | Two ongoing utilities: `validate_scenarios.py` (CI validator) and `regen_manifest_lock.py` (lockfile refresh). |
@@ -358,7 +358,7 @@ Integer counter for the on-disk scenario format. Currently `1`. Bumps when the s
 | [`README.md`](../README.md) | Project README. Quickstart, leaderboard, code layout. |
 | [`RESULTS.md`](../RESULTS.md) | Top-level findings file consolidating the six published runs. |
 | [`docs/benchmark_spec.md`](benchmark_spec.md) | The benchmark specification — task, inputs, scoring, judge, design decisions. The "benchmark card" in the academic paper-card sense. |
-| [`docs/schema.md`](schema.md) | The JSON Lines schema reference for `data/scenarios.jsonl`. Field-by-field type and meaning. |
+| [`docs/schema.md`](schema.md) | The JSON Lines schema reference for `data/wacb.jsonl`. Field-by-field type and meaning. |
 | [`docs/scenario_authoring_rules.md`](scenario_authoring_rules.md) | Authoring rules for new scenarios + the validation checklist. |
 | [`docs/api_keys.md`](api_keys.md) | Provider-specific environment-variable setup. |
 | [`docs/running_open_weights.md`](running_open_weights.md) | Instructions for running open-weight Hugging Face models via LiteLLM. |

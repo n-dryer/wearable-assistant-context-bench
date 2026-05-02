@@ -59,7 +59,7 @@ from wearable_assistant_context_bench.scoring import score_response
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "data"
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "runs" / "latest"
-SCENARIOS_PATH = DATA_DIR / "scenarios.jsonl"
+SCENARIOS_PATH = DATA_DIR / "wacb.jsonl"
 PROMPT_CONDITIONS_PATH = DATA_DIR / "prompt_conditions.json"
 DEFAULT_CONFIG_PATH = DATA_DIR / "config.json"
 
@@ -132,7 +132,7 @@ class AnswerSet:
 
 @dataclass
 class Scenario:
-    """One scenario record loaded from ``scenarios.jsonl``.
+    """One scenario record loaded from ``wacb.jsonl``.
 
     JSON line schema (one object per line):
         scenario_id: str
@@ -185,7 +185,7 @@ class Scenario:
 def load_scenarios(
     path: Path = SCENARIOS_PATH, subset: str | None = None
 ) -> list[Scenario]:
-    """Load scenarios from ``scenarios.jsonl``, optionally filtered by subset.
+    """Load scenarios from ``wacb.jsonl``, optionally filtered by subset.
 
     Each line is one JSON object. When ``subset`` is non-None, only
     records whose ``subset`` field matches are returned.
