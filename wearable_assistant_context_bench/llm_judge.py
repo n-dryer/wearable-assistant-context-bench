@@ -35,7 +35,7 @@ JUDGE_MODEL_ID_GEMINI = "gemini-2.5-flash"
 JUDGE_MODEL_ID_OPENAI = "openai/gpt-4.1-mini"
 JUDGE_TEMPERATURE = 0.0
 JUDGE_MAX_TOKENS = 1024
-JUDGE_PROMPT_VERSION = "v0.1.0"
+JUDGE_PROMPT_VERSION = "0.1.0"
 
 
 ALLOWED_POLICIES: tuple[str, ...] = ("current", "prior", "clarify", "abstain")
